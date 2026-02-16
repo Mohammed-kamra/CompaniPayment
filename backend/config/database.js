@@ -1,6 +1,6 @@
 const { MongoClient } = require('mongodb');
 
-const uri = 'mongodb://localhost:27017';
+const uri = 'mongodb+srv://k7:Aa123456@cluster0.yvrxc0h.mongodb.net/?appName=Cluster0';
 const dbName = 'sellerbuyer';
 
 let client = null;
