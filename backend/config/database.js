@@ -1,7 +1,8 @@
 const { MongoClient } = require('mongodb');
+require('dotenv').config();
 
-const uri = 'mongodb+srv://k7:Aa123456@cluster0.yvrxc0h.mongodb.net/?appName=Cluster0';
-const dbName = 'sellerbuyer';
+const uri = process.env.MONGODB_URI 
+const dbName = process.env.DB_NAME || 'sellerbuyer';
 
 let client = null;
 let db = null;
