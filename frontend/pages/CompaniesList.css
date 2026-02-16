@@ -1,0 +1,2036 @@
+.companies-list-page {
+  min-height: calc(100vh - 72px);
+  padding: 2rem 1rem;
+  background: var(--bg-secondary);
+  width: 100%;
+  overflow-x: hidden;
+}
+
+.companies-list-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  background: var(--card-bg);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  box-shadow: var(--shadow-md);
+}
+
+.list-header {
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.list-header h1 {
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+  font-size: 2rem;
+}
+
+.export-excel-btn {
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.export-excel-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(16, 185, 129, 0.4);
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+}
+
+.export-excel-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.export-excel-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.list-subtitle {
+  color: var(--text-secondary);
+  font-size: 1rem;
+}
+
+.list-filters {
+  margin-bottom: 2rem;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  border: 1px solid var(--border-color);
+}
+
+.filters-header {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.search-box {
+  position: relative;
+  flex: 1;
+  min-width: 250px;
+}
+
+.filter-toggle-btn {
+  padding: 0.75rem 1.5rem;
+  background: var(--primary-color);
+  color: var(--bg-primary);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.filter-toggle-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.filters-panel {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-color);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filter-group label {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.filter-select,
+.filter-input {
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+}
+
+.filter-select:focus,
+.filter-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
+}
+
+.reset-filters-btn {
+  grid-column: 1 / -1;
+  padding: 0.75rem 1.5rem;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  margin-top: 0.5rem;
+}
+
+.reset-filters-btn:hover {
+  background: var(--bg-secondary);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+/* Professional Checkbox Styles */
+.select-all-checkbox,
+.company-checkbox {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: var(--primary-color);
+  border-radius: 4px;
+  border: 2px solid var(--border-color);
+  background: var(--bg-primary);
+  transition: all 0.2s ease;
+  position: relative;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+.select-all-checkbox:checked,
+.company-checkbox:checked {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' d='M2 6l3 3 5-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 12px;
+}
+
+.select-all-checkbox:hover:not(:disabled),
+.company-checkbox:hover:not(:disabled) {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
+  transform: scale(1.05);
+}
+
+.select-all-checkbox:focus,
+.company-checkbox:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.2);
+}
+
+.select-all-checkbox:disabled,
+.company-checkbox:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Delete Section - Professional Design */
+.delete-section {
+  margin-bottom: 2rem;
+  background: linear-gradient(135deg, rgba(220, 38, 38, 0.05) 0%, rgba(220, 38, 38, 0.02) 100%);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  border: 1px solid rgba(220, 38, 38, 0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.delete-section:hover {
+  border-color: rgba(220, 38, 38, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.delete-section-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.delete-toggle-btn {
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  box-shadow: 0 2px 4px rgba(220, 38, 38, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.delete-toggle-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(220, 38, 38, 0.4);
+  background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);
+}
+
+.delete-toggle-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(220, 38, 38, 0.3);
+}
+
+.selected-count {
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  background: rgba(220, 38, 38, 0.15);
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(220, 38, 38, 0.3);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.selected-count::before {
+  content: '✓';
+  color: #dc2626;
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.delete-panel {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(220, 38, 38, 0.2);
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.delete-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.bulk-delete-btn {
+  padding: 0.875rem 1.75rem;
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(220, 38, 38, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.bulk-delete-btn::before {
+  content: '🗑️';
+  font-size: 1rem;
+}
+
+.bulk-delete-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+  background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);
+}
+
+.bulk-delete-btn:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(220, 38, 38, 0.3);
+}
+
+.bulk-delete-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.clear-selection-btn {
+  padding: 0.875rem 1.75rem;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.clear-selection-btn::before {
+  content: '✕';
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.clear-selection-btn:hover:not(:disabled) {
+  background: var(--bg-secondary);
+  border-color: var(--text-secondary);
+  color: var(--text-primary);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.clear-selection-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.clear-selection-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.delete-info {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  padding: 1rem;
+  background: rgba(220, 38, 38, 0.05);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid rgba(220, 38, 38, 0.3);
+}
+
+.delete-info p {
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* Professional Delete Button for Individual Companies */
+.delete-company-btn {
+  background: transparent;
+  border: 2px solid rgba(220, 38, 38, 0.3);
+  cursor: pointer;
+  font-size: 1.1rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-sm);
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  color: rgba(220, 38, 38, 0.8);
+}
+
+.delete-company-btn:hover:not(:disabled) {
+  background: rgba(220, 38, 38, 0.1);
+  border-color: #dc2626;
+  color: #dc2626;
+  transform: scale(1.1);
+  box-shadow: 0 2px 6px rgba(220, 38, 38, 0.2);
+}
+
+.delete-company-btn:active:not(:disabled) {
+  transform: scale(1.05);
+}
+
+.delete-company-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Professional Delete Modal */
+.delete-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.delete-modal {
+  background: var(--card-bg);
+  border-radius: var(--radius-lg);
+  padding: 2.5rem;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease;
+  border: 1px solid rgba(220, 38, 38, 0.2);
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.delete-modal h3 {
+  color: #dc2626;
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.delete-modal h3::before {
+  content: '⚠️';
+  font-size: 1.5rem;
+}
+
+.delete-modal p {
+  color: var(--text-primary);
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+  font-size: 1rem;
+}
+
+.delete-modal strong {
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 2rem;
+}
+
+.confirm-delete-btn {
+  padding: 0.875rem 2rem;
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(220, 38, 38, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.confirm-delete-btn::before {
+  content: '🗑️';
+  font-size: 1rem;
+}
+
+.confirm-delete-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+  background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);
+}
+
+.confirm-delete-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.confirm-delete-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.cancel-delete-btn {
+  padding: 0.875rem 2rem;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.cancel-delete-btn:hover:not(:disabled) {
+  background: var(--bg-primary);
+  border-color: var(--text-secondary);
+  color: var(--text-primary);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.cancel-delete-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.cancel-delete-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.75rem 2.5rem 0.75rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
+}
+
+.search-icon {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-secondary);
+  pointer-events: none;
+}
+
+.companies-list {
+  overflow-x: visible;
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+}
+
+.list-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table-header {
+  display: grid;
+  grid-template-columns: 2fr 1.5fr 1fr 2fr 1.5fr 1.5fr;
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-sm);
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.table-row {
+  display: grid;
+  grid-template-columns: 2fr 1.5fr 1fr 2fr 1.5fr 1.5fr;
+  gap: 1rem;
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-color);
+  transition: background 0.2s ease;
+}
+
+/* Group table styles - 3 columns */
+.group-table-header {
+  display: grid;
+  grid-template-columns: 0.4fr 0.4fr 1.2fr 1.8fr 1.2fr 0.6fr 1.2fr 0.8fr 0.8fr 0.8fr;
+  gap: 0.5rem;
+  padding: 0.625rem 0.875rem;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-sm);
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.group-table-row {
+  display: grid;
+  grid-template-columns: 0.4fr 0.4fr 1.2fr 1.8fr 1.2fr 0.6fr 1.2fr 0.8fr 0.8fr 0.8fr;
+  gap: 0.5rem;
+  padding: 0.625rem 0.875rem;
+  border-bottom: 1px solid var(--border-color);
+  transition: background 0.2s ease;
+}
+
+.group-table-row:hover {
+  background: var(--bg-secondary);
+}
+
+.table-row:hover {
+  background: var(--bg-secondary);
+}
+
+.table-cell {
+  display: flex;
+  align-items: center;
+  color: var(--text-primary);
+  word-break: break-word;
+}
+
+.company-name-cell {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.company-logo-small {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  border: 1px solid var(--border-color);
+}
+
+.registrant-name {
+  font-weight: 500;
+  color: var(--text-primary);
+  font-size: 0.95em;
+}
+
+.company-name {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.company-name.clickable {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-sm);
+  display: inline-block;
+}
+
+.company-name.clickable:hover {
+  background: rgba(var(--primary-rgb), 0.1);
+  color: var(--primary-color);
+  transform: translateY(-1px);
+}
+
+.company-name.clickable:active {
+  transform: translateY(0);
+}
+
+.company-name.paid-strikethrough,
+.phone-number.paid-strikethrough,
+.company-code.paid-strikethrough {
+  text-decoration: line-through;
+  opacity: 0.7;
+  color: var(--text-secondary, #999);
+}
+
+.phone-number.clickable {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0.15rem 0.4rem;
+  border-radius: var(--radius-sm);
+  display: inline-block;
+  color: var(--primary-color);
+  font-weight: 500;
+  text-decoration: none;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.phone-number.clickable:hover {
+  background: rgba(37, 211, 102, 0.1);
+  color: #25d366;
+  transform: translateY(-1px);
+  text-decoration: underline;
+}
+
+.phone-number.clickable:active {
+  transform: translateY(0);
+}
+
+.company-code {
+  font-weight: 600;
+  color: var(--primary-color);
+  font-family: 'Courier New', monospace;
+  font-size: 1.1em;
+}
+
+.registration-date {
+  color: var(--text-secondary);
+  font-size: 0.9em;
+}
+
+.website-link {
+  color: var(--primary-color);
+  text-decoration: none;
+  word-break: break-all;
+  transition: color 0.2s ease;
+}
+
+.website-link:hover {
+  color: var(--primary-hover);
+  text-decoration: underline;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--text-secondary);
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+}
+
+.loading {
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+}
+
+.error-message {
+  background: var(--error-bg);
+  color: var(--error-color);
+  padding: 1rem;
+  border-radius: var(--radius-sm);
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--error-color);
+}
+
+@media (max-width: 1200px) {
+  .table-header,
+  .table-row {
+    grid-template-columns: 2fr 1.5fr 1fr 2fr;
+  }
+
+  .table-header .table-cell:nth-child(5),
+  .table-header .table-cell:nth-child(6),
+  .table-row .table-cell:nth-child(5),
+  .table-row .table-cell:nth-child(6) {
+    display: none;
+  }
+}
+
+/* Group Sections */
+.group-section {
+  margin-bottom: 2.5rem;
+  padding: 1.5rem;
+  border: 2px solid var(--primary-color);
+  border-radius: var(--radius-lg);
+  background: var(--card-bg);
+  box-shadow: var(--shadow-md);
+}
+
+.group-section-title {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  color: var(--primary-color);
+  font-size: 1.5rem;
+  font-weight: 700;
+  border-bottom: 2px solid var(--primary-color);
+  padding-bottom: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  position: relative;
+}
+
+.company-rank {
+  background: var(--primary-color);
+  color: var(--bg-primary);
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  font-size: 0.9rem;
+  min-width: 2rem;
+  text-align: center;
+  display: inline-block;
+}
+
+.group-name {
+  flex: 0 0 auto;
+}
+
+.group-payment-date {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  font-weight: 500;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.group-company-count {
+  color: var(--primary-color);
+  font-size: 1.1rem;
+  font-weight: 700;
+  background: rgba(59, 130, 246, 0.15);
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-md);
+  border: 2px solid rgba(59, 130, 246, 0.3);
+  margin-left: auto;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  box-shadow: 0 2px 6px rgba(59, 130, 246, 0.2);
+  transition: all 0.3s ease;
+}
+
+.group-company-count:hover {
+  background: rgba(59, 130, 246, 0.2);
+  border-color: rgba(59, 130, 246, 0.5);
+  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+  transform: translateY(-1px);
+}
+
+/* Registered Companies Table Styles */
+/* ============================================
+   STRICT FIX FOR REGISTERED COMPANIES TABLE
+   Perfect Alignment, Centered Text, Consistent Height
+   Gold & Black Theme
+   ============================================ */
+
+.registered-companies-table {
+  width: 100% !important;
+  max-width: 100% !important;
+  table-layout: fixed !important;
+  border-collapse: collapse !important;
+  border-spacing: 0 !important;
+  box-sizing: border-box !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  border: 1px solid #E5C76B !important;
+}
+
+/* Remove scroll from registered companies table container */
+.professional-table-container .registered-companies-table {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: hidden !important;
+}
+
+/* Prevent horizontal overflow */
+.companies-list .professional-table-container,
+.professional-table-container {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: hidden !important;
+  overflow-y: visible !important;
+  box-sizing: border-box !important;
+}
+
+/* ============================================
+   PERFECT ALIGNMENT - ALL HEADERS AND CELLS
+   ============================================ */
+
+/* All Table Headers - Centered - Gold & Black Theme */
+.registered-companies-table thead tr th {
+  display: table-cell !important;
+  width: auto !important;
+  height: 60px !important;
+  min-height: 60px !important;
+  max-height: 60px !important;
+  padding: 0.75rem 0.5rem !important;
+  margin: 0 !important;
+  border: 1px solid #E5C76B !important;
+  border-collapse: collapse !important;
+  box-sizing: border-box !important;
+  vertical-align: middle !important;
+  text-align: center !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow: hidden !important;
+  text-overflow: clip !important;
+  line-height: 1.4 !important;
+  font-weight: 600 !important;
+  font-size: 0.875rem !important;
+  background: #000000 !important;
+  color: #E5C76B !important;
+}
+
+/* All Table Cells - Centered - Gold Borders */
+.registered-companies-table tbody tr td {
+  display: table-cell !important;
+  width: auto !important;
+  height: 60px !important;
+  min-height: 60px !important;
+  max-height: 60px !important;
+  padding: 0.75rem 0.5rem !important;
+  margin: 0 !important;
+  border: 1px solid #E5C76B !important;
+  border-collapse: collapse !important;
+  box-sizing: border-box !important;
+  vertical-align: middle !important;
+  text-align: center !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow: hidden !important;
+  text-overflow: clip !important;
+  line-height: 1.4 !important;
+  font-size: 0.875rem !important;
+  background: var(--bg-secondary, #ffffff) !important;
+  color: var(--text-primary, #1f2937) !important;
+}
+
+/* All Table Rows - Consistent Height */
+.registered-companies-table tbody tr {
+  display: table-row !important;
+  height: 60px !important;
+  min-height: 60px !important;
+  max-height: 60px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  box-sizing: border-box !important;
+  transition: background-color 0.2s ease;
+}
+
+/* ============================================
+   COMPANY NAME COLUMN - TEXT WRAPPING
+   ============================================ */
+
+/* Company Name Column (4th column) - Allow wrapping */
+.registered-companies-table thead tr th:nth-child(4),
+.registered-companies-table tbody tr td:nth-child(4) {
+  width: 200px !important;
+  max-width: 200px !important;
+  min-width: 200px !important;
+  word-break: break-word !important;
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+  white-space: normal !important;
+  text-align: center !important;
+  vertical-align: middle !important;
+}
+
+/* Company Name Cell - Force wrapping - Gold Border */
+.registered-companies-table .company-name-cell {
+  display: table-cell !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  height: 60px !important;
+  min-height: 60px !important;
+  max-height: 60px !important;
+  padding: 0.75rem 0.5rem !important;
+  margin: 0 !important;
+  border: 1px solid #E5C76B !important;
+  box-sizing: border-box !important;
+  vertical-align: middle !important;
+  text-align: center !important;
+  word-break: break-word !important;
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+  white-space: normal !important;
+  overflow: hidden !important;
+  text-overflow: clip !important;
+  line-height: 1.4 !important;
+}
+
+/* Company Name Text - Center and wrap */
+.registered-companies-table .company-name-cell span,
+.registered-companies-table .company-name-cell .company-name {
+  display: inline-block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  vertical-align: middle !important;
+  text-align: center !important;
+  word-break: break-word !important;
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+  white-space: normal !important;
+  line-height: 1.4 !important;
+  box-sizing: border-box !important;
+}
+
+/* Company Name Image - Center aligned */
+.registered-companies-table .company-name-cell img {
+  display: inline-block !important;
+  vertical-align: middle !important;
+  margin: 0 0.25rem !important;
+  max-width: 40px !important;
+  max-height: 24px !important;
+  width: auto !important;
+  height: auto !important;
+  box-sizing: border-box !important;
+}
+
+/* ============================================
+   INTERNAL ELEMENTS - CENTERED
+   ============================================ */
+
+/* All internal elements in cells - centered */
+.registered-companies-table td *,
+.registered-companies-table th * {
+  display: inline-block !important;
+  vertical-align: middle !important;
+  text-align: center !important;
+  margin: 0 auto !important;
+  box-sizing: border-box !important;
+  max-width: 100% !important;
+}
+
+/* Specific elements */
+.registered-companies-table td span,
+.registered-companies-table td code,
+.registered-companies-table td strong,
+.registered-companies-table td em,
+.registered-companies-table td button {
+  display: inline-block !important;
+  vertical-align: middle !important;
+  text-align: center !important;
+  margin: 0 auto !important;
+  word-break: break-word !important;
+  box-sizing: border-box !important;
+}
+
+/* Checkbox cell - centered */
+.registered-companies-table .checkbox-cell {
+  display: table-cell !important;
+  text-align: center !important;
+  vertical-align: middle !important;
+  padding: 0.75rem 0.5rem !important;
+}
+
+.registered-companies-table .checkbox-cell input[type="checkbox"] {
+  display: inline-block !important;
+  margin: 0 auto !important;
+  vertical-align: middle !important;
+  text-align: center !important;
+}
+
+/* Remove overflow from container when it contains registered companies table */
+.companies-list .professional-table-container {
+  overflow-x: visible;
+  overflow-y: visible;
+}
+
+/* Gold Hover Effect */
+.registered-company-row:hover {
+  background: rgba(229, 199, 107, 0.1) !important;
+  transition: background-color 0.2s ease;
+}
+
+.registered-company-row:hover td {
+  background: rgba(229, 199, 107, 0.1) !important;
+  transition: background-color 0.2s ease;
+}
+
+/* Row background colors for spent and paid status */
+.registered-company-row.row-spent {
+  background: rgba(220, 38, 38, 0.1) !important;
+}
+
+.registered-company-row.row-spent td {
+  background: rgba(220, 38, 38, 0.1) !important;
+}
+
+.registered-company-row.row-paid {
+  background: rgba(16, 185, 129, 0.1) !important;
+}
+
+.registered-company-row.row-paid td {
+  background: rgba(16, 185, 129, 0.1) !important;
+}
+
+/* When both spent and paid, use paid color (higher priority) */
+.registered-company-row.row-spent.row-paid {
+  background: rgba(16, 185, 129, 0.15) !important;
+}
+
+.registered-company-row.row-spent.row-paid td {
+  background: rgba(16, 185, 129, 0.15) !important;
+}
+
+.registered-company-row.row-spent:hover,
+.registered-company-row.row-paid:hover,
+.registered-company-row.row-spent.row-paid:hover {
+  opacity: 0.9;
+  background: rgba(229, 199, 107, 0.15) !important;
+}
+
+.registered-company-row.row-spent:hover td,
+.registered-company-row.row-paid:hover td,
+.registered-company-row.row-spent.row-paid:hover td {
+  background: rgba(229, 199, 107, 0.15) !important;
+}
+
+.checkbox-cell {
+  text-align: center;
+  padding: 0.5rem !important;
+}
+
+.checkbox-cell input[type="checkbox"] {
+  margin: 0;
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+}
+
+/* Company logo in table */
+.company-logo-small {
+  max-height: 24px;
+  max-width: 40px;
+  vertical-align: middle;
+  margin-right: 0.5rem;
+  display: inline-block;
+}
+
+/* Old styles removed - using strict fix above */
+
+.registered-companies-table td span,
+.registered-companies-table td code {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* Compact Delete Button for Registered Companies Table */
+.registered-companies-table .delete-company-btn,
+.registered-companies-table .delete-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: #ffffff;
+  border: none;
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.75rem;
+  line-height: 1;
+  white-space: nowrap;
+  min-width: 32px;
+  width: 32px;
+  height: 32px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 3px rgba(239, 68, 68, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Action icon button styles */
+.registered-companies-table .action-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  border: none;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  min-width: 32px;
+  width: 32px;
+  height: 32px;
+  background: transparent;
+}
+
+.registered-companies-table .action-icon {
+  width: 16px;
+  height: 16px;
+  transition: transform 0.2s ease;
+}
+
+/* Delete icon button */
+.registered-companies-table .delete-icon-btn {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: #ffffff;
+  box-shadow: 0 1px 3px rgba(239, 68, 68, 0.3);
+}
+
+.registered-companies-table .delete-icon-btn .action-icon {
+  fill: #ffffff;
+}
+
+/* Hover State */
+.registered-companies-table .delete-company-btn:hover:not(:disabled),
+.registered-companies-table .delete-button:hover:not(:disabled),
+.registered-companies-table .delete-icon-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  transform: translateY(-1px) scale(1.05);
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.4);
+}
+
+.registered-companies-table .delete-icon-btn:hover:not(:disabled) .action-icon {
+  transform: scale(1.1);
+}
+
+/* Active/Pressed State */
+.registered-companies-table .delete-company-btn:active:not(:disabled),
+.registered-companies-table .delete-button:active:not(:disabled),
+.registered-companies-table .delete-icon-btn:active:not(:disabled) {
+  transform: translateY(0) scale(0.95);
+  box-shadow: 0 1px 2px rgba(239, 68, 68, 0.3);
+}
+
+/* Focus State for Accessibility */
+.registered-companies-table .delete-company-btn:focus-visible,
+.registered-companies-table .delete-button:focus-visible {
+  outline: 2px solid rgba(239, 68, 68, 0.5);
+  outline-offset: 2px;
+}
+
+/* Disabled State */
+.registered-companies-table .delete-company-btn:disabled,
+.registered-companies-table .delete-button:disabled,
+.registered-companies-table .delete-icon-btn:disabled {
+  background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.registered-companies-table .delete-icon-btn:disabled .action-icon {
+  opacity: 0.5;
+}
+
+/* RTL Support for Registered Companies Table - Maintain Center Alignment */
+[dir="rtl"] .registered-companies-table thead tr th,
+[dir="rtl"] .registered-companies-table tbody tr td {
+  text-align: center !important;
+  vertical-align: middle !important;
+}
+
+[dir="rtl"] .registered-companies-table .company-name-cell img {
+  margin-right: 0.25rem !important;
+  margin-left: 0.25rem !important;
+}
+
+[dir="rtl"] .registered-companies-table .delete-company-btn,
+[dir="rtl"] .registered-companies-table .delete-button,
+[dir="rtl"] .registered-companies-table .delete-icon-btn {
+  flex-direction: row-reverse;
+}
+
+/* Status Toggle Buttons */
+.status-toggle {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--border-color);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.status-toggle:hover:not(:disabled) {
+  transform: scale(1.1);
+  box-shadow: var(--shadow-md);
+}
+
+.status-toggle:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.status-toggle.spent-toggle.active {
+  background: var(--danger-color);
+  border-color: var(--danger-color);
+  color: white;
+}
+
+.status-toggle.paid-toggle.active {
+  background: var(--success-color);
+  border-color: var(--success-color);
+  color: white;
+}
+
+.status-toggle.spent-toggle:not(.active):hover {
+  border-color: var(--danger-color);
+  background: rgba(220, 38, 38, 0.1);
+}
+
+.status-toggle.paid-toggle:not(.active):hover {
+  border-color: var(--success-color);
+  background: rgba(16, 185, 129, 0.1);
+}
+
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+  .companies-list-page {
+    padding: 0.75rem 0.5rem;
+    min-height: calc(100vh - 60px);
+  }
+
+  .companies-list-container {
+    padding: 1rem 0.75rem;
+    border-radius: var(--radius-md);
+  }
+
+  /* Header */
+  .list-header h1 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .header-content {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .export-excel-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 1rem;
+    font-size: 1rem;
+    min-height: 48px; /* Better touch target */
+  }
+
+  .list-subtitle {
+    font-size: 0.9rem;
+  }
+
+  /* Filters */
+  .list-filters {
+    padding: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .filters-header {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .search-box {
+    min-width: 100%;
+    width: 100%;
+  }
+
+  .search-input {
+    padding: 0.875rem 1rem;
+    font-size: 1rem; /* Prevents zoom on iOS */
+    min-height: 48px;
+  }
+
+  .filter-toggle-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 1rem;
+    font-size: 1rem;
+    min-height: 48px;
+  }
+
+  .filters-panel {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+  }
+
+  .filter-group label {
+    font-size: 0.9rem;
+  }
+
+  .filter-select,
+  .filter-input {
+    padding: 0.875rem;
+    font-size: 1rem; /* Prevents zoom on iOS */
+    min-height: 48px;
+  }
+
+  .reset-filters-btn {
+    grid-column: 1;
+    width: 100%;
+    padding: 1rem;
+    min-height: 48px;
+    font-size: 1rem;
+  }
+
+  /* Group Sections */
+  .group-section {
+    padding: 1rem 0.75rem;
+    margin-bottom: 1.5rem;
+    border-width: 1px;
+  }
+
+  .group-section-title {
+    font-size: 1.1rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding-bottom: 0.75rem;
+  }
+
+  .group-payment-date {
+    position: static;
+    transform: none;
+    font-size: 0.85rem;
+  }
+
+  .group-company-count {
+    font-size: 0.95rem;
+    padding: 0.3rem 0.6rem;
+    margin-left: 0;
+    width: 100%;
+    justify-content: center;
+    margin-top: 0.5rem;
+  }
+
+  /* Table Headers - Hide on mobile */
+  .table-header,
+  .group-table-header {
+    display: none;
+  }
+
+  /* Table Rows - Convert to cards on mobile */
+  .table-row,
+  .group-table-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1.25rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    margin-bottom: 1rem;
+    background: var(--bg-primary);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+  }
+
+  .table-row:active,
+  .group-table-row:active {
+    transform: scale(0.98);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Table Cells - Stack vertically with labels */
+  .table-cell,
+  .group-table-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.375rem;
+    width: 100%;
+    padding: 0.625rem 0;
+    border-bottom: 1px solid rgba(var(--border-color-rgb, 255, 255, 255), 0.15);
+    min-height: 44px; /* Minimum touch target */
+    justify-content: center;
+  }
+
+  .table-cell:last-child,
+  .group-table-cell:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  .table-cell::before,
+  .group-table-cell::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.25rem;
+  }
+
+  .group-table-cell.checkbox-cell::before {
+    display: none;
+  }
+
+  /* Touch target improvements for checkboxes */
+  .group-table-row .company-checkbox {
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    min-height: 28px;
+    -webkit-tap-highlight-color: rgba(var(--primary-rgb), 0.2);
+  }
+
+  /* Checkbox cell - position at top right corner */
+  .group-table-row {
+    position: relative;
+    padding-top: 2.75rem; /* Space for checkbox at top */
+  }
+
+  .group-table-row .group-table-cell.checkbox-cell {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    width: auto;
+    padding: 0.25rem;
+    border: none;
+    background: rgba(var(--bg-primary-rgb, 26, 26, 46), 0.95);
+    backdrop-filter: blur(8px);
+    border-radius: var(--radius-sm);
+    z-index: 10;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  .group-table-row .group-table-cell.checkbox-cell::before {
+    display: none;
+  }
+
+  /* Ensure first data cell starts after checkbox */
+  .group-table-row > .group-table-cell:not(.checkbox-cell) {
+    margin-top: 0;
+  }
+
+  .select-all-checkbox,
+  .company-checkbox {
+    width: 24px;
+    height: 24px;
+  }
+
+  /* Company Rank */
+  .company-rank {
+    font-size: 1rem;
+    padding: 0.375rem 0.625rem;
+  }
+
+  /* Company Name Cell */
+  .company-name-cell {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+  }
+
+  .company-logo-small {
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+  }
+
+  .company-name {
+    font-size: 1rem;
+    line-height: 1.4;
+  }
+
+  .registrant-name {
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  /* Phone Number */
+  .phone-number.clickable {
+    font-size: 1rem;
+    padding: 0.5rem 0.75rem;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  /* Company Code */
+  .company-code {
+    font-size: 1.1rem;
+  }
+
+  /* Registration Date */
+  .registration-date {
+    font-size: 0.95rem;
+  }
+
+  /* Status Toggle Buttons - Larger for mobile touch targets */
+  .status-toggle {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    min-height: 48px;
+    font-size: 20px;
+    border-width: 3px;
+    -webkit-tap-highlight-color: rgba(var(--primary-rgb), 0.2);
+  }
+
+  .status-toggle:focus-visible {
+    outline: 3px solid rgba(var(--primary-rgb), 0.5);
+    outline-offset: 2px;
+  }
+
+  /* Action Buttons - Touch friendly */
+  .delete-company-btn {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    min-height: 48px;
+    font-size: 1.25rem;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-md);
+    border: 2px solid var(--error-color);
+    background: transparent;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    -webkit-tap-highlight-color: rgba(220, 38, 38, 0.2);
+  }
+
+  .delete-company-btn:active,
+  .delete-company-btn:focus-visible {
+    background: var(--error-color);
+    transform: scale(0.95);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.3);
+  }
+
+  /* Delete Section */
+  .delete-section {
+    padding: 1rem 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .delete-section-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .selected-count {
+    font-size: 0.9rem;
+    text-align: center;
+    padding: 0.5rem;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-sm);
+  }
+
+  .delete-toggle-btn {
+    width: 100%;
+    padding: 1rem;
+    min-height: 48px;
+    font-size: 1rem;
+    justify-content: center;
+  }
+
+  .delete-panel {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+  }
+
+  .delete-actions {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .bulk-delete-btn,
+  .clear-selection-btn {
+    width: 100%;
+    padding: 1rem;
+    min-height: 48px;
+    font-size: 1rem;
+    justify-content: center;
+  }
+
+  .delete-info {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+  }
+
+  /* Delete Modal */
+  .delete-modal-overlay {
+    padding: 1rem;
+    align-items: flex-end; /* Bottom sheet style on mobile */
+  }
+
+  .delete-modal {
+    padding: 1.5rem;
+    width: 100%;
+    max-width: 100%;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .delete-modal h3 {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+  }
+
+  .delete-modal p {
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+  }
+
+  .modal-actions {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .confirm-delete-btn,
+  .cancel-delete-btn {
+    width: 100%;
+    padding: 1rem;
+    min-height: 48px;
+    font-size: 1rem;
+    justify-content: center;
+  }
+
+  /* Success Message */
+  .success-message {
+    font-size: 0.9rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  /* Error Message */
+  .error-message {
+    padding: 1rem;
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
+  }
+
+  /* Empty State */
+  .empty-state {
+    padding: 2rem 1rem;
+    font-size: 1rem;
+  }
+
+  /* Loading */
+  .loading-container {
+    min-height: 300px;
+  }
+
+  .loading {
+    font-size: 1rem;
+  }
+
+  /* Groups Card Container - if exists */
+  .groups-card-container {
+    grid-template-columns: 1fr;
+  }
+
+  /* Scroll improvements for mobile */
+  .companies-list {
+    overflow-x: visible;
+    width: 100%;
+  }
+
+  .companies-list-page {
+    overflow-x: hidden;
+  }
+
+  .group-companies-table {
+    overflow-x: visible;
+  }
+
+  /* Better spacing for mobile cards */
+  .group-section {
+    margin-bottom: 1.25rem;
+  }
+
+  /* Registered Companies Table - Mobile Responsive */
+  .registered-companies-table {
+    table-layout: fixed !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .registered-companies-table thead tr th,
+  .registered-companies-table tbody tr td {
+    display: table-cell !important;
+    height: 60px !important;
+    min-height: 60px !important;
+    max-height: 60px !important;
+    padding: 0.625rem 0.375rem !important;
+    font-size: 0.8125rem !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+    word-break: break-word !important;
+  }
+
+  /* Company Name Column on Mobile */
+  .registered-companies-table thead tr th:nth-child(4),
+  .registered-companies-table tbody tr td:nth-child(4) {
+    width: 200px !important;
+    max-width: 200px !important;
+    min-width: 200px !important;
+  }
+
+  /* Prevent horizontal scroll on mobile */
+  .companies-list .professional-table-container,
+  .professional-table-container {
+    overflow-x: hidden !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* Compact delete button on mobile */
+  .registered-companies-table .delete-company-btn,
+  .registered-companies-table .delete-button,
+  .registered-companies-table .delete-icon-btn {
+    padding: 0.375rem;
+    min-width: 28px;
+    width: 28px;
+    height: 28px;
+  }
+
+  .registered-companies-table .delete-icon-btn .action-icon {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* Company name wrapping */
+  .company-name {
+    word-break: break-word;
+    hyphens: auto;
+    line-height: 1.4;
+  }
+
+  /* Phone number - full width on mobile */
+  .phone-number.clickable {
+    width: 100%;
+    justify-content: flex-start;
+    text-align: left;
+  }
+
+  /* RTL Support for mobile */
+  [dir="rtl"] .registered-companies-table td {
+    text-align: right;
+  }
+
+  /* RTL Support - Maintain Center Alignment on Mobile */
+  [dir="rtl"] .registered-companies-table thead tr th,
+  [dir="rtl"] .registered-companies-table tbody tr td {
+    text-align: center !important;
+    vertical-align: middle !important;
+  }
+}
+
+/* Extra Small Mobile (phones in portrait) */
+@media (max-width: 480px) {
+  .companies-list-page {
+    padding: 0.5rem 0.25rem;
+  }
+
+  .companies-list-container {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .list-header h1 {
+    font-size: 1.25rem;
+  }
+
+  .group-section-title {
+    font-size: 1rem;
+    line-height: 1.3;
+  }
+
+  .group-name {
+    font-size: 1rem;
+  }
+
+  .table-row,
+  .group-table-row {
+    padding: 1rem 0.75rem;
+  }
+
+  .group-table-row {
+    padding-top: 2.5rem;
+  }
+
+  .company-name {
+    font-size: 0.95rem;
+  }
+
+  .registrant-name {
+    font-size: 0.95rem;
+  }
+
+  .table-cell::before,
+  .group-table-cell::before {
+    font-size: 0.75rem;
+    margin-bottom: 0.375rem;
+  }
+
+  .table-cell,
+  .group-table-cell {
+    padding: 0.5rem 0;
+    gap: 0.25rem;
+  }
+
+  .status-toggle {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    font-size: 18px;
+  }
+
+  .delete-company-btn {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    font-size: 1.1rem;
+  }
+
+  .group-table-row .company-checkbox {
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    min-height: 24px;
+  }
+
+  /* Compact filters on very small screens */
+  .filters-panel {
+    gap: 0.75rem;
+  }
+
+  .filter-group label {
+    font-size: 0.85rem;
+  }
+
+  .filter-select,
+  .filter-input {
+    font-size: 0.95rem;
+    padding: 0.75rem;
+  }
+}
+
+/* Landscape mobile optimization */
+@media (max-width: 768px) and (orientation: landscape) {
+  .companies-list-page {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .table-row,
+  .group-table-row {
+    padding: 0.875rem 1rem;
+  }
+
+  .group-table-row {
+    padding-top: 2.25rem;
+  }
+
+  .table-cell,
+  .group-table-cell {
+    padding: 0.5rem 0;
+    gap: 0.25rem;
+  }
+}

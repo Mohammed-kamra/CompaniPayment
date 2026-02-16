@@ -1,0 +1,86 @@
+<!-- ============================================
+     EXAMPLE HTML STRUCTURE FOR PROFESSIONAL TABLE
+     Use this as a reference when creating new tables
+     ============================================ -->
+
+<!-- Step 1: Import the global CSS -->
+<!-- In your React component, add: -->
+<!-- import '../styles/global-tables.css' -->
+
+<!-- Step 2: Wrap your table in the container -->
+<div className="professional-table-container">
+  
+  <!-- Step 3: Create the table with professional-table class -->
+  <table className="professional-table">
+    
+    <!-- Step 4: Define table headers with alignment classes -->
+    <thead>
+      <tr>
+        <!-- Use text-left, text-center, or text-right for alignment -->
+        <th className="text-left">Company Name</th>
+        <th className="text-center">Code</th>
+        <th className="text-left">Contact Name</th>
+        <th className="text-left">Phone Number</th>
+        <th className="text-center">Added Date</th>
+        <th className="text-center">Status</th>
+        <th className="text-center">Actions</th>
+      </tr>
+    </thead>
+    
+    <!-- Step 5: Define table body with matching alignment -->
+    <tbody>
+      <tr>
+        <!-- Match alignment classes with headers -->
+        <td className="text-left company-name-cell">Company ABC</td>
+        <td className="text-center code-cell">
+          <code>1234</code>
+        </td>
+        <td className="text-left">John Doe</td>
+        <td className="text-left">+1234567890</td>
+        <td className="text-center">15/01/2024</td>
+        <td className="text-center">
+          <span className="status-badge unregistered">Unregistered</span>
+        </td>
+        <td className="text-center actions-cell">
+          <button className="table-action-button">Edit</button>
+          <button className="table-action-button">Delete</button>
+        </td>
+      </tr>
+      
+      <!-- More rows... -->
+      <tr>
+        <td className="text-left company-name-cell">Company XYZ</td>
+        <td className="text-center code-cell">
+          <code>5678</code>
+        </td>
+        <td className="text-left">Jane Smith</td>
+        <td className="text-left">+0987654321</td>
+        <td className="text-center">16/01/2024</td>
+        <td className="text-center">
+          <span className="status-badge unregistered">Unregistered</span>
+        </td>
+        <td className="text-center actions-cell">
+          <button className="table-action-button">Edit</button>
+          <button className="table-action-button">Delete</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ============================================
+     KEY POINTS:
+     
+     1. Always use .professional-table-container wrapper
+     2. Always use .professional-table class on <table>
+     3. Use alignment classes (text-left, text-center, text-right) 
+        on both <th> and <td> elements
+     4. Match alignment: if header is text-center, cell should be text-center
+     5. Use utility classes:
+        - .company-name-cell for company names
+        - .code-cell with <code> tag for codes
+        - .status-badge for status indicators
+        - .actions-cell for action buttons
+     6. Keep internal elements simple - avoid nested divs with margins
+     7. All padding, borders, and alignment are handled by the global CSS
+     ============================================ -->

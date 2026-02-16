@@ -1,0 +1,17 @@
+{
+  "name": "fullstack-app",
+  "version": "1.0.0",
+  "description": "Full-stack application with React frontend and MongoDB backend",
+  "scripts": {
+    "start": "npm run start:backend",
+    "start:frontend": "cd frontend && npm start",
+    "start:backend": "cd backend && npm start",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && npm run dev",
+    "test:connection": "cd backend && npm run test-connection",
+    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install"
+  },
+  "keywords": [],
+  "author": "Mohammed Kamaran",
+  "license": "ISC"
+}

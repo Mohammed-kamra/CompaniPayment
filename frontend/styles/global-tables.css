@@ -1,0 +1,1179 @@
+/* ============================================
+   GLOBAL PROFESSIONAL TABLE STYLES
+   Use this class (.professional-table) for all tables
+   to ensure perfect alignment and consistent styling
+   ============================================ */
+
+/* ============================================
+   STRICT GRID ALIGNMENT FIX - OVERRIDES ALL PREVIOUS STYLES
+   This ensures perfect grid alignment for ALL tables
+   ============================================ */
+
+/* ============================================
+   GLOBAL GOLD & BLACK THEME FOR ALL TABLES
+   Unified styling for all tables across the website
+   ============================================ */
+
+/* Reset and Force Strict Table Layout - Gold & Black Theme */
+table,
+.professional-table,
+table.professional-table,
+.global-table {
+  width: 100% !important;
+  max-width: 100% !important;
+  border-collapse: collapse !important;
+  border-spacing: 0 !important;
+  table-layout: fixed !important;
+  box-sizing: border-box !important;
+  border: 1px solid #E5C76B !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
+/* Force Box-Sizing for All Table Elements */
+table *,
+table *::before,
+table *::after,
+.professional-table *,
+.professional-table *::before,
+.professional-table *::after {
+  box-sizing: border-box !important;
+}
+
+/* Strict Header Cell Alignment - Gold & Black Theme */
+th,
+.professional-table th,
+table th,
+.global-table th {
+  box-sizing: border-box !important;
+  border: 1px solid #E5C76B !important;
+  padding: 0.75rem 0.5rem !important;
+  margin: 0 !important;
+  vertical-align: middle !important;
+  text-align: center !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow: hidden !important;
+  text-overflow: clip !important;
+  line-height: 1.4 !important;
+  height: 60px !important;
+  min-height: 60px !important;
+  max-height: 60px !important;
+  background: #000000 !important;
+  color: #E5C76B !important;
+  font-weight: 600 !important;
+  font-size: 0.875rem !important;
+  position: relative !important;
+  display: table-cell !important;
+}
+
+/* Strict Body Cell Alignment - Gold & Black Theme */
+td,
+.professional-table td,
+table td,
+.global-table td {
+  box-sizing: border-box !important;
+  border: 1px solid #E5C76B !important;
+  padding: 0.75rem 0.5rem !important;
+  margin: 0 !important;
+  vertical-align: middle !important;
+  text-align: center !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow: hidden !important;
+  text-overflow: clip !important;
+  line-height: 1.4 !important;
+  height: 60px !important;
+  min-height: 60px !important;
+  max-height: 60px !important;
+  background: var(--bg-secondary, #ffffff) !important;
+  color: var(--text-primary, #1f2937) !important;
+  position: relative !important;
+  display: table-cell !important;
+}
+
+/* Force Equal Row Height - Gold & Black Theme */
+tr,
+.professional-table tr,
+table tr,
+.global-table tr {
+  box-sizing: border-box !important;
+  height: 60px !important;
+  min-height: 60px !important;
+  max-height: 60px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  display: table-row !important;
+  transition: background-color 0.2s ease;
+}
+
+/* Ensure Table Body Rows Have Consistent Height */
+tbody tr,
+.professional-table tbody tr,
+table tbody tr,
+.global-table tbody tr {
+  height: 60px !important;
+  min-height: 60px !important;
+  max-height: 60px !important;
+}
+
+tbody tr td,
+.professional-table tbody tr td,
+table tbody tr td,
+.global-table tbody tr td {
+  height: 60px !important;
+  min-height: 60px !important;
+  max-height: 60px !important;
+}
+
+/* Remove All Nested Element Interference */
+td *,
+th *,
+.professional-table td *,
+.professional-table th *,
+table td *,
+table th * {
+  box-sizing: border-box !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  vertical-align: middle !important;
+  line-height: inherit !important;
+  border: none !important;
+  display: inline-block !important;
+  max-width: 100% !important;
+}
+
+/* Remove Borders from Nested Elements */
+td span,
+td div,
+td code,
+td strong,
+td em,
+td a,
+th span,
+th div,
+th code,
+th strong,
+th em,
+th a,
+.professional-table td span,
+.professional-table td div,
+.professional-table td code,
+.professional-table th span,
+.professional-table th div,
+.professional-table th code {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  display: inline-block !important;
+  vertical-align: middle !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+/* Text Alignment Classes - Override Everything - Default to Center */
+.text-left,
+td.text-left,
+th.text-left,
+.professional-table td.text-left,
+.professional-table th.text-left,
+.global-table td.text-left,
+.global-table th.text-left {
+  text-align: left !important;
+}
+
+.text-center,
+td.text-center,
+th.text-center,
+.professional-table td.text-center,
+.professional-table th.text-center,
+.global-table td.text-center,
+.global-table th.text-center {
+  text-align: center !important;
+}
+
+.text-right,
+td.text-right,
+th.text-right,
+.professional-table td.text-right,
+.professional-table th.text-right,
+.global-table td.text-right,
+.global-table th.text-right {
+  text-align: right !important;
+}
+
+/* RTL Support - Override for Kurdish - Maintain Center Alignment */
+[dir="rtl"] table,
+[dir="rtl"] .professional-table,
+[dir="rtl"] .global-table {
+  direction: rtl !important;
+}
+
+[dir="rtl"] th,
+[dir="rtl"] td,
+[dir="rtl"] .professional-table th,
+[dir="rtl"] .professional-table td,
+[dir="rtl"] .global-table th,
+[dir="rtl"] .global-table td {
+  text-align: center !important;
+}
+
+[dir="rtl"] th.text-left,
+[dir="rtl"] td.text-left,
+[dir="rtl"] .professional-table th.text-left,
+[dir="rtl"] .professional-table td.text-left,
+[dir="rtl"] .global-table th.text-left,
+[dir="rtl"] .global-table td.text-left {
+  text-align: right !important;
+}
+
+[dir="rtl"] th.text-center,
+[dir="rtl"] td.text-center,
+[dir="rtl"] .professional-table th.text-center,
+[dir="rtl"] .professional-table td.text-center,
+[dir="rtl"] .global-table th.text-center,
+[dir="rtl"] .global-table td.text-center {
+  text-align: center !important;
+}
+
+[dir="rtl"] th.text-right,
+[dir="rtl"] td.text-right,
+[dir="rtl"] .professional-table th.text-right,
+[dir="rtl"] .professional-table td.text-right,
+[dir="rtl"] .global-table th.text-right,
+[dir="rtl"] .global-table td.text-right {
+  text-align: left !important;
+}
+
+/* Utility Class to Allow Wrapping When Needed */
+.allow-wrap,
+td.allow-wrap,
+th.allow-wrap,
+.professional-table td.allow-wrap,
+.professional-table th.allow-wrap {
+  white-space: normal !important;
+  word-wrap: break-word !important;
+  word-break: break-word !important;
+  overflow-wrap: break-word !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+}
+
+/* ============================================
+   END STRICT GRID ALIGNMENT FIX
+   ============================================ */
+
+/* Base Table Container */
+.professional-table-container {
+  overflow-x: auto;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  margin: 1.5rem 0;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Professional Table Base Styles - Now overridden by strict grid alignment above */
+.professional-table {
+  width: 100% !important;
+  border-collapse: collapse !important;
+  border-spacing: 0 !important;
+  background: var(--bg-secondary);
+  table-layout: fixed !important;
+  font-size: 0.875rem;
+  /* Force single borders - no double lines */
+  border: none !important;
+}
+
+/* Table Header - Gold & Black Theme */
+.professional-table thead,
+.global-table thead,
+table thead {
+  background: #000000 !important;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.professional-table th,
+.global-table th,
+table th {
+  padding: 0.75rem 0.5rem !important;
+  color: #E5C76B !important;
+  font-weight: 600 !important;
+  font-size: 0.875rem !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow: hidden !important;
+  text-overflow: clip !important;
+  border: 1px solid #E5C76B !important;
+  background: #000000 !important;
+  line-height: 1.4 !important;
+  vertical-align: middle !important;
+  margin: 0 !important;
+  text-align: center !important;
+  box-shadow: none !important;
+  outline: none !important;
+  display: table-cell !important;
+}
+
+/* Global th fixes - Apply to ALL table headers */
+th {
+  vertical-align: middle !important;
+  padding: 1rem 0.75rem !important;
+  line-height: 1.5 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  margin: 0 !important;
+}
+
+.professional-table th:first-child,
+.global-table th:first-child,
+table th:first-child {
+  border-left: 1px solid #D4AF37 !important;
+}
+
+/* Text Alignment Classes for Headers */
+.professional-table th.text-left {
+  text-align: left;
+}
+
+.professional-table th.text-center {
+  text-align: center;
+}
+
+.professional-table th.text-right {
+  text-align: right;
+}
+
+/* Table Body Cells - Gold & Black Theme */
+.professional-table td,
+.global-table td,
+table td {
+  padding: 0.75rem 0.5rem !important;
+  border: 1px solid #E5C76B !important;
+  color: var(--text-primary);
+  vertical-align: middle !important;
+  background: var(--bg-secondary);
+  line-height: 1.4 !important;
+  margin: 0 !important;
+  text-align: center !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow: hidden !important;
+  text-overflow: clip !important;
+  box-shadow: none !important;
+  outline: none !important;
+  display: table-cell !important;
+}
+
+/* Global td fixes - Now handled by strict grid alignment above */
+
+.professional-table td:first-child,
+.global-table td:first-child,
+table td:first-child {
+  border-left: 1px solid #D4AF37 !important;
+}
+
+/* Ensure rows don't have borders */
+.professional-table tbody tr {
+  border: none !important;
+  border-top: none !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Text Alignment Classes for Cells */
+.professional-table td.text-left {
+  text-align: left;
+}
+
+.professional-table td.text-center {
+  text-align: center;
+}
+
+.professional-table td.text-right {
+  text-align: right;
+}
+
+/* Global text alignment classes */
+td.text-left,
+th.text-left {
+  text-align: left !important;
+}
+
+td.text-center,
+th.text-center {
+  text-align: center !important;
+}
+
+td.text-right,
+th.text-right {
+  text-align: right !important;
+}
+
+/* Remove extra margins from internal elements */
+.professional-table td *,
+.professional-table th * {
+  margin: 0 !important;
+  padding: 0;
+  line-height: inherit;
+  vertical-align: middle;
+  /* Remove any borders from nested elements */
+  border: none !important;
+  border-top: none !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Global fix for nested elements in all tables */
+td *,
+th * {
+  margin: 0 !important;
+  vertical-align: middle !important;
+  line-height: inherit;
+}
+
+/* Specifically remove borders from nested divs, spans, etc */
+.professional-table td div,
+.professional-table td span,
+.professional-table th div,
+.professional-table th span {
+  border: none !important;
+  border-top: none !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Remove borders from nested strong tags */
+.professional-table td strong,
+.professional-table th strong {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Ensure consistent height for rows */
+.professional-table tbody tr {
+  transition: background-color 0.2s ease;
+  height: auto;
+  min-height: 3rem;
+  /* No borders on rows */
+  border: none !important;
+  border-top: none !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Gold Hover Effect for All Tables */
+.professional-table tbody tr:hover,
+.global-table tbody tr:hover,
+table tbody tr:hover {
+  background: rgba(229, 199, 107, 0.1) !important;
+  transition: background-color 0.2s ease;
+}
+
+.professional-table tbody tr:hover td,
+.global-table tbody tr:hover td,
+table tbody tr:hover td {
+  background: rgba(229, 199, 107, 0.1) !important;
+}
+
+/* Last row - keep bottom border but ensure it's single */
+.professional-table tbody tr:last-child td,
+.global-table tbody tr:last-child td,
+table tbody tr:last-child td {
+  border-bottom: 1px solid #E5C76B !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .professional-table {
+    font-size: 0.8rem;
+  }
+
+  .professional-table th,
+  .professional-table td {
+    padding: 0.875rem 0.625rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .professional-table-container {
+    margin: 1rem 0;
+  }
+
+  .professional-table {
+    font-size: 0.75rem;
+    min-width: 800px; /* Prevent excessive compression */
+  }
+
+  .professional-table th,
+  .professional-table td {
+    padding: 0.75rem 0.5rem;
+    font-size: 0.75rem;
+  }
+
+  .professional-table th {
+    font-size: 0.7rem;
+  }
+}
+
+/* Utility Classes for Common Table Elements */
+
+/* Company Name Cell */
+.professional-table .company-name-cell {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Utility class to allow text wrapping when needed (override default nowrap) */
+.allow-wrap,
+td.allow-wrap,
+th.allow-wrap {
+  white-space: normal !important;
+  word-wrap: break-word !important;
+  word-break: break-word !important;
+  overflow-wrap: break-word !important;
+}
+
+/* Code Cell */
+.professional-table .code-cell code {
+  background: var(--bg-tertiary);
+  padding: 0.35rem 0.65rem;
+  border-radius: var(--radius-sm);
+  font-family: 'Courier New', monospace;
+  font-size: 0.875rem;
+  color: var(--primary-color);
+  font-weight: 700;
+  display: inline-block;
+  border: 1px solid rgba(var(--primary-rgb), 0.2);
+  white-space: nowrap;
+}
+
+/* Status Badge */
+.professional-table .status-badge {
+  display: inline-block;
+  padding: 0.4rem 0.85rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  line-height: 1.2;
+  margin: 0;
+}
+
+/* Actions Cell */
+.professional-table .actions-cell {
+  white-space: nowrap;
+  min-width: 0;
+}
+
+/* Action Buttons in Table */
+.professional-table .table-action-button {
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  border: none;
+  margin: 0 0.25rem;
+  line-height: 1.2;
+}
+
+.professional-table .table-action-button:first-child {
+  margin-left: 0;
+}
+
+.professional-table .table-action-button:last-child {
+  margin-right: 0;
+}
+
+/* Modern Professional Delete Button - Global Style */
+.professional-table .delete-button,
+.delete-button {
+  /* Base Styles */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: #ffffff;
+  border: none;
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.875rem;
+  line-height: 1.2;
+  white-space: nowrap;
+  min-width: 100px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2),
+              0 1px 2px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Trash Icon */
+.professional-table .delete-button::before,
+.delete-button::before {
+  content: '🗑️';
+  display: inline-block;
+  font-size: 1rem;
+  line-height: 1;
+  transition: transform 0.3s ease;
+}
+
+/* Hover State */
+.professional-table .delete-button:hover:not(:disabled),
+.delete-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4),
+              0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.professional-table .delete-button:hover:not(:disabled)::before,
+.delete-button:hover:not(:disabled)::before {
+  transform: scale(1.15) rotate(-5deg);
+}
+
+/* Active/Pressed State */
+.professional-table .delete-button:active:not(:disabled),
+.delete-button:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 1px 3px rgba(239, 68, 68, 0.3),
+              0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.professional-table .delete-button:active:not(:disabled)::before,
+.delete-button:active:not(:disabled)::before {
+  transform: scale(0.95);
+}
+
+/* Focus State for Accessibility */
+.professional-table .delete-button:focus-visible,
+.delete-button:focus-visible {
+  outline: 3px solid rgba(239, 68, 68, 0.5);
+  outline-offset: 2px;
+}
+
+/* Disabled State */
+.professional-table .delete-button:disabled,
+.delete-button:disabled {
+  background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.professional-table .delete-button:disabled::before,
+.delete-button:disabled::before {
+  opacity: 0.5;
+}
+
+/* RTL Support - Global Table Alignment */
+[dir="rtl"] table {
+  direction: rtl;
+}
+
+[dir="rtl"] th,
+[dir="rtl"] td {
+  text-align: right !important;
+}
+
+[dir="rtl"] th.text-left,
+[dir="rtl"] td.text-left {
+  text-align: right !important;
+}
+
+[dir="rtl"] th.text-center,
+[dir="rtl"] td.text-center {
+  text-align: center !important;
+}
+
+[dir="rtl"] th.text-right,
+[dir="rtl"] td.text-right {
+  text-align: left !important;
+}
+
+[dir="rtl"] .professional-table th,
+[dir="rtl"] .professional-table td {
+  text-align: right !important;
+}
+
+[dir="rtl"] .professional-table th.text-left,
+[dir="rtl"] .professional-table td.text-left {
+  text-align: right !important;
+}
+
+[dir="rtl"] .professional-table th.text-center,
+[dir="rtl"] .professional-table td.text-center {
+  text-align: center !important;
+}
+
+[dir="rtl"] .professional-table th.text-right,
+[dir="rtl"] .professional-table td.text-right {
+  text-align: left !important;
+}
+
+/* RTL Support for Delete Buttons */
+[dir="rtl"] .professional-table .delete-button,
+[dir="rtl"] .delete-button {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .professional-table .delete-button::before,
+[dir="rtl"] .delete-button::before {
+  margin-left: 0.5rem;
+  margin-right: 0;
+}
+
+/* Delete All Button - Global Style */
+.delete-all-button {
+  /* Base Styles */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: #ffffff;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  line-height: 1.2;
+  white-space: nowrap;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.25),
+              0 1px 3px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Trash Icon */
+.delete-all-button::before {
+  content: '🗑️';
+  display: inline-block;
+  font-size: 1.125rem;
+  line-height: 1;
+  transition: transform 0.3s ease;
+}
+
+/* Hover State */
+.delete-all-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(239, 68, 68, 0.45),
+              0 3px 6px rgba(0, 0, 0, 0.15);
+}
+
+.delete-all-button:hover:not(:disabled)::before {
+  transform: scale(1.15) rotate(-5deg);
+}
+
+/* Active/Pressed State */
+.delete-all-button:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3),
+              0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.delete-all-button:active:not(:disabled)::before {
+  transform: scale(0.95);
+}
+
+/* Focus State for Accessibility */
+.delete-all-button:focus-visible {
+  outline: 3px solid rgba(239, 68, 68, 0.5);
+  outline-offset: 2px;
+}
+
+/* Disabled State */
+.delete-all-button:disabled {
+  background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.delete-all-button:disabled::before {
+  opacity: 0.5;
+}
+
+/* RTL Support */
+[dir="rtl"] .delete-all-button {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .delete-all-button::before {
+  margin-left: 0.625rem;
+  margin-right: 0;
+}
+
+/* Responsive Design for Delete Buttons */
+@media (max-width: 768px) {
+  .professional-table .delete-button,
+  .delete-button {
+    padding: 0.5rem 1rem;
+    font-size: 0.8125rem;
+    min-width: 90px;
+    gap: 0.375rem;
+  }
+
+  .professional-table .delete-button::before,
+  .delete-button::before {
+    font-size: 0.9375rem;
+  }
+
+  .delete-all-button {
+    padding: 0.625rem 1.25rem;
+    font-size: 0.875rem;
+    gap: 0.5rem;
+  }
+
+  .delete-all-button::before {
+    font-size: 1rem;
+  }
+}
+
+/* Empty State */
+.professional-table tbody:empty::after,
+.global-table tbody:empty::after,
+table tbody:empty::after {
+  content: attr(data-empty-message) "No data available";
+  display: block;
+  padding: 2rem;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+/* ============================================
+   SELECT DROPDOWN STYLING - GOLD & BLACK THEME
+   Applies to ALL tables
+   ============================================ */
+
+/* Select dropdowns inside all tables */
+.professional-table select,
+.global-table select,
+table select {
+  display: inline-block !important;
+  width: auto !important;
+  min-width: 120px !important;
+  max-width: 100% !important;
+  padding: 0.375rem 0.625rem !important;
+  margin: 0 !important;
+  font-size: 0.8125rem !important;
+  line-height: 1.4 !important;
+  font-weight: 500 !important;
+  color: #E5C76B !important;
+  background-color: #1a1a1a !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23D4AF37' d='M6 9L1 4h10z'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 0.5rem center !important;
+  background-size: 12px 12px !important;
+  border: 1px solid #E5C76B !important;
+  border-radius: 0.375rem !important;
+  box-sizing: border-box !important;
+  cursor: pointer !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  outline: none !important;
+  transition: all 0.2s ease !important;
+  vertical-align: middle !important;
+}
+
+/* Select dropdown focus state - Gold glow */
+.professional-table select:focus,
+.global-table select:focus,
+table select:focus {
+  border-color: #F0D580 !important;
+  box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.3), 0 0 8px rgba(212, 175, 55, 0.5) !important;
+  background-color: #2a2a2a !important;
+}
+
+/* Select dropdown hover state */
+.professional-table select:hover,
+.global-table select:hover,
+table select:hover {
+  border-color: #F0D580 !important;
+  background-color: #252525 !important;
+}
+
+/* Select dropdown active state */
+.professional-table select:active,
+.global-table select:active,
+table select:active {
+  border-color: #F0D580 !important;
+  background-color: #2a2a2a !important;
+}
+
+/* Select dropdown options - Black background with gold/white text */
+.professional-table select option,
+.global-table select option,
+table select option {
+  background-color: #000000 !important;
+  color: #E5C76B !important;
+  padding: 0.5rem 0.75rem !important;
+  font-size: 0.8125rem !important;
+  line-height: 1.5 !important;
+}
+
+/* Select dropdown option hover state */
+.professional-table select option:hover,
+.professional-table select option:checked,
+.global-table select option:hover,
+.global-table select option:checked,
+table select option:hover,
+table select option:checked {
+  background-color: #E5C76B !important;
+  color: #000000 !important;
+  font-weight: 600 !important;
+}
+
+/* Select dropdown disabled state */
+.professional-table select:disabled,
+.global-table select:disabled,
+table select:disabled {
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
+  border-color: #666666 !important;
+  background-color: #0a0a0a !important;
+}
+
+/* RTL Support for select dropdowns */
+[dir="rtl"] .professional-table select,
+[dir="rtl"] .global-table select,
+[dir="rtl"] table select {
+  background-position: left 0.5rem center !important;
+  padding-right: 2rem !important;
+  padding-left: 0.625rem !important;
+}
+
+/* Company Name Cell - Allow wrapping for long names */
+.professional-table .company-name-cell,
+.global-table .company-name-cell,
+table .company-name-cell {
+  white-space: normal !important;
+  word-break: break-word !important;
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+  text-align: center !important;
+  vertical-align: middle !important;
+}
+
+/* Table Container - Prevent horizontal scroll */
+.professional-table-container,
+.global-table-container {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: hidden !important;
+  overflow-y: visible !important;
+  box-sizing: border-box !important;
+}
+
+/* ============================================
+   ACTION ICON BUTTONS - GLOBAL STYLING
+   Edit and Delete icon buttons for all tables
+   ============================================ */
+
+/* Action icon button base styles */
+.professional-table .action-icon-btn,
+.global-table .action-icon-btn,
+table .action-icon-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0.5rem !important;
+  border: none !important;
+  border-radius: 0.375rem !important;
+  cursor: pointer !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  min-width: 32px !important;
+  width: 32px !important;
+  height: 32px !important;
+  background: transparent !important;
+  margin: 0 0.25rem !important;
+  vertical-align: middle !important;
+}
+
+.professional-table .action-icon,
+.global-table .action-icon,
+table .action-icon {
+  width: 16px !important;
+  height: 16px !important;
+  transition: transform 0.2s ease !important;
+  fill: currentColor !important;
+}
+
+/* Edit icon button - Blue/Orange */
+.professional-table .edit-icon-btn,
+.global-table .edit-icon-btn,
+table .edit-icon-btn {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 1px 3px rgba(59, 130, 246, 0.3) !important;
+}
+
+.professional-table .edit-icon-btn .action-icon,
+.global-table .edit-icon-btn .action-icon,
+table .edit-icon-btn .action-icon {
+  fill: #ffffff !important;
+}
+
+.professional-table .edit-icon-btn:hover:not(:disabled),
+.global-table .edit-icon-btn:hover:not(:disabled),
+table .edit-icon-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+  transform: translateY(-1px) scale(1.05) !important;
+  box-shadow: 0 2px 6px rgba(59, 130, 246, 0.4) !important;
+}
+
+.professional-table .edit-icon-btn:hover:not(:disabled) .action-icon,
+.global-table .edit-icon-btn:hover:not(:disabled) .action-icon,
+table .edit-icon-btn:hover:not(:disabled) .action-icon {
+  transform: scale(1.1) !important;
+}
+
+/* Delete icon button - Red */
+.professional-table .delete-icon-btn,
+.global-table .delete-icon-btn,
+table .delete-icon-btn {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 1px 3px rgba(239, 68, 68, 0.3) !important;
+}
+
+.professional-table .delete-icon-btn .action-icon,
+.global-table .delete-icon-btn .action-icon,
+table .delete-icon-btn .action-icon {
+  fill: #ffffff !important;
+}
+
+.professional-table .delete-icon-btn:hover:not(:disabled),
+.global-table .delete-icon-btn:hover:not(:disabled),
+table .delete-icon-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important;
+  transform: translateY(-1px) scale(1.05) !important;
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.4) !important;
+}
+
+.professional-table .delete-icon-btn:hover:not(:disabled) .action-icon,
+.global-table .delete-icon-btn:hover:not(:disabled) .action-icon,
+table .delete-icon-btn:hover:not(:disabled) .action-icon {
+  transform: scale(1.1) !important;
+}
+
+/* Active/Pressed State */
+.professional-table .action-icon-btn:active:not(:disabled),
+.global-table .action-icon-btn:active:not(:disabled),
+table .action-icon-btn:active:not(:disabled) {
+  transform: translateY(0) scale(0.95) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Focus State for Accessibility */
+.professional-table .action-icon-btn:focus-visible,
+.global-table .action-icon-btn:focus-visible,
+table .action-icon-btn:focus-visible {
+  outline: 2px solid rgba(212, 175, 55, 0.5) !important;
+  outline-offset: 2px !important;
+}
+
+/* Disabled State */
+.professional-table .action-icon-btn:disabled,
+.global-table .action-icon-btn:disabled,
+table .action-icon-btn:disabled {
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.professional-table .action-icon-btn:disabled .action-icon,
+.global-table .action-icon-btn:disabled .action-icon,
+table .action-icon-btn:disabled .action-icon {
+  opacity: 0.5 !important;
+}
+
+/* Loading spinner for delete button */
+.professional-table .action-icon-btn .loading-spinner,
+.global-table .action-icon-btn .loading-spinner,
+table .action-icon-btn .loading-spinner {
+  display: inline-block !important;
+  font-size: 14px !important;
+  animation: spin 1s linear infinite !important;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Table actions container */
+.professional-table .table-actions,
+.global-table .table-actions,
+table .table-actions {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.5rem !important;
+  flex-wrap: nowrap !important;
+}
+
+/* RTL Support for action buttons */
+[dir="rtl"] .professional-table .table-actions,
+[dir="rtl"] .global-table .table-actions,
+[dir="rtl"] table .table-actions {
+  flex-direction: row-reverse !important;
+}
+
+/* Mobile responsive for action buttons */
+@media (max-width: 768px) {
+  .professional-table .action-icon-btn,
+  .global-table .action-icon-btn,
+  table .action-icon-btn {
+    padding: 0.375rem !important;
+    min-width: 28px !important;
+    width: 28px !important;
+    height: 28px !important;
+    margin: 0 0.125rem !important;
+  }
+
+  .professional-table .action-icon,
+  .global-table .action-icon,
+  table .action-icon {
+    width: 14px !important;
+    height: 14px !important;
+  }
+}

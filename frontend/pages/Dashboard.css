@@ -1,0 +1,269 @@
+.dashboard {
+  min-height: calc(100vh - 72px);
+  padding: 2rem 1rem;
+  background: var(--bg-secondary);
+  width: 100%;
+}
+
+.dashboard .container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.dashboard-header {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.dashboard-header .page-title {
+  color: var(--text-primary);
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.dashboard-subtitle {
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  margin-top: 0.5rem;
+}
+
+.dashboard-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.search-box {
+  flex: 1;
+  min-width: 250px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--card-bg);
+  color: var(--text-primary);
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+}
+
+.stats-box {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.stat-item {
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.stat-item strong {
+  color: var(--primary-color);
+  font-size: 18px;
+  margin-left: 8px;
+}
+
+.companies-table-container {
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow-x: auto;
+}
+
+.companies-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 1000px;
+}
+
+.companies-table thead {
+  background: var(--bg-secondary);
+}
+
+.companies-table th {
+  padding: 16px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--text-primary);
+  border-bottom: 2px solid var(--border-color);
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.companies-table td {
+  padding: 16px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+  vertical-align: middle;
+}
+
+.companies-table tbody tr:hover {
+  background: var(--bg-secondary);
+  transition: background 0.2s ease;
+}
+
+.companies-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.payment-date-editor {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.date-input,
+.time-input {
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--card-bg);
+  color: var(--text-primary);
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.date-input:focus,
+.time-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.1);
+}
+
+.editor-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.payment-date-display {
+  min-width: 150px;
+}
+
+.payment-date-display .has-date {
+  color: var(--success-color);
+  font-weight: 600;
+}
+
+.payment-date-display .no-date {
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.table-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 13px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+.btn-danger {
+  background: var(--danger-color);
+  color: white;
+  border: none;
+}
+
+.btn-danger:hover {
+  background: #b91c1c;
+}
+
+.btn-danger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.loading-message {
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-secondary);
+  font-size: 1.2rem;
+}
+
+.error-message {
+  padding: 12px 16px;
+  background: #fee;
+  color: #c33;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border: 1px solid #fcc;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .dashboard {
+    padding: 1rem 0.5rem;
+  }
+
+  .dashboard-header .page-title {
+    font-size: 2rem;
+  }
+
+  .dashboard-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .stats-box {
+    justify-content: space-between;
+  }
+
+  .companies-table-container {
+    padding: 1rem;
+  }
+
+  .companies-table {
+    font-size: 14px;
+  }
+
+  .companies-table th,
+  .companies-table td {
+    padding: 12px 8px;
+  }
+
+  .payment-date-editor {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .date-input,
+  .time-input {
+    width: 100%;
+  }
+
+  .editor-actions {
+    width: 100%;
+  }
+
+  .editor-actions .btn {
+    flex: 1;
+  }
+
+  .table-actions {
+    flex-direction: column;
+  }
+
+  .table-actions .btn {
+    width: 100%;
+  }
+}

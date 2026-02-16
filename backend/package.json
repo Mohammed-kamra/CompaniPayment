@@ -1,0 +1,27 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "MongoDB backend server",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "test-connection": "node test-connection.js",
+    "test:backend": "node test-backend-connection.js",
+    "test:pre-register": "node scripts/testPreRegister.js",
+    "clear:pre-registrations": "node scripts/clearPreRegistrations.js",
+    "hash:passwords": "node scripts/hashPasswords.js",
+    "create:admin": "node scripts/createAdminUser.js",
+    "check:user": "node scripts/checkUser.js",
+    "set:password": "node scripts/setUserPassword.js"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.5",
+    "express": "^4.22.1",
+    "mongodb": "^6.3.0"
+  },
+  "keywords": [],
+  "author": "Mohammed Kamaran",
+  "license": "ISC"
+}

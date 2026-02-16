@@ -1,0 +1,38 @@
+.app-footer {
+  margin-top: auto;
+  padding: 1.5rem 1rem;
+  background: var(--bg-secondary, #16213e);
+  border-top: 1px solid var(--border-color, rgba(212, 175, 55, 0.2));
+  text-align: center;
+  color: var(--text-secondary, #cccccc);
+  font-size: 0.875rem;
+}
+
+.footer-content {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.footer-text {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--text-secondary, #999);
+}
+
+.developer-name {
+  color: var(--primary-color, #d4af37);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .app-footer {
+    padding: 1rem 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  .footer-text {
+    font-size: 0.8rem;
+  }
+}
