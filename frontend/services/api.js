@@ -590,9 +590,9 @@ export const preRegisterAPI = {
       // Enhanced error handling for network failures
       if (fetchError.message === 'Failed to fetch' || fetchError.name === 'TypeError') {
         console.error('❌ Network error - Backend server may not be running');
-        console.error('💡 Check if backend is running on http://localhost:5000');
-        console.error('💡 Test with: curl http://localhost:5000/api/health');
-        throw new Error('Failed to connect to server. Please ensure the backend server is running on http://localhost:5000');
+        console.error('💡 Check if backend is running on "https://companipayment-production-87d9.up.railway.app/api"');
+        console.error('💡 Test with: curl "https://companipayment-production-87d9.up.railway.app/api/health"');
+        throw new Error('Failed to connect to server. Please ensure the backend server is running on "https://companipayment-production-87d9.up.railway.app/api"');
       }
       throw fetchError;
     }
@@ -998,7 +998,7 @@ export const companiesAPI = {
           url: `${API_BASE_URL}/companies/${id}/status`,
           error: error.message
         });
-        throw new Error('Network error: Could not connect to server. Please ensure the backend server is running on http://localhost:5000');
+        throw new Error('Network error: Could not connect to server. Please ensure the backend server is running on "https://companipayment-production-87d9.up.railway.app/api"');
       }
       // Re-throw other errors
       throw error;
