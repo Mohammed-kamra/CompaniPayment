@@ -1,6 +1,5 @@
 require('dotenv').config();
-const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:5000/api';
-
+const API_BASE_URL = process.env.API_BASE_URLT || 'http://localhost:5000/api';
 // Auth API
 export const authAPI = {
   login: async (username, password) => {

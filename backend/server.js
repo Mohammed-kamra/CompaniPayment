@@ -9,7 +9,7 @@ const PORT = process.env.PORT || 5000;
 // Middleware
 // Enhanced CORS configuration
 app.use(cors({
-  origin: ['https://companipayment-production-87d9.up.railway.app/api', 'https://companipayment-production-87d9.up.railway.app/api'], // Vite default port is 5173, but also support 3000
+  origin: ['http://localhost:3000', 'http://localhost:5173'], // Vite default port is 5173, but also support 3000
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: [
