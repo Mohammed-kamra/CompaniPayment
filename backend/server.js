@@ -9,10 +9,10 @@ const PORT = process.env.PORT || 5000;
 // Middleware
 // Enhanced CORS configuration
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:5173'], // Vite default port is 5173, but also support 3000
+  origin: ['http://localhost:3000', 'http://localhost:5173','https://compani-payment.vercel.app'], // Vite default port is 5173, but also support 3000
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: [ 
+  allowedHeaders: [
     'Content-Type', 
     'Authorization', 
     'x-user-role', 
