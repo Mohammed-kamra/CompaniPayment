@@ -12,7 +12,7 @@ async function connectDB() {
       client = new MongoClient(uri);
       await client.connect();
       db = client.db(dbName);
-      console.log('✅ Connected to MongoDB');
+      console.log('✅ Connected to MongoDB, url:', uri);
     }
     return db;
   } catch (error) {
