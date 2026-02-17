@@ -1,5 +1,5 @@
 require('dotenv').config();
-const API_BASE_URL = "https://companipayment-production-87d9.up.railway.app/api";
+const API_BASE_URL = process.env.API_BASE_URLT || 'http://localhost:5000/api';
 // Auth API
 export const authAPI = {
   login: async (username, password) => {
@@ -591,7 +591,7 @@ export const preRegisterAPI = {
       if (fetchError.message === 'Failed to fetch' || fetchError.name === 'TypeError') {
         console.error('❌ Network error - Backend server may not be running');
         console.error('💡 Check if backend is running on "https://companipayment-production-87d9.up.railway.app/api"');
-        console.error('💡 Test with: curl "https://companipayment-production-87d9.up.railway.app/api/health"');
+        console.error('💡 Test with: curl http://localhost:5000/api/health');
         throw new Error('Failed to connect to server. Please ensure the backend server is running on "https://companipayment-production-87d9.up.railway.app/api"');
       }
       throw fetchError;
@@ -998,7 +998,7 @@ export const companiesAPI = {
           url: `${API_BASE_URL}/companies/${id}/status`,
           error: error.message
         });
-        throw new Error('Network error: Could not connect to server. Please ensure the backend server is running on "https://companipayment-production-87d9.up.railway.app/api"');
+        throw new Error('Network error: Could not connect to server. Please ensure the backend server is running on http://localhost:5000');
       }
       // Re-throw other errors
       throw error;
