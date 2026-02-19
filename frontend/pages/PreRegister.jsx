@@ -114,9 +114,9 @@ const PreRegister = () => {
                 <div style="display: flex; align-items: center; gap: 1rem;">
                   <span style="font-size: 28px; flex-shrink: 0;">✓</span>
                   <span style="flex: 1; min-width: 0; line-height: 1.6;">${successMsg}</span>
-                  <button style="background: transparent; border: none; font-size: 24px; cursor: pointer; color: inherit; opacity: 0.7; padding: 0; margin-left: 0.5rem; line-height: 1;" onclick="sessionStorage.removeItem('preRegisterSuccessMessage'); sessionStorage.removeItem('preRegisterSuccessTime'); window.location.reload();">×</button>
+                  <button class="notification-close-btn" style="background: transparent; border: none; font-size: 24px; cursor: pointer; color: inherit; opacity: 0.7; padding: 0; margin-left: 0.5rem; line-height: 1;">×</button>
                 </div>
-                <button onclick="sessionStorage.removeItem('preRegisterSuccessMessage'); sessionStorage.removeItem('preRegisterSuccessTime'); window.location.reload();" style="background-color: #10b981; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; transition: background-color 0.2s;">OK</button>
+                <button class="notification-ok-btn" style="background-color: #10b981; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; transition: background-color 0.2s;">OK</button>
               </div>
             `
             notification.onclick = (e) => {
@@ -125,6 +125,24 @@ const PreRegister = () => {
                 return
               }
             }
+            
+            // Add event listeners to buttons for proper navigation
+            setTimeout(() => {
+              const closeBtn = notification.querySelector('.notification-close-btn')
+              const okBtn = notification.querySelector('.notification-ok-btn')
+              
+              const handleClose = () => {
+                sessionStorage.removeItem('preRegisterSuccessMessage')
+                sessionStorage.removeItem('preRegisterSuccessTime')
+                notification.remove()
+                // Navigate to register page instead of reloading
+                navigate('/register', { replace: true, state: { preRegistered: true } })
+              }
+              
+              if (closeBtn) closeBtn.addEventListener('click', handleClose)
+              if (okBtn) okBtn.addEventListener('click', handleClose)
+            }, 0)
+            
             document.body.appendChild(notification)
             
             // Notification stays until user clicks OK - no auto-remove
@@ -531,9 +549,9 @@ const PreRegister = () => {
             <div style="display: flex; align-items: center; gap: 1rem;">
               <span style="font-size: 28px; flex-shrink: 0;">✓</span>
               <span style="flex: 1; min-width: 0; line-height: 1.6;">${successMsg}</span>
-              <button style="background: transparent; border: none; font-size: 24px; cursor: pointer; color: inherit; opacity: 0.7; padding: 0; margin-left: 0.5rem; line-height: 1;" onclick="sessionStorage.removeItem('preRegisterSuccessMessage'); sessionStorage.removeItem('preRegisterSuccessTime'); window.location.reload();">×</button>
+              <button class="notification-close-btn" style="background: transparent; border: none; font-size: 24px; cursor: pointer; color: inherit; opacity: 0.7; padding: 0; margin-left: 0.5rem; line-height: 1;">×</button>
             </div>
-            <button onclick="sessionStorage.removeItem('preRegisterSuccessMessage'); sessionStorage.removeItem('preRegisterSuccessTime'); window.location.reload();" style="background-color: #10b981; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; transition: background-color 0.2s;">OK</button>
+            <button class="notification-ok-btn" style="background-color: #10b981; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; transition: background-color 0.2s;">OK</button>
           </div>
         `
         notification.onclick = (e) => {
@@ -542,6 +560,24 @@ const PreRegister = () => {
             return
           }
         }
+        
+        // Add event listeners to buttons for proper navigation
+        setTimeout(() => {
+          const closeBtn = notification.querySelector('.notification-close-btn')
+          const okBtn = notification.querySelector('.notification-ok-btn')
+          
+          const handleClose = () => {
+            sessionStorage.removeItem('preRegisterSuccessMessage')
+            sessionStorage.removeItem('preRegisterSuccessTime')
+            notification.remove()
+            // Navigate to register page instead of reloading
+            navigate('/register', { replace: true, state: { preRegistered: true } })
+          }
+          
+          if (closeBtn) closeBtn.addEventListener('click', handleClose)
+          if (okBtn) okBtn.addEventListener('click', handleClose)
+        }, 0)
+        
         document.body.appendChild(notification)
         console.log('✅ Notification created in DOM immediately - will stay until OK is clicked')
       }
@@ -578,10 +614,22 @@ const PreRegister = () => {
       // Clear error state
       setError('')
       
-      // Refresh the page after showing notification (notification will be restored from sessionStorage)
-      // Wait a moment to ensure notification is visible before refresh
+      // Navigate to registration page after showing notification
+      // Use React Router navigation instead of window.location.reload() to avoid 404 in production
+      // Wait a moment to ensure notification is visible before navigation
       setTimeout(() => {
-        window.location.reload()
+        navigate('/register', { 
+          replace: true, 
+          state: { 
+            preRegistered: true,
+            preRegistrationData: {
+              companyName: registeredCompanyName,
+              mobileNumber: formData.mobileNumber,
+              name: formData.name,
+              groupId: formData.groupId
+            }
+          } 
+        })
       }, 500) // Small delay to let user see the notification
     } catch (err) {
       // Clear loading timeout first
