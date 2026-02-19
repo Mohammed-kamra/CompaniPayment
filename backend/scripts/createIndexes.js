@@ -7,8 +7,9 @@
  */
 
 const { MongoClient } = require('mongodb');
-const uri = 'mongodb://localhost:27017';
-const dbName = 'sellerbuyer';
+require('dotenv').config();
+const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017';
+const dbName = process.env.DB_NAME || 'sellerbuyer';
 
 async function createIndexes() {
   let client = null;
