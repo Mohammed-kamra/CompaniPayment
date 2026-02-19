@@ -22,13 +22,28 @@ async function clearPreRegistrations() {
     
     console.log(`✅ Deleted ${result.deletedCount} pre-registration(s)`);
     
-    // Optionally, also clear related companies created from pre-registrations
-    console.log('🗑️  Clearing related companies...');
-    const companyResult = await db.collection('companies').deleteMany({
-      preRegistrationId: { $exists: true }
-    });
+    // IMPORTANT SAFETY CHANGE:
+    // Previously this script also deleted companies that were created from pre-registrations:
+    //   db.collection('companies').deleteMany({ preRegistrationId: { $exists: true } })
+    //
+    // This caused all companies linked to pre-registrations to be removed when
+    // `npm run clear:pre-registrations` was executed, which is dangerous in production.
+    //
+    // To prevent accidental data loss, this deletion is now DISABLED by default.
+    // If you really want to clear related companies as well, you must explicitly
+    // set CLEAR_COMPANIES_FROM_PRE_REG=true in your environment before running
+    // this script.
     
-    console.log(`✅ Deleted ${companyResult.deletedCount} related company/companies`);
+    if (process.env.CLEAR_COMPANIES_FROM_PRE_REG === 'true') {
+      console.log('🗑️  CLEARING related companies because CLEAR_COMPANIES_FROM_PRE_REG=true ...');
+      const companyResult = await db.collection('companies').deleteMany({
+        preRegistrationId: { $exists: true }
+      });
+      console.log(`✅ Deleted ${companyResult.deletedCount} related company/companies`);
+    } else {
+      console.log('⚠️  Skipping deletion of related companies (CLEAR_COMPANIES_FROM_PRE_REG is not set to \"true\").');
+      console.log('    Companies linked to pre-registrations are SAFE and were NOT deleted.');
+    }
     
     console.log('✨ Database cleanup completed!');
   } catch (error) {
