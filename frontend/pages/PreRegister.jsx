@@ -571,7 +571,7 @@ const PreRegister = () => {
             sessionStorage.removeItem('preRegisterSuccessTime')
             notification.remove()
             // Navigate to register page instead of reloading
-            navigate('/register', { replace: true, state: { preRegistered: true } })
+            navigate('/pre-register', { replace: true, state: { preRegistered: true } })
           }
           
           if (closeBtn) closeBtn.addEventListener('click', handleClose)
@@ -618,7 +618,7 @@ const PreRegister = () => {
       // Use React Router navigation instead of window.location.reload() to avoid 404 in production
       // Wait a moment to ensure notification is visible before navigation
       setTimeout(() => {
-        navigate('/register', { 
+        navigate('/pre-register', { 
           replace: true, 
           state: { 
             preRegistered: true,
