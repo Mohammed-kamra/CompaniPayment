@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { companiesAPI, groupsAPI, companyNamesAPI } from '../services/api'
 import './Dashboard.css'
+// import '../styles/dashboard.css'
 
 const Dashboard = () => {
   const { t } = useTranslation()
