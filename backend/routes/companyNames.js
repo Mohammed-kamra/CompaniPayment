@@ -75,7 +75,8 @@ router.get('/', requireAdmin, async (req, res) => {
 });
 
 // Get unregistered companies - Admin only
-// Companies in companyNames that haven't registered yet (no entry in companies or preRegistrations)
+// Companies in companyNames that have NOT completed full registration (no entry in companies collection)
+// Count: unregistered = companyNames - companies (matched by code or name)
 router.get('/unregistered', requireAdmin, async (req, res) => {
   try {
     const db = getDB();
@@ -83,42 +84,26 @@ router.get('/unregistered', requireAdmin, async (req, res) => {
     // Get all company names
     const allCompanyNames = await db.collection('companyNames').find({}).sort({ name: 1 }).toArray();
     
-    // Get all registered companies (by code or name)
+    // Get all registered companies (full registration only - companies collection)
+    // Use unique codes and names - a company can have multiple entries (one per group) but counts once
     const registeredCompanies = await db.collection('companies').find({}).toArray();
-    const registeredCodes = new Set(registeredCompanies.map(c => c.code).filter(Boolean));
-    const registeredNames = new Set(registeredCompanies.map(c => c.name?.toLowerCase().trim()).filter(Boolean));
+    const registeredCodes = new Set();
+    const registeredNames = new Set();
+    for (const c of registeredCompanies) {
+      const code = String(c.code ?? c.companyCode ?? '').trim();
+      const name = String(c.name ?? c.companyName ?? '').toLowerCase().trim();
+      if (code) registeredCodes.add(code);
+      if (name) registeredNames.add(name);
+    }
     
-    // Get all pre-registrations (by code or companyName)
-    const preRegistrations = await db.collection('preRegistrations').find({}).toArray();
-    const preRegCodes = new Set(preRegistrations.map(pr => pr.code).filter(Boolean));
-    const preRegNames = new Set(preRegistrations.map(pr => pr.companyName?.toLowerCase().trim()).filter(Boolean));
-    
-    // Find unregistered companies
-    const unregisteredCompanies = allCompanyNames.filter(company => {
-      const companyCode = company.code?.trim();
-      const companyName = company.name?.toLowerCase().trim();
+    // Find unregistered: in companyNames but NOT in companies (by code or name)
+    const unregisteredCompanies = allCompanyNames.filter(cn => {
+      const code = String(cn.code ?? '').trim();
+      const name = String(cn.name ?? '').toLowerCase().trim();
       
-      // Check if company is registered by code
-      if (companyCode && registeredCodes.has(companyCode)) {
-        return false;
-      }
+      if (code && registeredCodes.has(code)) return false;
+      if (name && registeredNames.has(name)) return false;
       
-      // Check if company is registered by name
-      if (companyName && registeredNames.has(companyName)) {
-        return false;
-      }
-      
-      // Check if company has pre-registration by code
-      if (companyCode && preRegCodes.has(companyCode)) {
-        return false;
-      }
-      
-      // Check if company has pre-registration by name
-      if (companyName && preRegNames.has(companyName)) {
-        return false;
-      }
-      
-      // Company is unregistered
       return true;
     });
     

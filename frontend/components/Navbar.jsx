@@ -1,9 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
+import { settingsAPI } from '../services/api'
 import LanguageSwitcher from './LanguageSwitcher'
 import './Navbar.css'
+
+const MOBILE_BREAKPOINT = 968
 
 const Navbar = () => {
   const { t } = useTranslation()
@@ -11,6 +15,23 @@ const Navbar = () => {
   const { isAuthenticated, logout, user } = useAuth()
   const navigate = useNavigate()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [notesPanelOpen, setNotesPanelOpen] = useState(false)
+  const [guestNote, setGuestNote] = useState('')
+  const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' && window.innerWidth <= MOBILE_BREAKPOINT)
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= MOBILE_BREAKPOINT)
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      settingsAPI.getWebsiteSettings()
+        .then(data => setGuestNote(data.notePaymentRegistration || ''))
+        .catch(() => setGuestNote(''))
+    }
+  }, [isAuthenticated])
 
 
   const handleLogout = () => {
@@ -31,9 +52,7 @@ const Navbar = () => {
   ]
 
   const accountingLinks = [
-    { path: '/companies-list', label: t('nav.registeredCompanies') || t('nav.list'), icon: '📋' },
-    { path: '/pre-register', label: t('nav.register'), icon: '📝' },
-    { path: '/register', label: t('nav.registerCompany') || 'Register Company', icon: '🏢' }
+    { path: '/companies-list', label: t('nav.registeredCompanies') || t('nav.list'), icon: '📋' }
   ]
 
   const adminPublicLinks = [
@@ -51,7 +70,8 @@ const Navbar = () => {
     { path: '/admin/dashboard', label: t('nav.dashboard') || 'Dashboard', icon: '📊', category: 'system' },
     { path: '/groups', label: t('nav.manageGroups'), icon: '👥', category: 'system' },
     { path: '/admin/users', label: t('nav.userManagement'), icon: '👤', category: 'system' },
-    { path: '/admin/settings', label: t('nav.settings') || 'Settings', icon: '⚙️', category: 'system' }
+    { path: '/admin/settings', label: t('nav.settings') || 'Settings', icon: '⚙️', category: 'system' },
+    { path: '/admin/translations', label: t('nav.translations') || 'Translations', icon: '🌐', category: 'system' }
   ]
 
   const [companyDropdownOpen, setCompanyDropdownOpen] = useState(false)
@@ -95,7 +115,8 @@ const Navbar = () => {
         
         {/* Desktop Navigation */}
         <div className="navbar-nav desktop-menu">
-          {/* Public Links */}
+          {/* Public Links - Hidden for accountants */}
+          {user?.role !== 'accounting' && (
           <div className="nav-section">
             {publicLinks.map(link => (
               <Link 
@@ -109,6 +130,7 @@ const Navbar = () => {
               </Link>
             ))}
           </div>
+          )}
 
           {/* Companies List - Admin Only */}
           {isAuthenticated && user?.role === 'admin' && (
@@ -239,20 +261,29 @@ const Navbar = () => {
           
           {isAuthenticated ? (
             <div className="action-group user-group">
-              {/* User Profile Section - Hidden for Admin */}
-              {user?.role !== 'admin' && (
+              {/* Accounting: Logout only (no user profile, no register/pre-register links) */}
+              {user?.role === 'accounting' && (
+                <button 
+                  onClick={handleLogout} 
+                  className="btn-logout accounting-logout"
+                  title={t('nav.logout')}
+                >
+                  <span className="logout-icon">🚪</span>
+                  <span className="logout-text">{t('nav.logout')}</span>
+                </button>
+              )}
+              {/* User Profile Section - for regular users (not admin, not accounting) */}
+              {user?.role !== 'admin' && user?.role !== 'accounting' && (
                 <div className="user-profile-section">
-                  <div className={`user-profile-link ${user?.role === 'accounting' ? 'accounting-profile' : ''}`}>
+                  <div className="user-profile-link">
                     <div className="user-info">
                       <div className="user-name">{user?.name || user?.username || 'User'}</div>
-                      <div className={`user-role ${user?.role === 'accounting' ? 'accounting-role' : ''}`}>
-                        {user?.role === 'accounting' ? t('nav.accounting') : t('nav.user') || 'User'}
-                      </div>
+                      <div className="user-role">{t('nav.user') || 'User'}</div>
                     </div>
                   </div>
                   <button 
                     onClick={handleLogout} 
-                    className={`btn-logout ${user?.role === 'accounting' ? 'accounting-logout' : ''}`}
+                    className="btn-logout"
                     title={t('nav.logout')}
                   >
                     <span className="logout-icon">🚪</span>
@@ -272,35 +303,65 @@ const Navbar = () => {
                 </button>
               )}
             </div>
-          ) : (
-            <div className="action-group">
-              <Link to="/login" className="btn-login" onClick={() => setMobileMenuOpen(false)}>
-                <span className="login-icon">🔐</span>
-                <span>{t('nav.login')}</span>
-              </Link>
-            </div>
-          )}
+          ) : null}
 
-          {/* Mobile Menu Toggle */}
-          <button 
-            className={`mobile-menu-toggle ${mobileMenuOpen ? 'active' : ''}`}
-            onClick={() => {
-              setMobileMenuOpen(!mobileMenuOpen)
-              setCompanyDropdownOpen(false)
-              setSystemDropdownOpen(false)
-            }}
-            aria-label="Toggle menu"
-            aria-expanded={mobileMenuOpen}
-          >
-            <span></span>
-            <span></span>
-            <span></span>
-          </button>
+          {/* Mobile: Notes button for guests (when note exists), Hamburger for logged-in users */}
+          {isMobile && !isAuthenticated && guestNote.trim() ? (
+            <button
+              className="mobile-notes-toggle"
+              onClick={() => setNotesPanelOpen(true)}
+              aria-label={t('nav.notes') || 'Notes'}
+            >
+              <span className="notes-icon">📋</span>
+              {/* <span className="notes-label">{t('nav.notes') || 'Notes'}</span> */}
+            </button>
+          ) : isAuthenticated ? (
+            <button 
+              className={`mobile-menu-toggle ${mobileMenuOpen ? 'active' : ''}`}
+              onClick={() => {
+                setMobileMenuOpen(!mobileMenuOpen)
+                setCompanyDropdownOpen(false)
+                setSystemDropdownOpen(false)
+              }}
+              aria-label="Toggle menu"
+              aria-expanded={mobileMenuOpen}
+            >
+              <span></span>
+              <span></span>
+              <span></span>
+            </button>
+          ) : null}
         </div>
       </div>
 
+      {/* Notes Panel - Mobile, Guest users only (ported to body for proper centering) */}
+      {notesPanelOpen && !isAuthenticated && typeof document !== 'undefined' && createPortal(
+        <div className="mobile-notes-overlay" onClick={() => setNotesPanelOpen(false)}>
+          <div className="mobile-notes-panel" onClick={e => e.stopPropagation()}>
+            <div className="mobile-notes-header">
+              <h3 className="mobile-notes-title">{t('nav.notes') || 'Notes'}</h3>
+              <button
+                className="mobile-notes-close"
+                onClick={() => setNotesPanelOpen(false)}
+                aria-label="Close"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="mobile-notes-content">
+              {guestNote ? (
+                <div className="mobile-notes-text" style={{ whiteSpace: 'pre-wrap' }}>{guestNote}</div>
+              ) : (
+                <p className="mobile-notes-empty">{t('nav.noNotes') || 'No notes available.'}</p>
+              )}
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
       {/* Mobile Menu */}
-      {mobileMenuOpen && (
+      {mobileMenuOpen && isAuthenticated && (
         <div className="mobile-menu">
           <div className="mobile-menu-header">
             <h3 className="mobile-menu-title">{t('nav.menu') || 'Menu'}</h3>
@@ -314,7 +375,8 @@ const Navbar = () => {
           </div>
           
           <div className="mobile-menu-content">
-            {/* Public Links */}
+            {/* Public Links - Hidden for accountants */}
+            {user?.role !== 'accounting' && (
             <div className="mobile-menu-section">
               <h4 className="mobile-section-title">{t('nav.public') || 'Public'}</h4>
               {publicLinks.map(link => (
@@ -330,6 +392,7 @@ const Navbar = () => {
                 </Link>
               ))}
             </div>
+            )}
 
             {/* Companies List - Admin Only */}
             {isAuthenticated && user?.role === 'admin' && (
@@ -350,10 +413,10 @@ const Navbar = () => {
               </div>
             )}
 
-            {/* Accounting User Links */}
+            {/* Accounting User Links - Companies list only */}
             {isAuthenticated && user?.role === 'accounting' && (
               <div className="mobile-menu-section">
-                <h4 className="mobile-section-title">{t('nav.accounting') || 'Accounting'}</h4>
+                <h4 className="mobile-section-title">{t('nav.registeredCompanies') || t('nav.list') || 'Companies'}</h4>
                 {accountingLinks.map(link => (
                   <Link
                     key={link.path}
@@ -407,20 +470,28 @@ const Navbar = () => {
               </div>
             )}
 
-            {/* User Info - Mobile - Hidden for Admin */}
-            {isAuthenticated && user?.role !== 'admin' && (
+            {/* User Info - Mobile - Hidden for Admin and Accounting */}
+            {isAuthenticated && user?.role !== 'admin' && user?.role !== 'accounting' && (
               <div className="mobile-menu-section mobile-user-section">
                 <div className="mobile-user-info">
-                  <div className={`mobile-user-avatar ${user?.role === 'accounting' ? 'accounting-avatar' : ''}`}>
-                    {user?.role === 'accounting' ? '📊' : '👤'}
-                  </div>
+                  <div className="mobile-user-avatar">👤</div>
                   <div>
                     <div className="mobile-user-name">{user?.name || user?.username || 'User'}</div>
-                    <div className={`mobile-user-role ${user?.role === 'accounting' ? 'accounting-role' : ''}`}>
-                      {user?.role === 'accounting' ? t('nav.accounting') : t('nav.user') || 'User'}
-                    </div>
+                    <div className="mobile-user-role">{t('nav.user') || 'User'}</div>
                   </div>
                 </div>
+                <button 
+                  onClick={handleLogout} 
+                  className="mobile-menu-item mobile-logout"
+                >
+                  <span className="mobile-item-icon">🚪</span>
+                  <span>{t('nav.logout')}</span>
+                </button>
+              </div>
+            )}
+            {/* Logout only for Accounting - Mobile */}
+            {isAuthenticated && user?.role === 'accounting' && (
+              <div className="mobile-menu-section">
                 <button 
                   onClick={handleLogout} 
                   className="mobile-menu-item mobile-logout"
@@ -443,18 +514,6 @@ const Navbar = () => {
               </div>
             )}
 
-            {!isAuthenticated && (
-              <div className="mobile-menu-section">
-                <Link 
-                  to="/login" 
-                  className="btn-login-mobile"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <span className="login-icon">🔐</span>
-                  <span>{t('nav.login')}</span>
-                </Link>
-              </div>
-            )}
           </div>
         </div>
       )}

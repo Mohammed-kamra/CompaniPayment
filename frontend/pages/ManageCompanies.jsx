@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { useTranslation } from 'react-i18next'
 import { companyNamesAPI } from '../services/api'
 import * as XLSX from 'xlsx'
+import ConfirmModal from '../components/ConfirmModal'
 import './ManageCompanies.css'
 
 const ManageCompanies = () => {
@@ -19,6 +20,9 @@ const ManageCompanies = () => {
   const [importData, setImportData] = useState('')
   const [importResult, setImportResult] = useState(null)
   const [showImport, setShowImport] = useState(false)
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+  const [deleteTargetId, setDeleteTargetId] = useState(null)
+  const [deleteAllConfirmOpen, setDeleteAllConfirmOpen] = useState(false)
   const fileInputRef = useRef(null)
   const { isAuthenticated, user } = useAuth()
   const navigate = useNavigate()
@@ -94,40 +98,45 @@ const ManageCompanies = () => {
     setShowForm(true)
   }
 
-  const handleDelete = async (id) => {
-    if (!window.confirm(t('companyNames.confirmDelete'))) {
-      return
-    }
+  const handleDeleteClick = (id) => {
+    setDeleteTargetId(id)
+    setDeleteConfirmOpen(true)
+  }
 
+  const handleDeleteConfirm = async () => {
+    if (!deleteTargetId) return
     try {
-      await companyNamesAPI.delete(id)
+      await companyNamesAPI.delete(deleteTargetId)
       setSuccess(t('companyNames.deleted'))
       await fetchCompanyNames()
       setTimeout(() => setSuccess(''), 3000)
+      setDeleteConfirmOpen(false)
+      setDeleteTargetId(null)
     } catch (err) {
       setError(err.message)
+      setDeleteConfirmOpen(false)
     }
   }
 
-  const handleDeleteAll = async () => {
+  const handleDeleteAllClick = () => {
     if (companyNames.length === 0) {
       setError(t('companyNames.noNamesToDelete'))
       return
     }
+    setDeleteAllConfirmOpen(true)
+  }
 
-    const confirmMessage = t('companyNames.confirmDeleteAll', { count: companyNames.length })
-    if (!window.confirm(confirmMessage)) {
-      return
-    }
-
+  const handleDeleteAllConfirm = async () => {
     try {
       setError('')
       const result = await companyNamesAPI.deleteAll()
       setSuccess(t('companyNames.deletedAll', { count: result.deletedCount || companyNames.length }))
       await fetchCompanyNames()
       setTimeout(() => setSuccess(''), 3000)
+      setDeleteAllConfirmOpen(false)
     } catch (err) {
       setError(err.message)
+      setDeleteAllConfirmOpen(false)
     }
   }
 
@@ -297,7 +306,7 @@ const ManageCompanies = () => {
             {t('companyNames.addNew')}
           </button>
           {companyNames.length > 0 && (
-            <button onClick={handleDeleteAll} className="btn btn-danger">
+            <button onClick={handleDeleteAllClick} className="btn btn-danger">
               {t('companyNames.deleteAll')}
             </button>
           )}
@@ -485,7 +494,7 @@ const ManageCompanies = () => {
                         <button onClick={() => handleEdit(companyName)} className="btn btn-sm btn-primary">
                           {t('companyNames.edit')}
                         </button>
-                        <button onClick={() => handleDelete(companyName._id)} className="btn btn-sm btn-danger">
+                        <button onClick={() => handleDeleteClick(companyName._id)} className="btn btn-sm btn-danger">
                           {t('companyNames.delete')}
                         </button>
                       </div>
@@ -496,6 +505,28 @@ const ManageCompanies = () => {
             </table>
           </div>
         )}
+
+        <ConfirmModal
+          open={deleteConfirmOpen}
+          title={t('companyNames.confirmDeleteTitle') || 'Confirm Delete'}
+          message={t('companyNames.confirmDelete') || 'Are you sure you want to delete this company name?'}
+          confirmLabel={t('common.delete') || 'Delete'}
+          cancelLabel={t('common.cancel') || 'Cancel'}
+          variant="danger"
+          onConfirm={handleDeleteConfirm}
+          onCancel={() => { setDeleteConfirmOpen(false); setDeleteTargetId(null) }}
+        />
+
+        <ConfirmModal
+          open={deleteAllConfirmOpen}
+          title={t('companyNames.confirmDeleteTitle') || 'Confirm Delete'}
+          message={t('companyNames.confirmDeleteAll', { count: companyNames.length }) || `Are you sure you want to delete all ${companyNames.length} company names? This action cannot be undone!`}
+          confirmLabel={t('common.delete') || 'Delete'}
+          cancelLabel={t('common.cancel') || 'Cancel'}
+          variant="danger"
+          onConfirm={handleDeleteAllConfirm}
+          onCancel={() => setDeleteAllConfirmOpen(false)}
+        />
       </div>
     </div>
   )

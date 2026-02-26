@@ -18,7 +18,8 @@ router.get('/website', async (req, res) => {
         closeTime: '',
         autoSchedule: false,
         codesActive: true,
-        postRegistrationMessage: ''
+        postRegistrationMessage: '',
+        notePaymentRegistration: ''
       });
     }
     
@@ -104,7 +105,8 @@ router.get('/website', async (req, res) => {
       closeTime: settings.closeTime || '',
       autoSchedule: settings.autoSchedule || false,
       codesActive: settings.codesActive !== undefined ? settings.codesActive : true,
-      postRegistrationMessage: settings.postRegistrationMessage || ''
+      postRegistrationMessage: settings.postRegistrationMessage || '',
+      notePaymentRegistration: settings.notePaymentRegistration || ''
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -136,6 +138,7 @@ router.put('/website', requireAdmin, async (req, res) => {
       autoSchedule: req.body.autoSchedule || false,
       codesActive: req.body.codesActive !== undefined ? req.body.codesActive : true,
       postRegistrationMessage: req.body.postRegistrationMessage || '',
+      notePaymentRegistration: req.body.notePaymentRegistration || '',
       autoClosed: false, // Reset autoClosed flag when manually updating settings
       updatedAt: new Date()
     };
@@ -159,7 +162,8 @@ router.put('/website', requireAdmin, async (req, res) => {
       closeTime: updatedSettings.closeTime || '',
       autoSchedule: updatedSettings.autoSchedule || false,
       codesActive: updatedSettings.codesActive !== undefined ? updatedSettings.codesActive : true,
-      postRegistrationMessage: updatedSettings.postRegistrationMessage || ''
+      postRegistrationMessage: updatedSettings.postRegistrationMessage || '',
+      notePaymentRegistration: updatedSettings.notePaymentRegistration || ''
     });
   } catch (error) {
     res.status(500).json({ error: error.message });

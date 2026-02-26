@@ -28,6 +28,69 @@
   margin-top: 0.5rem;
 }
 
+.dashboard-report {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: var(--card-bg);
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  box-shadow: var(--shadow-md);
+}
+
+.dashboard-report-title {
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0 0 1rem 0;
+}
+
+.dashboard-report-cards {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.dashboard-report-card {
+  flex: 1;
+  min-width: 180px;
+  padding: 1.25rem 1.5rem;
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  border: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.dashboard-report-card-registered {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.1) 100%);
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.dashboard-report-card-unregistered {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(217, 119, 6, 0.1) 100%);
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+.dashboard-report-label {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.dashboard-report-value {
+  color: var(--text-primary);
+  font-size: 2rem;
+  font-weight: 800;
+}
+
+.dashboard-report-card-registered .dashboard-report-value {
+  color: #10b981;
+}
+
+.dashboard-report-card-unregistered .dashboard-report-value {
+  color: #f59e0b;
+}
+
 .dashboard-controls {
   display: flex;
   justify-content: space-between;

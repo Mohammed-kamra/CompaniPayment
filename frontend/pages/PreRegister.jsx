@@ -1,12 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Navigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { preRegisterAPI, settingsAPI, groupsAPI } from '../services/api'
+import { useAuth } from '../contexts/AuthContext'
+import { preRegisterAPI, settingsAPI, groupsAPI, companiesAPI } from '../services/api'
 import './PreRegister.css'
 
 const PreRegister = () => {
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
+  const { isAuthenticated, user } = useAuth()
+
+  if (isAuthenticated && user?.role === 'accounting') {
+    return <Navigate to="/companies-list" replace />
+  }
 
   // Helper function to translate day names
   const translateDay = (dayName) => {
@@ -65,6 +71,8 @@ const PreRegister = () => {
   })
   const [codeError, setCodeError] = useState('')
   const [loadingCode, setLoadingCode] = useState(false)
+  const [unspentCompanies, setUnspentCompanies] = useState([])
+  const [loadingUnspent, setLoadingUnspent] = useState(false)
   const codeDebounceTimer = useRef(null)
   const isMountedRef = useRef(true)
 
@@ -116,7 +124,7 @@ const PreRegister = () => {
                   <span style="flex: 1; min-width: 0; line-height: 1.6;">${successMsg}</span>
                   <button class="notification-close-btn" style="background: transparent; border: none; font-size: 24px; cursor: pointer; color: inherit; opacity: 0.7; padding: 0; margin-left: 0.5rem; line-height: 1;">×</button>
                 </div>
-                <button class="notification-ok-btn" style="background-color: #10b981; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; transition: background-color 0.2s;">OK</button>
+                <button class="notification-ok-btn" style="background-color: #10b981; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; transition: background-color 0.2s;">${t('common.ok') || 'OK'}</button>
               </div>
             `
             notification.onclick = (e) => {
@@ -186,10 +194,23 @@ const PreRegister = () => {
       }
     }
 
+    const fetchUnspentCompanies = async () => {
+      try {
+        setLoadingUnspent(true)
+        const allCompanies = await companiesAPI.getAll()
+        const notSpent = (allCompanies || []).filter(c => !c.spent)
+        setUnspentCompanies(notSpent)
+      } catch (err) {
+        console.error('Failed to fetch unspent companies:', err)
+      } finally {
+        setLoadingUnspent(false)
+      }
+    }
+
     // Initial load
     checkWebsiteStatus()
     fetchGroups()
-    // No longer need to fetch company names since we removed the dropdown
+    fetchUnspentCompanies()
     
     // Check status very frequently (every 2 seconds) to catch when countdown ends
     // This ensures the website opens/closes immediately when time runs out
@@ -483,8 +504,16 @@ const PreRegister = () => {
       const result = await preRegisterAPI.submit(submitData)
       console.log('✅ Pre-registration successful:', result)
       
-      // Get company name BEFORE clearing anything
+      // Get company name and other fields BEFORE clearing anything
       const registeredCompanyName = formData.companyName || ''
+      const registeredMobileNumber = formData.mobileNumber || ''
+      const registeredName = formData.name || ''
+      const registeredGroupId = formData.groupId || ''
+      
+      // Compute registration time once so we can pass it to the next page
+      const registrationTime = (result && result.data && result.data.createdAt) 
+        ? result.data.createdAt 
+        : new Date().toISOString()
       
       // Use postRegistrationMessage from settings if available, otherwise use default success message
       console.log('🔍 Checking websiteSettings:', websiteSettings)
@@ -551,7 +580,7 @@ const PreRegister = () => {
               <span style="flex: 1; min-width: 0; line-height: 1.6;">${successMsg}</span>
               <button class="notification-close-btn" style="background: transparent; border: none; font-size: 24px; cursor: pointer; color: inherit; opacity: 0.7; padding: 0; margin-left: 0.5rem; line-height: 1;">×</button>
             </div>
-            <button class="notification-ok-btn" style="background-color: #10b981; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; transition: background-color 0.2s;">OK</button>
+            <button class="notification-ok-btn" style="background-color: #10b981; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; transition: background-color 0.2s;">${t('common.ok') || 'OK'}</button>
           </div>
         `
         notification.onclick = (e) => {
@@ -570,8 +599,21 @@ const PreRegister = () => {
             sessionStorage.removeItem('preRegisterSuccessMessage')
             sessionStorage.removeItem('preRegisterSuccessTime')
             notification.remove()
-            // Navigate to register page instead of reloading
-            navigate('/pre-register', { replace: true, state: { preRegistered: true } })
+            // Navigate to register page and show summary (company name + registration time)
+            navigate('/register', { 
+              replace: true, 
+              state: { 
+                preRegistered: true,
+                fromPreRegister: true,
+                preRegistrationData: {
+                  companyName: registeredCompanyName,
+                  mobileNumber: registeredMobileNumber,
+                  name: registeredName,
+                  groupId: registeredGroupId,
+                  registrationTime
+                }
+              } 
+            })
           }
           
           if (closeBtn) closeBtn.addEventListener('click', handleClose)
@@ -581,9 +623,6 @@ const PreRegister = () => {
         document.body.appendChild(notification)
         console.log('✅ Notification created in DOM immediately - will stay until OK is clicked')
       }
-      
-      // Show alert as immediate feedback
-      alert('SUCCESS: ' + successMsg)
       
       // Clear the loading timeout since we got a response
       clearTimeout(loadingTimeout)
@@ -614,23 +653,8 @@ const PreRegister = () => {
       // Clear error state
       setError('')
       
-      // Navigate to registration page after showing notification
-      // Use React Router navigation instead of window.location.reload() to avoid 404 in production
-      // Wait a moment to ensure notification is visible before navigation
-      setTimeout(() => {
-        navigate('/pre-register', { 
-          replace: true, 
-          state: { 
-            preRegistered: true,
-            preRegistrationData: {
-              companyName: registeredCompanyName,
-              mobileNumber: formData.mobileNumber,
-              name: formData.name,
-              groupId: formData.groupId
-            }
-          } 
-        })
-      }, 500) // Small delay to let user see the notification
+      // Navigation to the summary page is now handled when the user
+      // clicks OK (or the close button) on the success notification.
     } catch (err) {
       // Clear loading timeout first
       clearTimeout(loadingTimeout)
@@ -723,14 +747,29 @@ const PreRegister = () => {
     }
   }
 
+    const codesActive = websiteSettings?.codesActive === true
+    const trimmedCode = (formData.code || '').trim()
+    const codeValid = codesActive && autoFilledFields.companyName && formData.companyName
+    const hasUnspentForCode = codesActive && trimmedCode && unspentCompanies.some(c => c.code === trimmedCode)
+    const showCodeOnly = codesActive && !codeValid
+    const showUnspentOnly = codesActive && codeValid && hasUnspentForCode
+    const showGroupAndButton = codesActive && codeValid && !hasUnspentForCode
+
     return (
     <div className={`pre-register ${websiteClosed ? 'website-closed' : ''}`}>
       {websiteClosed && (
         <div className="closed-background-overlay">
-          <span className="closed-watermark">CLOSED</span>
+          <span className="closed-watermark">{t('preRegister.websiteClosedWatermark') || 'CLOSED'}</span>
         </div>
       )}
       <div className="pre-register-container">
+        <div className="pre-register-header">
+          <div className="pre-register-header-logos">
+            <img src="/logo-left.jpg" alt="" className="pre-register-header-img" />
+            <img src="/logo-right.png" alt="" className="pre-register-header-img" />
+          </div>
+          <span className="pre-register-header-text">{t('preRegister.welcomeHeader') || 'Welcome to payment website'}</span>
+        </div>
         <h1>{t('preRegister.title')}</h1>
         <p className="pre-register-subtitle">{t('preRegister.subtitle')}</p>
 
@@ -769,133 +808,176 @@ const PreRegister = () => {
           position: 'relative',
           zIndex: websiteClosed ? 0 : 1
         }}>
-          {websiteSettings?.codesActive === true && (
-          <div className="form-group">
-            <label>{t('preRegister.registrationCode')} *</label>
-            <input
-              type="text"
-              name="code"
-              value={formData.code}
-              onChange={handleCodeInputChange}
-              onBlur={handleCodeBlur}
-              required
-              placeholder={t('preRegister.codePlaceholder') || 'Enter your company code'}
-              disabled={loadingCode}
-              style={{ 
-                opacity: loadingCode ? 0.6 : 1,
-                position: 'relative'
-              }}
-            />
-            {loadingCode && (
-              <small className="form-hint" style={{ color: '#3b82f6', display: 'block', marginTop: '0.5rem' }}>
-                {t('preRegister.loadingCode') || 'Loading company data...'}
-              </small>
-            )}
-            {codeError && (
-              <div className="field-error-message" style={{ 
-                color: '#ef4444', 
-                fontSize: '0.875rem', 
-                marginTop: '0.5rem',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem'
-              }}>
-                <span>⚠️</span>
-                <span>{codeError}</span>
+          {(() => {
+            if (codesActive && showCodeOnly) {
+              return (
+                <div className="form-group">
+                  <label>{t('preRegister.registrationCode')} *</label>
+                  <input
+                    type="text"
+                    name="code"
+                    value={formData.code}
+                    onChange={handleCodeInputChange}
+                    onBlur={handleCodeBlur}
+                    required
+                    placeholder={t('preRegister.codePlaceholder') || 'Enter your company code'}
+                    disabled={loadingCode}
+                    style={{ opacity: loadingCode ? 0.6 : 1 }}
+                  />
+                  {loadingCode && (
+                    <small className="form-hint" style={{ color: '#3b82f6', display: 'block', marginTop: '0.5rem' }}>
+                      {t('preRegister.loadingCode') || 'Loading company data...'}
+                    </small>
+                  )}
+                  {codeError && (
+                    <div className="field-error-message" style={{ color: '#ef4444', fontSize: '0.875rem', marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <span>⚠️</span>
+                      <span>{codeError}</span>
+                    </div>
+                  )}
+                </div>
+              )
+            }
+
+            if (codesActive && showUnspentOnly) {
+              return null
+            }
+
+            return (
+          <>
+          <div className="pre-register-form-row">
+            {codesActive && (
+              <div className="form-group">
+                <label>{t('preRegister.registrationCode')} *</label>
+                <div className="code-with-action-row">
+                  <input
+                    type="text"
+                    name="code"
+                    value={formData.code}
+                    onChange={handleCodeInputChange}
+                    onBlur={handleCodeBlur}
+                    required
+                    placeholder={t('preRegister.codePlaceholder') || 'Enter your company code'}
+                    disabled={loadingCode}
+                    style={{ opacity: loadingCode ? 0.6 : 1 }}
+                  />
+                  <button
+                    type="button"
+                    className="btn btn-secondary btn-use-different-code"
+                    onClick={() => {
+                      setFormData(prev => ({ ...prev, code: '', name: '', mobileNumber: '', companyName: '', groupId: '' }))
+                      setAutoFilledFields({ name: false, mobileNumber: false, companyName: false })
+                      setCodeError('')
+                    }}
+                  >
+                    {t('preRegister.useDifferentCode') || 'Use different code'}
+                  </button>
+                </div>
+                {loadingCode && (
+                  <small className="form-hint" style={{ color: '#3b82f6', display: 'block', marginTop: '0.5rem' }}>
+                    {t('preRegister.loadingCode') || 'Loading company data...'}
+                  </small>
+                )}
+                {codeError && (
+                  <div className="field-error-message" style={{ color: '#ef4444', fontSize: '0.875rem', marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <span>⚠️</span>
+                    <span>{codeError}</span>
+                  </div>
+                )}
               </div>
             )}
-            {!codeError && !loadingCode && formData.code && (
-              <small className="form-hint" style={{ color: '#10b981', display: 'block', marginTop: '0.5rem' }}>
-                {t('preRegister.codeHint') || 'Enter your company code to auto-fill the form'}
-              </small>
+
+            {(!codesActive || codeValid) && (
+            <div className="form-group">
+              <label>{t('preRegister.name')} *</label>
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleInputChange}
+                required
+                placeholder={t('preRegister.namePlaceholder')}
+                readOnly={autoFilledFields.name}
+                style={{
+                  backgroundColor: autoFilledFields.name ? 'rgba(16, 185, 129, 0.1)' : 'var(--bg-tertiary)',
+                  color: autoFilledFields.name ? 'var(--text-primary)' : 'var(--text-primary)',
+                  cursor: autoFilledFields.name ? 'not-allowed' : 'text',
+                  borderColor: autoFilledFields.name ? 'rgba(16, 185, 129, 0.3)' : 'var(--border-color)',
+                  borderWidth: autoFilledFields.name ? '2px' : '2px',
+                  fontWeight: autoFilledFields.name ? '500' : 'normal',
+                  opacity: autoFilledFields.name ? '1' : '1'
+                }}
+              />
+              {autoFilledFields.name && (
+                <small className="form-hint" style={{ color: '#10b981', display: 'block', marginTop: '0.5rem', fontWeight: '500' }}>
+                  ✓ {t('preRegister.autoFilled') || 'Auto-filled from company code'}
+                </small>
+              )}
+            </div>
             )}
+          </div>
+
+          {(!codesActive || codeValid) && (
+          <div className="pre-register-form-row">
+            <div className="form-group">
+              <label>{t('preRegister.mobileNumber')} *</label>
+              <input
+                type="tel"
+                name="mobileNumber"
+                value={formData.mobileNumber}
+                onChange={handleInputChange}
+                required
+                placeholder={t('preRegister.mobilePlaceholder')}
+                readOnly={autoFilledFields.mobileNumber}
+                style={{
+                  backgroundColor: autoFilledFields.mobileNumber ? 'rgba(16, 185, 129, 0.1)' : 'var(--bg-tertiary)',
+                  color: autoFilledFields.mobileNumber ? 'var(--text-primary)' : 'var(--text-primary)',
+                  cursor: autoFilledFields.mobileNumber ? 'not-allowed' : 'text',
+                  borderColor: autoFilledFields.mobileNumber ? 'rgba(16, 185, 129, 0.3)' : 'var(--border-color)',
+                  borderWidth: autoFilledFields.mobileNumber ? '2px' : '2px',
+                  fontWeight: autoFilledFields.mobileNumber ? '500' : 'normal',
+                  opacity: autoFilledFields.mobileNumber ? '1' : '1'
+                }}
+              />
+              {autoFilledFields.mobileNumber && (
+                <small className="form-hint" style={{ color: '#10b981', display: 'block', marginTop: '0.5rem', fontWeight: '500' }}>
+                  ✓ {t('preRegister.autoFilled') || 'Auto-filled from company code'}
+                </small>
+              )}
+            </div>
+
+            <div className="form-group">
+              <label>{t('preRegister.companyName') || 'Company Name'} *</label>
+              <input
+                type="text"
+                name="companyName"
+                value={formData.companyName}
+                readOnly
+                required
+                placeholder={t('preRegister.companyNamePlaceholder') || 'Company name will appear here after entering code'}
+                style={{
+                  backgroundColor: formData.companyName ? 'rgba(16, 185, 129, 0.1)' : 'var(--bg-tertiary)',
+                  color: formData.companyName ? 'var(--text-primary)' : 'var(--text-secondary)',
+                  cursor: 'not-allowed',
+                  borderColor: formData.companyName ? 'rgba(16, 185, 129, 0.3)' : 'var(--border-color)',
+                  borderWidth: '2px',
+                  fontWeight: formData.companyName ? '500' : 'normal',
+                  opacity: formData.companyName ? '1' : '0.7'
+                }}
+              />
+              {formData.companyName && (
+                <small className="form-hint" style={{ color: '#10b981', display: 'block', marginTop: '0.5rem', fontWeight: '500' }}>
+                  ✓ {t('preRegister.autoFilled') || 'Auto-filled from company code'}
+                </small>
+              )}
+              {!formData.companyName && (
+                <small className="form-hint" style={{ color: 'var(--text-secondary)', display: 'block', marginTop: '0.5rem' }}>
+                  {t('preRegister.companyNameHint') || 'Enter your company code above to auto-fill the company name'}
+                </small>
+              )}
+            </div>
           </div>
           )}
-
-          <div className="form-group">
-            <label>{t('preRegister.name')} *</label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleInputChange}
-              required
-              placeholder={t('preRegister.namePlaceholder')}
-              readOnly={autoFilledFields.name}
-              style={{
-                backgroundColor: autoFilledFields.name ? 'rgba(16, 185, 129, 0.1)' : 'var(--bg-tertiary)',
-                color: autoFilledFields.name ? 'var(--text-primary)' : 'var(--text-primary)',
-                cursor: autoFilledFields.name ? 'not-allowed' : 'text',
-                borderColor: autoFilledFields.name ? 'rgba(16, 185, 129, 0.3)' : 'var(--border-color)',
-                borderWidth: autoFilledFields.name ? '2px' : '2px',
-                fontWeight: autoFilledFields.name ? '500' : 'normal',
-                opacity: autoFilledFields.name ? '1' : '1'
-              }}
-            />
-            {autoFilledFields.name && (
-              <small className="form-hint" style={{ color: '#10b981', display: 'block', marginTop: '0.5rem', fontWeight: '500' }}>
-                ✓ {t('preRegister.autoFilled') || 'Auto-filled from company code'}
-              </small>
-            )}
-          </div>
-
-          <div className="form-group">
-            <label>{t('preRegister.mobileNumber')} *</label>
-            <input
-              type="tel"
-              name="mobileNumber"
-              value={formData.mobileNumber}
-              onChange={handleInputChange}
-              required
-              placeholder={t('preRegister.mobilePlaceholder')}
-              readOnly={autoFilledFields.mobileNumber}
-              style={{
-                backgroundColor: autoFilledFields.mobileNumber ? 'rgba(16, 185, 129, 0.1)' : 'var(--bg-tertiary)',
-                color: autoFilledFields.mobileNumber ? 'var(--text-primary)' : 'var(--text-primary)',
-                cursor: autoFilledFields.mobileNumber ? 'not-allowed' : 'text',
-                borderColor: autoFilledFields.mobileNumber ? 'rgba(16, 185, 129, 0.3)' : 'var(--border-color)',
-                borderWidth: autoFilledFields.mobileNumber ? '2px' : '2px',
-                fontWeight: autoFilledFields.mobileNumber ? '500' : 'normal',
-                opacity: autoFilledFields.mobileNumber ? '1' : '1'
-              }}
-            />
-            {autoFilledFields.mobileNumber && (
-              <small className="form-hint" style={{ color: '#10b981', display: 'block', marginTop: '0.5rem', fontWeight: '500' }}>
-                ✓ {t('preRegister.autoFilled') || 'Auto-filled from company code'}
-              </small>
-            )}
-          </div>
-
-          <div className="form-group">
-            <label>{t('preRegister.companyName') || 'Company Name'} *</label>
-            <input
-              type="text"
-              name="companyName"
-              value={formData.companyName}
-              readOnly
-              required
-              placeholder={t('preRegister.companyNamePlaceholder') || 'Company name will appear here after entering code'}
-              style={{
-                backgroundColor: formData.companyName ? 'rgba(16, 185, 129, 0.1)' : 'var(--bg-tertiary)',
-                color: formData.companyName ? 'var(--text-primary)' : 'var(--text-secondary)',
-                cursor: 'not-allowed',
-                borderColor: formData.companyName ? 'rgba(16, 185, 129, 0.3)' : 'var(--border-color)',
-                borderWidth: '2px',
-                fontWeight: formData.companyName ? '500' : 'normal',
-                opacity: formData.companyName ? '1' : '0.7'
-              }}
-            />
-            {formData.companyName && (
-              <small className="form-hint" style={{ color: '#10b981', display: 'block', marginTop: '0.5rem', fontWeight: '500' }}>
-                ✓ {t('preRegister.autoFilled') || 'Auto-filled from company code'}
-              </small>
-            )}
-            {!formData.companyName && (
-              <small className="form-hint" style={{ color: 'var(--text-secondary)', display: 'block', marginTop: '0.5rem' }}>
-                {t('preRegister.companyNameHint') || 'Enter your company code above to auto-fill the company name'}
-              </small>
-            )}
-          </div>
           
           {websiteSettings?.codesActive !== true && (
             <div className="info-message" style={{ 
@@ -911,6 +993,8 @@ const PreRegister = () => {
             </div>
           )}
 
+          {(showGroupAndButton || !codesActive) && (
+          <>
           <div className="form-group group-selection-container">
             <label>{t('preRegister.selectGroup')} *</label>
             <input
@@ -1005,7 +1089,115 @@ const PreRegister = () => {
               {t('preRegister.cancel')}
             </button>
           </div>
+          </>
+          )}
+          </>
+        )
+      })()}
         </form>
+
+        {(!codesActive || showUnspentOnly) && (
+        <>
+        {showUnspentOnly && (
+          <div className="info-message" style={{ marginTop: '1.5rem', padding: '1rem', background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
+            <span>
+              {t('preRegister.alreadyRegisteredWithUnspent', 'Your company {{companyName}} is already registered. See groups with unspent entries below.', { companyName: formData.companyName || '' })}
+            </span>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              style={{ fontSize: '0.875rem', padding: '0.5rem 1rem' }}
+              onClick={() => {
+                setFormData(prev => ({ ...prev, code: '', name: '', mobileNumber: '', companyName: '', groupId: '' }))
+                setAutoFilledFields({ name: false, mobileNumber: false, companyName: false })
+                setCodeError('')
+              }}
+            >
+              {t('preRegister.useDifferentCode') || 'Use different code'}
+            </button>
+          </div>
+        )}
+        <div className="unspent-section">
+          <h2 className="unspent-title">
+            {t('companiesList.unspentTitle', 'Groups and companies that have not spent yet')}
+          </h2>
+          {loadingUnspent ? (
+            <p className="unspent-message">
+              {t('companiesList.loading', 'Loading...')}
+            </p>
+          ) : unspentCompanies.length === 0 ? (
+            <p className="unspent-message">
+              {t('companiesList.noUnspent', 'There are currently no companies with unpaid / unspent status.')}
+            </p>
+          ) : (() => {
+            const grouped = groups
+              .map(group => ({
+                group,
+                companies: unspentCompanies.filter(c => c.groupId === group._id)
+              }))
+              .filter(item => item.companies.length > 0)
+
+            if (grouped.length === 0) {
+              // Fallback: show all unspent companies even if they have no group
+              return (
+                <div className="public-registration-table-wrapper">
+                  <table className="public-registration-table global-table unspent-table">
+                    <thead>
+                      <tr>
+                        <th>{t('companiesList.companyName') || 'Company Name'}</th>
+                        <th>{t('companiesList.groupName') || 'Group'}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {unspentCompanies.map(company => {
+                        const group = groups.find(g => g._id === company.groupId)
+                        return (
+                          <tr key={company._id}>
+                            <td>{company.name}</td>
+                            <td>{group ? group.name : '-'}</td>
+                          </tr>
+                        )
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )
+            }
+
+            return (
+              <div className="unspent-groups-grid">
+                {grouped.map(item => (
+                  <div key={item.group._id} className="unspent-group-card">
+                    <div className="unspent-group-header">
+                      <h3 className="unspent-group-name">{item.group.name}</h3>
+                      <span className="unspent-count-badge">
+                        {item.companies.length}
+                      </span>
+                    </div>
+                    <div className="public-registration-table-wrapper">
+                      <table className="public-registration-table global-table unspent-table">
+                        <thead>
+                          <tr>
+                            <th>{t('companiesList.companyName') || 'Company Name'}</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {item.companies.map(company => (
+                            <tr key={company._id}>
+                              <td>{company.name}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )
+          })()}
+        </div>
+        </>
+        )}
       </div>
     </div>
   )

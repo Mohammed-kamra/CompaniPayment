@@ -148,13 +148,19 @@ router.post('/', async (req, res) => {
       });
       
       // Also update the company entry if it exists
+      // Try to find an existing company linked to this pre-registration
       const existingCompanyEntry = await db.collection('companies').findOne({
         name: req.body.companyName,
         code: code,
-        preRegistrationId: existingPreRegByNameAndCode._id
+        // preRegistrationId is stored as a string in companies collection
+        preRegistrationId: existingPreRegByNameAndCode._id.toString()
       });
       
+      let companyDoc = null;
+      let companyInsertResult = null;
+      
       if (existingCompanyEntry) {
+        // Update existing linked company (common case when not deleted)
         await db.collection('companies').updateOne(
           { _id: existingCompanyEntry._id },
           { 
@@ -167,14 +173,104 @@ router.post('/', async (req, res) => {
             }
           }
         );
+        
+        companyDoc = await db.collection('companies').findOne({
+          _id: existingCompanyEntry._id
+        });
+      } else {
+        // No linked company found (it might have been deleted earlier) – create a new one
+        const companyDataForUpdateFlow = {
+          name: req.body.companyName,
+          registrantName: req.body.name,
+          email: req.body.mobileNumber + '@temp.com',
+          phoneNumber: req.body.mobileNumber,
+          code: code || '',
+          address: '',
+          logo: '',
+          description: '',
+          businessType: '',
+          registrationNumber: '',
+          taxId: '',
+          website: '',
+          groupId: req.body.groupId || '',
+          status: 'approved',
+          paymentStatus: 'pending',
+          registrationFee: 0,
+          spent: false,
+          paid: false,
+          preRegistrationId: updatedPreRegistration._id.toString(),
+          createdAt: new Date(),
+          updatedAt: new Date()
+        };
+        
+        try {
+          // Respect duplicate-code protection
+          if (code && code.trim() !== '') {
+            const existingCompanyWithCode = await db.collection('companies').findOne({
+              code: code.trim()
+            });
+            
+            if (existingCompanyWithCode) {
+              console.warn('⚠️ Duplicate company code detected while recreating company from pre-registration:', code);
+            } else {
+              companyInsertResult = await db.collection('companies').insertOne(companyDataForUpdateFlow);
+            }
+          } else {
+            // Codes disabled or empty – insert without code uniqueness
+            companyInsertResult = await db.collection('companies').insertOne(companyDataForUpdateFlow);
+          }
+          
+          // If we created a company, update the group counters as in the main flow
+          if (companyInsertResult && companyInsertResult.insertedId && req.body.groupId && req.body.groupId.trim() !== '') {
+            try {
+              const group = await db.collection('groups').findOne({ 
+                _id: new ObjectId(req.body.groupId) 
+              });
+              
+              if (group) {
+                const registeredCount = (group.registeredCount || group.companies?.length || 0) + 1;
+                const maxCompanies = group.maxCompanies || 0;
+                const isClosed = maxCompanies > 0 && registeredCount >= maxCompanies;
+                
+                await db.collection('groups').updateOne(
+                  { _id: new ObjectId(req.body.groupId) },
+                  { 
+                    $push: { companies: companyInsertResult.insertedId },
+                    $set: { 
+                      registeredCount: registeredCount,
+                      isClosed: isClosed,
+                      updatedAt: new Date() 
+                    }
+                  }
+                );
+              }
+            } catch (groupError) {
+              console.error('Error updating group when recreating company from pre-registration:', groupError);
+            }
+          }
+          
+          if (companyInsertResult && companyInsertResult.insertedId) {
+            companyDoc = await db.collection('companies').findOne({ 
+              _id: companyInsertResult.insertedId 
+            });
+          }
+        } catch (companyError) {
+          if (companyError.code === 11000) {
+            console.warn('⚠️ Duplicate company code detected while recreating company from pre-registration:', code);
+          } else {
+            console.error('Error creating company from updated pre-registration:', companyError);
+          }
+        }
       }
       
-      // Return response in same format as new pre-registration
+      // Return response in same format as new pre-registration, including company (if any)
       return res.json({
         preRegistrationId: updatedPreRegistration._id.toString(),
+        companyId: companyDoc ? companyDoc._id.toString() : null,
         message: 'Pre-registration updated successfully',
         updated: true,
-        ...updatedPreRegistration
+        ...updatedPreRegistration,
+        company: companyDoc || null
       });
       }
     } else {
@@ -227,10 +323,15 @@ router.post('/', async (req, res) => {
         });
         
         // Also update the company entry if it exists
+        // Try to find an existing company linked to this pre-registration
         const existingCompanyEntry = await db.collection('companies').findOne({
           name: req.body.companyName,
-          preRegistrationId: existingPreRegByName._id
+          // preRegistrationId is stored as a string in companies collection
+          preRegistrationId: existingPreRegByName._id.toString()
         });
+        
+        let companyDoc = null;
+        let companyInsertResult = null;
         
         if (existingCompanyEntry) {
           await db.collection('companies').updateOne(
@@ -245,14 +346,89 @@ router.post('/', async (req, res) => {
               }
             }
           );
+          
+          companyDoc = await db.collection('companies').findOne({
+            _id: existingCompanyEntry._id
+          });
+        } else {
+          // No linked company found (it might have been deleted earlier) – create a new one
+          const companyDataForUpdateFlow = {
+            name: req.body.companyName,
+            registrantName: req.body.name,
+            email: req.body.mobileNumber + '@temp.com',
+            phoneNumber: req.body.mobileNumber,
+            code: code || '',
+            address: '',
+            logo: '',
+            description: '',
+            businessType: '',
+            registrationNumber: '',
+            taxId: '',
+            website: '',
+            groupId: req.body.groupId || '',
+            status: 'approved',
+            paymentStatus: 'pending',
+            registrationFee: 0,
+            spent: false,
+            paid: false,
+            preRegistrationId: updatedPreRegistration._id.toString(),
+            createdAt: new Date(),
+            updatedAt: new Date()
+          };
+          
+          try {
+            companyInsertResult = await db.collection('companies').insertOne(companyDataForUpdateFlow);
+            
+            if (companyInsertResult && companyInsertResult.insertedId && req.body.groupId && req.body.groupId.trim() !== '') {
+              try {
+                const group = await db.collection('groups').findOne({ 
+                  _id: new ObjectId(req.body.groupId) 
+                });
+                
+                if (group) {
+                  const registeredCount = (group.registeredCount || group.companies?.length || 0) + 1;
+                  const maxCompanies = group.maxCompanies || 0;
+                  const isClosed = maxCompanies > 0 && registeredCount >= maxCompanies;
+                  
+                  await db.collection('groups').updateOne(
+                    { _id: new ObjectId(req.body.groupId) },
+                    { 
+                      $push: { companies: companyInsertResult.insertedId },
+                      $set: { 
+                        registeredCount: registeredCount,
+                        isClosed: isClosed,
+                        updatedAt: new Date() 
+                      }
+                    }
+                  );
+                }
+              } catch (groupError) {
+                console.error('Error updating group when recreating company from pre-registration (codes disabled):', groupError);
+              }
+            }
+            
+            if (companyInsertResult && companyInsertResult.insertedId) {
+              companyDoc = await db.collection('companies').findOne({ 
+                _id: companyInsertResult.insertedId 
+              });
+            }
+          } catch (companyError) {
+            if (companyError.code === 11000) {
+              console.warn('⚠️ Duplicate company code detected while recreating company from pre-registration (codes disabled):', code);
+            } else {
+              console.error('Error creating company from updated pre-registration (codes disabled):', companyError);
+            }
+          }
         }
         
-        // Return response in same format as new pre-registration
+        // Return response in same format as new pre-registration, including company (if any)
         return res.json({
           preRegistrationId: updatedPreRegistration._id.toString(),
+          companyId: companyDoc ? companyDoc._id.toString() : null,
           message: 'Pre-registration updated successfully',
           updated: true,
-          ...updatedPreRegistration
+          ...updatedPreRegistration,
+          company: companyDoc || null
         });
       }
     }

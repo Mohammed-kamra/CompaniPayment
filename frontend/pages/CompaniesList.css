@@ -925,20 +925,17 @@
   border: 1px solid #E5C76B !important;
 }
 
-/* Remove scroll from registered companies table container */
+/* Registered companies table - allow scroll on mobile */
 .professional-table-container .registered-companies-table {
   width: 100% !important;
-  max-width: 100% !important;
-  overflow-x: hidden !important;
+  box-sizing: border-box !important;
 }
 
-/* Prevent horizontal overflow */
+/* Container - scrollable on mobile */
 .companies-list .professional-table-container,
 .professional-table-container {
   width: 100% !important;
   max-width: 100% !important;
-  overflow-x: hidden !important;
-  overflow-y: visible !important;
   box-sizing: border-box !important;
 }
 
@@ -1123,10 +1120,10 @@
   text-align: center !important;
 }
 
-/* Remove overflow from container when it contains registered companies table */
+/* Default overflow - scroll on narrow viewports handled by media query */
 .companies-list .professional-table-container {
-  overflow-x: visible;
-  overflow-y: visible;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Gold Hover Effect */
@@ -1872,12 +1869,18 @@
     min-width: 200px !important;
   }
 
-  /* Prevent horizontal scroll on mobile */
+  /* Enable horizontal scroll on mobile for group tables */
   .companies-list .professional-table-container,
   .professional-table-container {
-    overflow-x: hidden !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
     width: 100% !important;
     max-width: 100% !important;
+  }
+
+  .companies-list .professional-table-container .registered-companies-table,
+  .professional-table-container .registered-companies-table {
+    min-width: 800px;
   }
 
   /* Compact delete button on mobile */

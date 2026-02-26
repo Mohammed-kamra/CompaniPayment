@@ -22,7 +22,10 @@
     "accounting": "المحاسبة",
     "profile": "الملف الشخصي",
     "companyManagement": "إدارة الشركات",
-    "systemManagement": "إدارة النظام"
+    "systemManagement": "إدارة النظام",
+    "translations": "الترجمات",
+    "notes": "ملاحظات",
+    "noNotes": "لا توجد ملاحظات."
   },
   "companyNames": {
     "title": "إدارة أسماء الشركات",
@@ -123,9 +126,21 @@
     "error": "اسم المستخدم أو كلمة المرور غير صحيحة",
     "hint": "بيانات تجريبية"
   },
+  "common": {
+    "loading": "جاري التحميل...",
+    "ok": "موافق",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "close": "إغلاق",
+    "preview": "معاينة"
+  },
   "preRegister": {
     "title": "التسجيل المسبق",
     "subtitle": "يرجى تقديم معلوماتك للمتابعة مع تسجيل الشركة",
+    "welcomeHeader": "مرحباً بكم في موقع الدفع",
+    "websiteClosedWatermark": "مغلق",
     "name": "اسمك",
     "namePlaceholder": "أدخل اسمك الكامل",
     "mobileNumber": "رقم الجوال",
@@ -313,7 +328,10 @@
     "welcome": "مرحباً بك في لوحة التحكم",
     "companies": "الشركات",
     "markets": "الأسواق",
-    "viewAll": "عرض الكل"
+    "viewAll": "عرض الكل",
+    "report": "التقرير",
+    "registeredCompanies": "الشركات المسجلة",
+    "unregisteredCompanies": "الشركات غير المسجلة"
   },
   "user": {
     "title": "ملف المستخدم",
@@ -458,6 +476,7 @@
   },
   "settings": {
     "title": "الإعدادات",
+    "headerSubtitle": "إدارة إعدادات وتفضيلات موقعك",
     "websiteStatus": "حالة الموقع",
     "websiteOpen": "الموقع مفتوح",
     "closedMessage": "رسالة الإغلاق",
@@ -466,6 +485,7 @@
     "save": "حفظ الإعدادات",
     "saving": "جاري الحفظ...",
     "saved": "تم حفظ الإعدادات بنجاح!",
+    "saveError": "فشل حفظ الإعدادات. يرجى المحاولة مرة أخرى.",
     "importCompanies": "استيراد أسماء الشركات",
     "importLabel": "أسماء الشركات",
     "importPlaceholder": "أدخل أسماء الشركات (واحدة في كل سطر) أو مصفوفة JSON",
@@ -500,7 +520,16 @@
     "manualDisabledHint": "التحكم اليدوي معطل عندما يكون الجدول التلقائي نشطاً",
     "schedulePreview": "معاينة الجدول",
     "willOpenAt": "سيفتح في",
-    "andCloseAt": " وسيغلق في"
+    "andCloseAt": " وسيغلق في",
+    "opensAt": "يفتح في",
+    "closesAt": "يغلق في",
+    "codesRequired": "الأكواد مطلوبة",
+    "codesOptional": "الأكواد اختيارية",
+    "notePaymentRegistration": "ملاحظة – تسجيل الدفع",
+    "notePaymentRegistrationDescription": "تظهر هذه الملاحظة للزوار (المستخدمين غير المسجلين) على الجوال. يمكنهم عرضها بالنقر على زر الملاحظات.",
+    "notePaymentRegistrationLabel": "ملاحظة للمستخدمين غير المسجلين",
+    "notePaymentRegistrationPlaceholder": "أدخل ملاحظات أو تعليمات للزوار (مثل إرشادات الدفع، معلومات الاتصال...)",
+    "notePaymentRegistrationHint": "تظهر للمستخدمين غير المسجلين فقط على الجوال. اتركها فارغة لإخفاء زر الملاحظات."
   },
   "countdown": {
     "opensAt": "يفتح الموقع في",
@@ -569,5 +598,17 @@
     "paid": "مدفوع",
     "pending": "قيد الانتظار",
     "info": "تعرض هذه القائمة الشركات بترتيب التسجيل. يتم عرض أرقام المواقع فقط للشركات التي لديها حالة دفع قيد الانتظار."
+  },
+  "manageTranslations": {
+    "title": "إدارة الترجمات",
+    "subtitle": "تعديل جميع النصوص في النظام للإنجليزية والكردية والعربية.",
+    "loading": "جاري تحميل الترجمات...",
+    "fromDatabase": "من قاعدة البيانات",
+    "fromDefaultFiles": "من الملفات الافتراضية",
+    "seedToDatabase": "حفظ في قاعدة البيانات",
+    "seedTooltip": "نسخ جميع ترجمات ملفات اللغة إلى قاعدة البيانات.",
+    "seedSuccess": "تم حفظ الترجمات في قاعدة البيانات.",
+    "seedError": "فشل حفظ الترجمات",
+    "saveThisPage": "حفظ هذه الصفحة"
   }
 }

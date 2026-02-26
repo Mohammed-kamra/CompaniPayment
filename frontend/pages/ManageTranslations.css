@@ -1,0 +1,212 @@
+.manage-translations.page-container {
+  padding: 1.5rem;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+.manage-translations .page-header {
+  margin-bottom: 1.5rem;
+}
+
+.manage-translations .page-header h1 {
+  font-size: 1.75rem;
+  margin: 0 0 0.25rem 0;
+  color: var(--text-primary, #1a1a2e);
+}
+
+.manage-translations .subtitle {
+  margin: 0;
+  color: var(--text-secondary, #6b7280);
+  font-size: 0.95rem;
+}
+
+.manage-translations .loading-state {
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-secondary);
+}
+
+.manage-translations .alert {
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.manage-translations .alert-error {
+  background: #fee2e2;
+  border: 1px solid #ef4444;
+  color: #991b1b;
+}
+
+.manage-translations .alert-success {
+  background: #d1fae5;
+  border: 1px solid #10b981;
+  color: #065f46;
+}
+
+.translations-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.translations-toolbar .search-input {
+  flex: 1;
+  min-width: 200px;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 6px;
+  font-size: 0.95rem;
+  background: #ffffff;
+  color: #111827;
+}
+
+.translations-toolbar .source-badge {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  background: var(--bg-tertiary, #f3f4f6);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.translations-toolbar .search-field-select {
+  padding: 0.4rem 0.5rem;
+  font-size: 0.9rem;
+  border-radius: 6px;
+  border: 1px solid var(--border-color, #e5e7eb);
+  background: #ffffff;
+  color: #111827;
+}
+
+.translations-toolbar .btn {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+}
+
+.translations-toolbar .btn-primary {
+  background: var(--primary, #667eea);
+  color: white;
+}
+
+.translations-toolbar .btn-secondary {
+  background: var(--primary-color, #D4AF37);
+  color: #000000;
+  border: 1px solid var(--primary-color, #D4AF37);
+}
+
+.translations-toolbar .btn-primary:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.translations-table-wrapper {
+  overflow-x: auto;
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 8px;
+  background: var(--bg-secondary, #fff);
+}
+
+.translations-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.translations-table th,
+.translations-table td {
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color, #e5e7eb);
+  vertical-align: top;
+}
+
+.translations-table th {
+  background: var(--bg-tertiary, #f9fafb);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.translations-table .col-key {
+  width: 220px;
+  min-width: 180px;
+}
+
+.translations-table .col-key code {
+  font-size: 0.8rem;
+  background: var(--bg-tertiary, #f3f4f6);
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  word-break: break-all;
+}
+
+.translations-table .col-lang {
+  min-width: 200px;
+}
+
+.translation-input {
+  width: 100%;
+  padding: 0.4rem 0.5rem;
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-family: inherit;
+}
+
+.translation-input:focus {
+  outline: none;
+  border-color: var(--primary, #667eea);
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+}
+
+.translations-count {
+  margin-top: 0.75rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.translations-pagination {
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.translations-pagination .btn {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.85rem;
+}
+
+.translations-pagination .btn-secondary {
+  background-color: #f3f4f6;
+  color: #374151;
+  border: 1px solid #e5e7eb;
+}
+
+.translations-pagination .btn-secondary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.translations-pagination .page-info {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 768px) {
+  .translations-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .translations-table .col-key {
+    width: 120px;
+    min-width: 100px;
+  }
+  .translations-table .col-lang {
+    min-width: 140px;
+  }
+}

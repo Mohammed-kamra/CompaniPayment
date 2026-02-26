@@ -1,4 +1,5 @@
 const API_BASE_URL = "https://companipayment-production-87d9.up.railway.app/api" || 'http://localhost:5000/api';
+// const API_BASE_URL =  'http://localhost:5000/api';
 
 // Auth API
 export const authAPI = {
@@ -551,6 +552,60 @@ export const settingsAPI = {
     if (!response.ok) {
       const error = await response.json().catch(() => ({ error: 'Failed to import companies' }));
       throw new Error(error.error || 'Failed to import companies');
+    }
+    return response.json();
+  }
+};
+
+// Translations API (admin edits for en, ku, ar)
+export const translationsAPI = {
+  getAll: async () => {
+    const response = await fetch(`${API_BASE_URL}/translations`);
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ error: 'Failed to fetch translations' }));
+      throw new Error(error.error || 'Failed to fetch translations');
+    }
+    return response.json();
+  },
+
+  update: async (payload) => {
+    const headers = {
+      'Content-Type': 'application/json',
+      ...getAuthHeaders()
+    };
+    const response = await fetch(`${API_BASE_URL}/translations`, {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify(payload),
+    });
+    if (response.status === 403) {
+      throw new Error('Access denied: Admin privileges required');
+    }
+    if (response.status === 401) {
+      throw new Error('Unauthorized: Please login');
+    }
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ error: 'Failed to update translations' }));
+      throw new Error(error.error || 'Failed to update translations');
+    }
+    return response.json();
+  },
+
+  seed: async () => {
+    const headers = { ...getAuthHeaders() };
+    const response = await fetch(`${API_BASE_URL}/translations/seed`, {
+      method: 'POST',
+      headers,
+    });
+    if (response.status === 403) {
+      throw new Error('Access denied: Admin privileges required');
+    }
+    if (response.status === 401) {
+      throw new Error('Unauthorized: Please login');
+    }
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ error: 'Failed to seed translations' }));
+      throw new Error(error.error || 'Failed to seed translations');
     }
     return response.json();
   }

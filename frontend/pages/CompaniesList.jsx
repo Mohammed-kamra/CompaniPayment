@@ -2,14 +2,17 @@ import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router-dom'
 import { useCompaniesData } from '../contexts/CompaniesDataContext'
+import { useNotification } from '../contexts/NotificationContext'
 import { companiesAPI, groupsAPI, settingsAPI } from '../services/api'
 import * as XLSX from 'xlsx'
+import ConfirmModal from '../components/ConfirmModal'
 import '../styles/global-tables.css'
 import './CompaniesList.css'
 
 const CompaniesList = () => {
   const { t } = useTranslation()
   const location = useLocation()
+  const { notify } = useNotification()
   const { 
     companies, 
     companyNames,
@@ -39,6 +42,7 @@ const CompaniesList = () => {
   const [deletingCompanies, setDeletingCompanies] = useState(false)
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
   const [companyToDelete, setCompanyToDelete] = useState(null)
+  const [bulkDeleteConfirmOpen, setBulkDeleteConfirmOpen] = useState(false)
   const [websiteSettings, setWebsiteSettings] = useState(null)
   const [postRegistrationMessage, setPostRegistrationMessage] = useState('')
 
@@ -87,9 +91,11 @@ const CompaniesList = () => {
       
       // Show success message briefly
       setShowSuccessMessage(true)
+      notify('updated', t('settings.saved') || 'Status updated')
       setTimeout(() => setShowSuccessMessage(false), 2000)
     } catch (err) {
       console.error('Failed to update status:', err)
+      notify('error', err.message)
       console.error('Error details:', {
         message: err.message,
         name: err.name,
@@ -145,37 +151,40 @@ const CompaniesList = () => {
       setError('')
       // Use context's delete function which automatically refreshes all tables
       await deleteCompany(companyId)
-      
+      notify('deleted', t('companiesList.deleteSuccess') || 'Company deleted successfully')
       setSelectedCompanies(prev => prev.filter(id => id !== companyId))
       setDeleteConfirmOpen(false)
       setCompanyToDelete(null)
     } catch (err) {
       console.error('Failed to delete company:', err)
       setError(err.message || 'Failed to delete company')
+      notify('error', err.message)
     } finally {
       setDeletingCompanies(false)
     }
   }
 
-  const handleBulkDelete = async () => {
+  const handleBulkDelete = () => {
     if (selectedCompanies.length === 0) return
-    
-    if (!window.confirm(t('companiesList.confirmBulkDelete') || `Are you sure you want to delete ${selectedCompanies.length} company(ies)?`)) {
-      return
-    }
+    setBulkDeleteConfirmOpen(true)
+  }
 
+  const handleBulkDeleteConfirm = async () => {
     try {
       setDeletingCompanies(true)
       setError('')
       
       // Delete all selected companies using context function
       await Promise.all(selectedCompanies.map(id => deleteCompany(id)))
-      
+      notify('deleted', t('companiesList.bulkDeleteSuccess', { count: selectedCompanies.length }) || `${selectedCompanies.length} companies deleted`)
       setSelectedCompanies([])
       setShowDeleteSection(false)
+      setBulkDeleteConfirmOpen(false)
     } catch (err) {
       console.error('Failed to delete companies:', err)
       setError(err.message || 'Failed to delete companies')
+      notify('error', err.message)
+      setBulkDeleteConfirmOpen(false)
     } finally {
       setDeletingCompanies(false)
     }
@@ -282,9 +291,11 @@ const CompaniesList = () => {
       // Write and download file
       XLSX.writeFile(workbook, filename)
       setError('')
+      notify('info', t('companiesList.exportSuccess') || 'Exported to Excel successfully')
     } catch (err) {
       console.error('Failed to export to Excel:', err)
       setError(err.message || t('companiesList.exportError') || 'Failed to export to Excel')
+      notify('error', err.message)
     }
   }
 
@@ -845,13 +856,13 @@ const CompaniesList = () => {
           )}
         </div>
 
-        {/* Delete Confirmation Modal */}
+        {/* Delete Confirmation Modal (single) */}
         {deleteConfirmOpen && companyToDelete && (
           <div className="delete-modal-overlay" onClick={() => setDeleteConfirmOpen(false)}>
             <div className="delete-modal" onClick={(e) => e.stopPropagation()}>
               <h3>{t('companiesList.confirmDelete') || 'Confirm Delete'}</h3>
               <p>
-                {t('companiesList.confirmDeleteMessage') || 'Are you sure you want to delete'} 
+                {t('companiesList.confirmDeleteMessage') || 'Are you sure you want to delete'}
                 <strong> {companyToDelete.name}</strong>?
               </p>
               <div className="modal-actions">
@@ -860,8 +871,8 @@ const CompaniesList = () => {
                   onClick={() => handleDeleteCompany(companyToDelete._id)}
                   disabled={deletingCompanies}
                 >
-                  {deletingCompanies 
-                    ? t('companiesList.deleting') || 'Deleting...' 
+                  {deletingCompanies
+                    ? t('companiesList.deleting') || 'Deleting...'
                     : t('companiesList.delete') || 'Delete'
                   }
                 </button>
@@ -879,6 +890,19 @@ const CompaniesList = () => {
             </div>
           </div>
         )}
+
+        {/* Bulk Delete Confirmation Modal */}
+        <ConfirmModal
+          open={bulkDeleteConfirmOpen}
+          title={t('companiesList.confirmDelete') || 'Confirm Delete'}
+          message={t('companiesList.confirmBulkDelete', { count: selectedCompanies.length }) || `Are you sure you want to delete ${selectedCompanies.length} company(ies)?`}
+          confirmLabel={t('companiesList.delete') || 'Delete'}
+          cancelLabel={t('companiesList.cancel') || 'Cancel'}
+          variant="danger"
+          loading={deletingCompanies}
+          onConfirm={handleBulkDeleteConfirm}
+          onCancel={() => setBulkDeleteConfirmOpen(false)}
+        />
 
         <div className="companies-list">
           {Object.keys(groupedCompanies).length === 0 ? (

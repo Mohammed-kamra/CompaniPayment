@@ -1,0 +1,144 @@
+.notification-container {
+  position: fixed;
+  top: 90px;
+  right: 20px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 360px;
+  pointer-events: none;
+}
+
+.notification-container > * {
+  pointer-events: auto;
+}
+
+.notification-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--card-bg);
+  border-radius: var(--radius-md);
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.35),
+    0 0 0 1px rgba(212, 175, 55, 0.15);
+  border-left: 4px solid;
+  animation: notificationSlideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  min-width: 280px;
+}
+
+@keyframes notificationSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.notification-icon {
+  font-size: 20px;
+  line-height: 1.2;
+  flex-shrink: 0;
+}
+
+.notification-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.notification-label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.9;
+}
+
+.notification-message {
+  font-size: 14px;
+  line-height: 1.4;
+  word-wrap: break-word;
+}
+
+.notification-close {
+  background: none;
+  border: none;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 4px;
+  opacity: 0.6;
+  color: inherit;
+  flex-shrink: 0;
+  margin: -4px -4px 0 0;
+}
+
+.notification-close:hover {
+  opacity: 1;
+}
+
+.notification-added {
+  border-left-color: #10b981;
+  color: var(--text-primary);
+}
+
+.notification-added .notification-label {
+  color: #10b981;
+}
+
+.notification-updated {
+  border-left-color: #f59e0b;
+  color: var(--text-primary);
+}
+
+.notification-updated .notification-label {
+  color: #f59e0b;
+}
+
+.notification-deleted {
+  border-left-color: #ef4444;
+  color: var(--text-primary);
+}
+
+.notification-deleted .notification-label {
+  color: #ef4444;
+}
+
+.notification-error {
+  border-left-color: #ef4444;
+  background: rgba(239, 68, 68, 0.08);
+  color: var(--text-primary);
+}
+
+.notification-error .notification-label {
+  color: #ef4444;
+}
+
+.notification-info {
+  border-left-color: var(--primary-color);
+  color: var(--text-primary);
+}
+
+.notification-info .notification-label {
+  color: var(--primary-color);
+}
+
+@media (max-width: 768px) {
+  .notification-container {
+    right: 12px;
+    left: 12px;
+    max-width: none;
+  }
+
+  .notification-card {
+    min-width: auto;
+  }
+}

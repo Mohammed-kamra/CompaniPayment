@@ -13,6 +13,8 @@
   "preRegister": {
     "title": "Pre-Registration",
     "subtitle": "Please provide your information to proceed with company registration",
+    "welcomeHeader": "Welcome to payment website",
+    "websiteClosedWatermark": "CLOSED",
     "name": "Your Name",
     "namePlaceholder": "Enter your full name",
     "mobileNumber": "Mobile Number",
@@ -47,6 +49,8 @@
     "groupFull": "Full",
     "availability": "Availability",
     "selectGroupHint": "Click on a group card to select it",
+    "useDifferentCode": "Use different code",
+    "alreadyRegisteredWithUnspent": "Your company {{companyName}} is already registered. See groups with unspent entries below.",
     "success": {
       "registrationSuccessful": "Registration successful!",
       "registrationSuccessfulWithCompany": "Registration successful! Company \"{{companyName}}\" has been registered.",
@@ -196,6 +200,9 @@
     "title": "Admin Dashboard",
     "welcome": "Welcome to your dashboard",
     "subtitle": "Manage registered companies and assign payment collection dates",
+    "report": "Report",
+    "registeredCompanies": "Registered Companies",
+    "unregisteredCompanies": "Unregistered Companies",
     "companies": "Companies",
     "markets": "Markets",
     "viewAll": "View All",
@@ -374,7 +381,10 @@
     "registerCompany": "Register Company",
     "profile": "Profile",
     "companyManagement": "Company Management",
-    "systemManagement": "System Management"
+    "systemManagement": "System Management",
+    "translations": "Translations",
+    "notes": "Notes",
+    "noNotes": "No notes available."
   },
   "companyNames": {
     "title": "Manage Company Names",
@@ -522,11 +532,32 @@
     "clickToCopyId": "Click to copy ID",
     "exportToExcel": "Export to Excel",
     "exportError": "Failed to export to Excel",
+    "exportSuccess": "Exported to Excel successfully",
+    "deleteSuccess": "Company deleted successfully",
+    "bulkDeleteSuccess": "{{count}} companies deleted successfully",
     "noCompaniesToExport": "No companies to export",
     "clickToWhatsApp": "Click to open WhatsApp"
   },
+  "notification": {
+    "added": "Added",
+    "updated": "Updated",
+    "deleted": "Deleted",
+    "error": "Error",
+    "info": "Info"
+  },
+  "common": {
+    "loading": "Loading...",
+    "ok": "OK",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "preview": "Preview"
+  },
   "settings": {
     "title": "Settings",
+    "headerSubtitle": "Manage your website settings and preferences",
     "websiteStatus": "Website Status",
     "websiteOpen": "Website is Open",
     "closedMessage": "Closed Message",
@@ -541,6 +572,7 @@
     "save": "Save Settings",
     "saving": "Saving...",
     "saved": "Settings saved successfully!",
+    "saveError": "Failed to save settings. Please try again.",
     "importCompanies": "Import Company Names",
     "importLabel": "Company Names",
     "importPlaceholder": "Enter company names (one per line or JSON array)",
@@ -569,13 +601,22 @@
     "manualDisabledHint": "Manual control is disabled when automatic schedule is active",
     "schedulePreview": "Schedule Preview",
     "willOpenAt": "Will open at",
-    "andCloseAt": " and close at",
+    "andCloseAt": "and closes at",
+    "opensAt": "Opens at",
+    "closesAt": "closes at",
+    "codesRequired": "Codes Required",
+    "codesOptional": "Codes Optional",
     "postRegistrationNotification": "Post-Registration Notification",
     "postRegistrationNotificationDescription": "Write a message that will be displayed to companies after they complete registration. This message will appear on the companies list page after successful registration.",
     "postRegistrationMessage": "Notification Message",
     "postRegistrationMessagePlaceholder": "Enter a message to show companies after registration (e.g., \"Thank you for registering! Please check your email for further instructions.\")",
     "postRegistrationMessageHint": "This message will be displayed prominently after companies complete their registration. Leave empty to show no notification.",
-    "preview": "Preview"
+    "preview": "Preview",
+    "notePaymentRegistration": "Note – Payment Registration",
+    "notePaymentRegistrationDescription": "This note is shown to visitors (non-logged-in users) on mobile. They can view it by tapping the Notes button.",
+    "notePaymentRegistrationLabel": "Note for unlogged users",
+    "notePaymentRegistrationPlaceholder": "Enter notes or instructions for visitors (e.g., payment guidelines, contact info, hours of operation...)",
+    "notePaymentRegistrationHint": "Visible only to non-logged-in users on mobile. Leave empty to hide the Notes button."
   },
   "countdown": {
     "opensAt": "Website Opens At",
@@ -644,5 +685,17 @@
     "paid": "Paid",
     "pending": "Pending",
     "info": "This queue shows companies in registration order. Position numbers are only shown for companies with pending payment status."
+  },
+  "manageTranslations": {
+    "title": "Manage Translations",
+    "subtitle": "Edit all system text for English, Kurdish, and Arabic.",
+    "loading": "Loading translations...",
+    "fromDatabase": "From database",
+    "fromDefaultFiles": "From default files",
+    "seedToDatabase": "Save to database",
+    "seedTooltip": "Copy all locale file translations to database. Use this to initially populate or sync new keys.",
+    "seedSuccess": "Translations saved to database.",
+    "seedError": "Failed to seed translations",
+    "saveThisPage": "Save this page"
   }
 }

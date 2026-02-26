@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { useCompaniesData } from '../contexts/CompaniesDataContext'
 import { useTranslation } from 'react-i18next'
-import { companyNamesAPI } from '../services/api'
+import { useNotification } from '../contexts/NotificationContext'
 import * as XLSX from 'xlsx'
+import ConfirmModal from '../components/ConfirmModal'
 import '../styles/global-tables.css'
 import './UnregisteredCompanies.css'
 
@@ -14,8 +15,7 @@ const UnregisteredCompanies = () => {
     loading: contextLoading,
     error: contextError,
     fetchUnregisteredCompanies,
-    deleteCompanyName,
-    refreshAll
+    deleteCompanyName
   } = useCompaniesData()
   
   const [loading, setLoading] = useState(true)
@@ -24,9 +24,13 @@ const UnregisteredCompanies = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [deletingId, setDeletingId] = useState(null)
   const [deletingAll, setDeletingAll] = useState(false)
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+  const [deleteTarget, setDeleteTarget] = useState(null)
+  const [deleteAllConfirmOpen, setDeleteAllConfirmOpen] = useState(false)
   const { isAuthenticated, user } = useAuth()
   const navigate = useNavigate()
   const { t, i18n } = useTranslation()
+  const { notify } = useNotification()
   
   // Force re-render when language changes
   const [languageKey, setLanguageKey] = useState(i18n.language)
@@ -48,8 +52,8 @@ const UnregisteredCompanies = () => {
       navigate('/login')
       return
     }
-    // Use context's fetch function which will sync with other components
-    fetchUnregisteredCompanies().then(() => setLoading(false))
+    // Fetch from API: all companyNames minus those in companies (backend filters)
+    fetchUnregisteredCompanies().then(() => setLoading(false)).catch(() => setLoading(false))
   }, [isAuthenticated, user, navigate, fetchUnregisteredCompanies])
   
   // Sync local error state with context error
@@ -67,6 +71,12 @@ const UnregisteredCompanies = () => {
       setLoading(false)
     }
   }, [contextLoading.unregistered])
+
+  const handleRefresh = () => {
+    setError('')
+    setLoading(true)
+    fetchUnregisteredCompanies().finally(() => setLoading(false))
+  }
 
   // Format date for display (DD/MM/YYYY)
   const formatDate = (dateString) => {
@@ -93,27 +103,28 @@ const UnregisteredCompanies = () => {
     )
   })
 
-  // Handle delete single company
-  const handleDelete = async (companyId, companyName) => {
-    const confirmMessage = t('unregisteredCompanies.confirmDelete', { name: companyName }) || 
-      `Are you sure you want to delete "${companyName}"? This action cannot be undone.`
-    
-    if (!window.confirm(confirmMessage)) {
-      return
-    }
+  // Handle delete single company - open confirm modal first
+  const handleDeleteClick = (companyId, companyName) => {
+    setDeleteTarget({ id: companyId, name: companyName })
+    setDeleteConfirmOpen(true)
+  }
 
+  const handleDeleteConfirm = async () => {
+    if (!deleteTarget) return
     try {
-      setDeletingId(companyId)
+      setDeletingId(deleteTarget.id)
       setError('')
-      // Use context's delete function which automatically refreshes all tables
-      await deleteCompanyName(companyId)
-      setSuccess(t('unregisteredCompanies.deleteSuccess', { name: companyName }) || `Company "${companyName}" deleted successfully!`)
-      
-      // Clear success message after 3 seconds
+      await deleteCompanyName(deleteTarget.id)
+      const successMsg = t('unregisteredCompanies.deleteSuccess', { name: deleteTarget.name }) || `Company "${deleteTarget.name}" deleted successfully!`
+      setSuccess(successMsg)
+      notify('deleted', successMsg)
       setTimeout(() => setSuccess(''), 3000)
+      setDeleteConfirmOpen(false)
+      setDeleteTarget(null)
     } catch (err) {
       console.error('Failed to delete company:', err)
       setError(err.message || t('unregisteredCompanies.deleteError') || 'Failed to delete company')
+      notify('error', err.message)
     } finally {
       setDeletingId(null)
     }
@@ -150,7 +161,9 @@ const UnregisteredCompanies = () => {
       // Download file
       XLSX.writeFile(workbook, filename)
       
-      setSuccess(t('unregisteredCompanies.exportSuccess', { count: filteredCompanies.length }) || `Exported ${filteredCompanies.length} companies to Excel`)
+      const exportMsg = t('unregisteredCompanies.exportSuccess', { count: filteredCompanies.length }) || `Exported ${filteredCompanies.length} companies to Excel`
+      setSuccess(exportMsg)
+      notify('info', exportMsg)
       setTimeout(() => setSuccess(''), 3000)
     } catch (err) {
       console.error('Failed to export to Excel:', err)
@@ -159,20 +172,15 @@ const UnregisteredCompanies = () => {
   }
 
   // Handle delete all unregistered companies
-  const handleDeleteAll = async () => {
+  const handleDeleteAllClick = () => {
     if (filteredCompanies.length === 0) {
       setError(t('unregisteredCompanies.noCompaniesToDelete') || 'No companies to delete')
       return
     }
+    setDeleteAllConfirmOpen(true)
+  }
 
-    const count = filteredCompanies.length
-    const confirmMessage = t('unregisteredCompanies.confirmDeleteAll', { count }) || 
-      `Are you sure you want to delete all ${count} unregistered companies? This action cannot be undone!`
-    
-    if (!window.confirm(confirmMessage)) {
-      return
-    }
-
+  const handleDeleteAllConfirm = async () => {
     try {
       setDeletingAll(true)
       setError('')
@@ -184,16 +192,17 @@ const UnregisteredCompanies = () => {
       
       await Promise.all(deletePromises)
       
+      const count = filteredCompanies.length
       const successMessage = t('unregisteredCompanies.deleteAllSuccess', { count }) || `Successfully deleted ${count} companies!`
       setSuccess(successMessage)
-      
-      // Context will automatically refresh all tables, so no need to manually clear
-      
-      // Clear success message after 3 seconds
+      notify('deleted', successMessage)
       setTimeout(() => setSuccess(''), 3000)
+      setDeleteAllConfirmOpen(false)
     } catch (err) {
       console.error('Failed to delete all companies:', err)
       setError(err.message || t('unregisteredCompanies.deleteAllError') || 'Failed to delete some companies')
+      notify('error', err.message)
+      setDeleteAllConfirmOpen(false)
     } finally {
       setDeletingAll(false)
     }
@@ -223,7 +232,7 @@ const UnregisteredCompanies = () => {
         {error && (
           <div className="error-message">
             {error}
-            <button onClick={fetchUnregisteredCompanies} className="retry-button">
+            <button onClick={handleRefresh} className="retry-button">
               {t('unregisteredCompanies.retry') || 'Retry'}
             </button>
           </div>
@@ -263,7 +272,7 @@ const UnregisteredCompanies = () => {
                 📊 {t('unregisteredCompanies.exportToExcel') || 'Export to Excel'}
               </button>
               <button 
-                onClick={handleDeleteAll} 
+                onClick={handleDeleteAllClick} 
                 className="delete-all-button"
                 disabled={deletingAll}
               >
@@ -274,7 +283,7 @@ const UnregisteredCompanies = () => {
               </button>
             </>
           )}
-          <button onClick={fetchUnregisteredCompanies} className="refresh-button">
+          <button onClick={handleRefresh} className="refresh-button">
             {t('unregisteredCompanies.refresh') || '🔄 Refresh'}
           </button>
         </div>
@@ -329,7 +338,7 @@ const UnregisteredCompanies = () => {
                       </td>
                       <td className="actions-cell text-center">
                         <button
-                          onClick={() => handleDelete(companyId, company.name)}
+                          onClick={() => handleDeleteClick(companyId, company.name)}
                           className="action-icon-btn delete-icon-btn"
                           disabled={isDeleting || deletingAll}
                           title={isDeleting ? (t('unregisteredCompanies.deleting') || 'Deleting...') : (t('unregisteredCompanies.delete') || 'Delete')}
@@ -352,6 +361,30 @@ const UnregisteredCompanies = () => {
             </table>
           </div>
         )}
+
+        <ConfirmModal
+          open={deleteConfirmOpen}
+          title={t('unregisteredCompanies.confirmDeleteTitle') || 'Confirm Delete'}
+          message={deleteTarget ? (t('unregisteredCompanies.confirmDelete', { name: deleteTarget.name }) || `Are you sure you want to delete "${deleteTarget.name}"? This action cannot be undone.`) : ''}
+          confirmLabel={t('common.delete') || 'Delete'}
+          cancelLabel={t('common.cancel') || 'Cancel'}
+          variant="danger"
+          loading={!!deletingId}
+          onConfirm={handleDeleteConfirm}
+          onCancel={() => { setDeleteConfirmOpen(false); setDeleteTarget(null) }}
+        />
+
+        <ConfirmModal
+          open={deleteAllConfirmOpen}
+          title={t('unregisteredCompanies.confirmDeleteTitle') || 'Confirm Delete'}
+          message={t('unregisteredCompanies.confirmDeleteAll', { count: filteredCompanies.length }) || `Are you sure you want to delete all ${filteredCompanies.length} unregistered companies? This action cannot be undone!`}
+          confirmLabel={t('common.delete') || 'Delete'}
+          cancelLabel={t('common.cancel') || 'Cancel'}
+          variant="danger"
+          loading={deletingAll}
+          onConfirm={handleDeleteAllConfirm}
+          onCancel={() => setDeleteAllConfirmOpen(false)}
+        />
       </div>
     </div>
   )

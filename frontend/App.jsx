@@ -2,6 +2,7 @@ import React from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext'
 import { CompaniesDataProvider } from './contexts/CompaniesDataContext'
+import { NotificationProvider } from './contexts/NotificationContext'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import ProtectedRoute from './components/ProtectedRoute'
@@ -19,12 +20,14 @@ import ManageUsers from './pages/ManageUsers'
 import Dashboard from './pages/Dashboard'
 import UnregisteredCompanies from './pages/UnregisteredCompanies'
 import PublicQueue from './pages/PublicQueue'
+import ManageTranslations from './pages/ManageTranslations'
 import './App.css'
 
 function App() {
   return (
     <AuthProvider>
       <CompaniesDataProvider>
+        <NotificationProvider>
         <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <div className="app">
         <Navbar />
@@ -107,6 +110,14 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            <Route 
+              path="/admin/translations" 
+              element={
+                <ProtectedRoute>
+                  <ManageTranslations />
+                </ProtectedRoute>
+              }
+            />
             {/* Catch-all route for unmatched paths */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
@@ -114,6 +125,7 @@ function App() {
         <Footer />
       </div>
       </Router>
+        </NotificationProvider>
       </CompaniesDataProvider>
     </AuthProvider>
   )

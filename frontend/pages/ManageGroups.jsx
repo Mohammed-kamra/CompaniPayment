@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { useTranslation } from 'react-i18next'
 import { groupsAPI } from '../services/api'
+import ConfirmModal from '../components/ConfirmModal'
 import './ManageGroups.css'
 
 const ManageGroups = () => {
@@ -21,6 +22,8 @@ const ManageGroups = () => {
     day: '',
     maxCompanies: ''
   })
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+  const [groupToDelete, setGroupToDelete] = useState(null)
   const { isAuthenticated, user } = useAuth()
   const navigate = useNavigate()
   const { t } = useTranslation()
@@ -175,11 +178,18 @@ const ManageGroups = () => {
     setShowForm(true)
   }
 
-  const handleDelete = async (id) => {
-    if (!window.confirm(t('groups.confirmDelete'))) return
+  const handleDeleteClick = (group) => {
+    setGroupToDelete(group)
+    setDeleteConfirmOpen(true)
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (!groupToDelete) return
     try {
-      await groupsAPI.delete(id)
+      await groupsAPI.delete(groupToDelete._id)
       fetchGroups()
+      setDeleteConfirmOpen(false)
+      setGroupToDelete(null)
     } catch (err) {
       if (err.message.includes('Access denied') || err.message.includes('Unauthorized')) {
         setError(err.message)
@@ -189,6 +199,7 @@ const ManageGroups = () => {
       } else {
         setError(err.message)
       }
+      setDeleteConfirmOpen(false)
     }
   }
 
@@ -366,13 +377,24 @@ const ManageGroups = () => {
                 <button onClick={() => handleEdit(group)} className="btn btn-sm btn-primary">
                   {t('groups.edit')}
                 </button>
-                <button onClick={() => handleDelete(group._id)} className="btn btn-sm btn-danger">
+                <button onClick={() => handleDeleteClick(group)} className="btn btn-sm btn-danger">
                   {t('groups.delete')}
                 </button>
               </div>
             </div>
           ))
         )}
+
+      <ConfirmModal
+        open={deleteConfirmOpen}
+        title={t('groups.confirmDeleteTitle') || 'Confirm Delete'}
+        message={groupToDelete ? (t('groups.confirmDelete') || 'Are you sure you want to delete this group?') : ''}
+        confirmLabel={t('common.delete') || 'Delete'}
+        cancelLabel={t('common.cancel') || 'Cancel'}
+        variant="danger"
+        onConfirm={handleDeleteConfirm}
+        onCancel={() => { setDeleteConfirmOpen(false); setGroupToDelete(null) }}
+      />
       </div>
     </div>
   )

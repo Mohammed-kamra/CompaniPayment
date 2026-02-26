@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { useTranslation } from 'react-i18next'
 import { marketsAPI, marketUsersAPI } from '../services/api'
+import ConfirmModal from '../components/ConfirmModal'
 import './ManageMarkets.css'
 
 const ManageMarkets = () => {
@@ -29,6 +30,10 @@ const ManageMarkets = () => {
     phone: '',
     role: 'employee'
   })
+  const [deleteMarketConfirmOpen, setDeleteMarketConfirmOpen] = useState(false)
+  const [marketToDelete, setMarketToDelete] = useState(null)
+  const [deleteUserConfirmOpen, setDeleteUserConfirmOpen] = useState(false)
+  const [userToDelete, setUserToDelete] = useState(null)
   const { isAuthenticated, user } = useAuth()
   const navigate = useNavigate()
   const { t } = useTranslation()
@@ -104,11 +109,18 @@ const ManageMarkets = () => {
     setShowForm(true)
   }
 
-  const handleDelete = async (id) => {
-    if (!window.confirm(t('markets.confirmDelete'))) return
+  const handleDeleteClick = (market) => {
+    setMarketToDelete(market)
+    setDeleteMarketConfirmOpen(true)
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (!marketToDelete) return
     try {
-      await marketsAPI.delete(id)
+      await marketsAPI.delete(marketToDelete._id)
       fetchMarkets()
+      setDeleteMarketConfirmOpen(false)
+      setMarketToDelete(null)
     } catch (err) {
       if (err.message.includes('Access denied') || err.message.includes('Unauthorized')) {
         setError(err.message)
@@ -118,6 +130,7 @@ const ManageMarkets = () => {
       } else {
         setError(err.message)
       }
+      setDeleteMarketConfirmOpen(false)
     }
   }
 
@@ -215,11 +228,18 @@ const ManageMarkets = () => {
     setShowUserForm(true)
   }
 
-  const handleDeleteUser = async (userId) => {
-    if (!window.confirm(t('markets.confirmDeleteUser'))) return
+  const handleDeleteUserClick = (u) => {
+    setUserToDelete(u)
+    setDeleteUserConfirmOpen(true)
+  }
+
+  const handleDeleteUserConfirm = async () => {
+    if (!userToDelete || !selectedMarket) return
     try {
-      await marketUsersAPI.delete(selectedMarket._id, userId)
+      await marketUsersAPI.delete(selectedMarket._id, userToDelete._id || userToDelete.id)
       await fetchUsers(selectedMarket._id)
+      setDeleteUserConfirmOpen(false)
+      setUserToDelete(null)
     } catch (err) {
       if (err.message.includes('Access denied') || err.message.includes('Unauthorized')) {
         setError(err.message)
@@ -229,6 +249,7 @@ const ManageMarkets = () => {
       } else {
         setError(err.message)
       }
+      setDeleteUserConfirmOpen(false)
     }
   }
 
@@ -397,7 +418,7 @@ const ManageMarkets = () => {
                 <button onClick={() => handleManageUsers(market)} className="btn btn-sm btn-secondary">
                   {t('markets.manageUsers')}
                 </button>
-                <button onClick={() => handleDelete(market._id)} className="btn btn-sm btn-danger">
+                <button onClick={() => handleDeleteClick(market)} className="btn btn-sm btn-danger">
                   {t('markets.delete')}
                 </button>
               </div>
@@ -515,7 +536,7 @@ const ManageMarkets = () => {
                           <button onClick={() => handleEditUser(user)} className="btn btn-sm btn-primary">
                             {t('markets.edit')}
                           </button>
-                          <button onClick={() => handleDeleteUser(user._id || user.id)} className="btn btn-sm btn-danger">
+                          <button onClick={() => handleDeleteUserClick(user)} className="btn btn-sm btn-danger">
                             {t('markets.delete')}
                           </button>
                         </div>
@@ -528,6 +549,28 @@ const ManageMarkets = () => {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        open={deleteMarketConfirmOpen}
+        title={t('markets.confirmDeleteTitle') || 'Confirm Delete'}
+        message={t('markets.confirmDelete') || 'Are you sure you want to delete this market?'}
+        confirmLabel={t('common.delete') || 'Delete'}
+        cancelLabel={t('common.cancel') || 'Cancel'}
+        variant="danger"
+        onConfirm={handleDeleteConfirm}
+        onCancel={() => { setDeleteMarketConfirmOpen(false); setMarketToDelete(null) }}
+      />
+
+      <ConfirmModal
+        open={deleteUserConfirmOpen}
+        title={t('markets.confirmDeleteUserTitle') || 'Confirm Delete'}
+        message={userToDelete ? (t('markets.confirmDeleteUser') || 'Are you sure you want to delete this user?') : ''}
+        confirmLabel={t('common.delete') || 'Delete'}
+        cancelLabel={t('common.cancel') || 'Cancel'}
+        variant="danger"
+        onConfirm={handleDeleteUserConfirm}
+        onCancel={() => { setDeleteUserConfirmOpen(false); setUserToDelete(null) }}
+      />
     </div>
   )
 }

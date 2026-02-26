@@ -2,6 +2,8 @@ import React, { useState, useEffect, useMemo } from 'react'
 import { createPortal, flushSync } from 'react-dom'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { useAuth } from '../contexts/AuthContext'
+import { useNotification } from '../contexts/NotificationContext'
 import { companiesAPI, groupsAPI, preRegisterAPI, settingsAPI, companyNamesAPI } from '../services/api'
 import './RegisterCompany.css'
 
@@ -9,6 +11,12 @@ const RegisterCompany = () => {
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
   const location = useLocation()
+  const { isAuthenticated, user } = useAuth()
+  const { notify } = useNotification()
+
+  const preRegistrationData = location.state?.preRegistrationData
+  const fromPreRegister = location.state?.fromPreRegister && preRegistrationData
+  const isStaffUser = isAuthenticated && (user?.role === 'admin' || user?.role === 'accounting')
 
   // Helper function to format date as DD/MM/YYYY (matching CompaniesList format exactly)
   const formatDate = (dateInput) => {
@@ -108,6 +116,8 @@ const RegisterCompany = () => {
   const [companyNames, setCompanyNames] = useState([])
   const [loadingGroups, setLoadingGroups] = useState(true)
   const [loadingCompanies, setLoadingCompanies] = useState(true)
+  const [unspentCompanies, setUnspentCompanies] = useState([])
+  const [loadingUnspentCompanies, setLoadingUnspentCompanies] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [fieldErrors, setFieldErrors] = useState({})
@@ -204,17 +214,18 @@ const RegisterCompany = () => {
   const [idValid, setIdValid] = useState(false)
   const [idError, setIdError] = useState('')
 
-  // Check if user has completed pre-registration and fetch groups
+  // Check if user has completed pre-registration (for public users) and fetch groups
   useEffect(() => {
     // Don't redirect if we just successfully registered (check for success state)
     if (location.state?.newlyRegistered) {
       return
     }
-    
+
     const preRegistrationId = sessionStorage.getItem('preRegistrationId')
     const preRegistered = location.state?.preRegistered
 
-    if (!preRegistrationId && !preRegistered) {
+    // Only enforce pre-registration for non-staff (public) users
+    if (!isStaffUser && !preRegistrationId && !preRegistered) {
       // Redirect to pre-registration if not completed
       navigate('/pre-register', { replace: true })
       return
@@ -301,6 +312,19 @@ const RegisterCompany = () => {
       }
     }
 
+    const fetchUnspentCompanies = async () => {
+      try {
+        setLoadingUnspentCompanies(true)
+        const allCompanies = await companiesAPI.getAll()
+        const notSpent = (allCompanies || []).filter(c => !c.spent)
+        setUnspentCompanies(notSpent)
+      } catch (err) {
+        console.error('Failed to fetch unspent companies:', err)
+      } finally {
+        setLoadingUnspentCompanies(false)
+      }
+    }
+
     // Fetch settings on mount
     fetchWebsiteSettings()
     
@@ -310,9 +334,14 @@ const RegisterCompany = () => {
 
     fetchGroups()
     fetchCompanyNames()
+
+    // For public users, also show all groups and companies that have not spent yet
+    if (!isStaffUser) {
+      fetchUnspentCompanies()
+    }
     
     return () => clearInterval(statusInterval)
-  }, [navigate, location, t])
+  }, [navigate, location, t, isStaffUser])
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
@@ -809,7 +838,7 @@ const RegisterCompany = () => {
         status: err.status,
         stack: err.stack
       })
-      alert('ERROR: ' + (err.message || 'Registration failed. Check console for details.'))
+      notify('error', err.message || 'Registration failed. Check console for details.')
       
       // Clear loading timeout first
       if (loadingTimeout) {
@@ -1035,6 +1064,133 @@ const RegisterCompany = () => {
     
     return false
   }, [loading, formData.name, formData.phoneNumber, formData.address, formData.selectedCompanyId, formData.groupId, formData.companyId, websiteSettings?.codesActive, companyNames, idValid])
+
+  // Special view for normal users coming from pre-registration:
+  // After successful pre-registration, show the unspent companies list (queue)
+  if (fromPreRegister) {
+    let registrationDisplay = ''
+    try {
+      const raw = preRegistrationData.registrationTime || new Date().toISOString()
+      const d = new Date(raw)
+      registrationDisplay = d.toLocaleString(undefined, {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      })
+    } catch (e) {
+      registrationDisplay = ''
+    }
+
+    return (
+      <div className={`register-company ${isClosed ? 'website-closed' : ''}`}>
+        {isClosed && (
+          <div className="closed-background-overlay">
+            <span className="closed-watermark">CLOSED</span>
+          </div>
+        )}
+        <div className="register-container">
+          <h1>{t('companiesList.unspentTitle', 'Groups and companies that have not spent yet')}</h1>
+          <p className="register-subtitle">
+            {t('companiesList.subtitle', { count: 1 }) || 'Your registration was successful. See all active registrations below.'}
+          </p>
+
+          <div className="unspent-section">
+            <h2 className="unspent-title">
+              {t('companiesList.unspentTitle', 'Groups and companies that have not spent yet')}
+            </h2>
+            {loadingUnspentCompanies ? (
+              <p className="unspent-message">
+                {t('companiesList.loading', 'Loading...')}
+              </p>
+            ) : unspentCompanies.length === 0 ? (
+              <p className="unspent-message">
+                {t('companiesList.noUnspent', 'There are currently no companies with unpaid / unspent status.')}
+              </p>
+            ) : (() => {
+              // Group unspent companies by group; if no groups match, fall back to a simple flat list
+              const grouped = groups
+                .map(group => ({
+                  group,
+                  companies: unspentCompanies.filter(c => c.groupId === group._id)
+                }))
+                .filter(item => item.companies.length > 0)
+
+              if (grouped.length === 0) {
+                // Fallback: show all unspent companies even if they are not attached to any group
+                return (
+                  <div className="public-registration-table-wrapper">
+                    <table className="public-registration-table global-table unspent-table">
+                      <thead>
+                        <tr>
+                          <th>{t('companiesList.companyName') || 'Company Name'}</th>
+                          <th>{t('companiesList.groupName') || 'Group'}</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {unspentCompanies.map(company => {
+                          const group = groups.find(g => g._id === company.groupId)
+                          return (
+                            <tr key={company._id}>
+                              <td>{company.name}</td>
+                              <td>{group ? group.name : '-'}</td>
+                            </tr>
+                          )
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                )
+              }
+
+              // Normal case: show grouped by group
+              return (
+                <div className="unspent-groups-grid">
+                  {grouped.map(item => (
+                    <div key={item.group._id} className="unspent-group-card">
+                      <div className="unspent-group-header">
+                        <h3 className="unspent-group-name">{item.group.name}</h3>
+                        <span className="unspent-count-badge">
+                          {item.companies.length}
+                        </span>
+                      </div>
+                      <div className="public-registration-table-wrapper">
+                        <table className="public-registration-table global-table unspent-table">
+                          <thead>
+                            <tr>
+                              <th>{t('companiesList.companyName') || 'Company Name'}</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {item.companies.map(company => (
+                              <tr key={company._id}>
+                                <td>{company.name}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )
+            })()}
+          </div>
+
+          <div className="form-actions" style={{ marginTop: '1.5rem' }}>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={() => navigate('/', { replace: true })}
+            >
+              {t('registration.cancel') || 'Back to Home'}
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className={`register-company ${isClosed ? 'website-closed' : ''}`}>

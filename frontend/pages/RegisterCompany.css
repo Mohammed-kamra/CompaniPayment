@@ -81,6 +81,117 @@
   margin-bottom: 2rem;
 }
 
+.public-registration-table-wrapper {
+  margin-top: 1.5rem;
+}
+
+.unspent-section {
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px dashed rgba(148, 163, 184, 0.5);
+}
+
+.unspent-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
+.unspent-message {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  margin-top: 0.5rem;
+}
+
+.unspent-groups-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.25rem;
+  margin-top: 1rem;
+}
+
+.unspent-group-card {
+  border-radius: var(--radius-lg);
+  padding: 1rem 1.1rem;
+  background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.08), transparent 55%),
+              radial-gradient(circle at bottom right, rgba(52, 211, 153, 0.08), transparent 55%),
+              rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(10px);
+}
+
+.unspent-group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.unspent-group-name {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.unspent-count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  background: rgba(56, 189, 248, 0.15);
+  color: #e0f2fe;
+  border: 1px solid rgba(56, 189, 248, 0.6);
+}
+
+.unspent-table thead th {
+  background: rgba(15, 23, 42, 0.75);
+}
+
+.unspent-table tbody tr:nth-child(even) {
+  background-color: rgba(15, 23, 42, 0.55);
+}
+
+.unspent-table tbody tr:nth-child(odd) {
+  background-color: rgba(15, 23, 42, 0.35);
+}
+
+.unspent-table td,
+.unspent-table th {
+  border-color: rgba(148, 163, 184, 0.4);
+}
+
+.public-registration-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.public-registration-table th,
+.public-registration-table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.public-registration-table th {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.public-registration-table td {
+  color: var(--text-secondary);
+}
+
 .registration-form {
   display: flex;
   flex-direction: column;
@@ -253,14 +364,16 @@
   padding: 0;
 }
 
-.groups-card-container {
+.register-container .groups-card-container,
+.register-company .groups-card-container {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1.25rem;
   margin-top: 0.5rem;
 }
 
 .group-selection-card {
+  min-width: 0;
   background: var(--bg-secondary);
   border: 2px solid var(--border-color);
   border-radius: var(--radius-md);
@@ -337,7 +450,7 @@
   font-size: 1.25rem;
   margin: 0;
   flex: 1;
-  min-width: 150px;
+  min-width: 0;
   letter-spacing: -0.02em;
 }
 
@@ -1036,8 +1149,9 @@
     font-size: 0.9rem;
   }
 
-  .groups-card-container {
-    grid-template-columns: 1fr;
+  .register-container .groups-card-container,
+  .register-company .groups-card-container {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1rem;
     margin-top: 0.5rem;
     width: 100%;

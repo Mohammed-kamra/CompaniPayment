@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { useTranslation } from 'react-i18next'
 import { usersAPI } from '../services/api'
+import ConfirmModal from '../components/ConfirmModal'
 import './ManageUsers.css'
 
 const ManageUsers = () => {
@@ -19,6 +20,10 @@ const ManageUsers = () => {
     password: '',
     status: 'active'
   })
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+  const [userToDelete, setUserToDelete] = useState(null)
+  const [statusConfirmOpen, setStatusConfirmOpen] = useState(false)
+  const [userToToggle, setUserToToggle] = useState(null)
   const { isAuthenticated, user } = useAuth()
   const navigate = useNavigate()
   const { t } = useTranslation()
@@ -102,32 +107,40 @@ const ManageUsers = () => {
     setShowForm(true)
   }
 
-  const handleDelete = async (userId) => {
-    if (!window.confirm(t('users.confirmDelete'))) {
-      return
-    }
+  const handleDeleteClick = (u) => {
+    setUserToDelete(u)
+    setDeleteConfirmOpen(true)
+  }
 
+  const handleDeleteConfirm = async () => {
+    if (!userToDelete) return
     try {
-      await usersAPI.delete(userId)
+      await usersAPI.delete(userToDelete._id)
       await fetchUsers()
+      setDeleteConfirmOpen(false)
+      setUserToDelete(null)
     } catch (err) {
       setError(err.message)
+      setDeleteConfirmOpen(false)
     }
   }
 
-  const handleToggleStatus = async (user) => {
-    const newStatus = user.status === 'active' ? 'inactive' : 'active'
-    const statusText = newStatus === 'active' ? t('users.activate') : t('users.deactivate')
-    
-    if (!window.confirm(t('users.confirmStatusChange', { action: statusText, name: user.name }) || `Are you sure you want to ${statusText} ${user.name}?`)) {
-      return
-    }
+  const handleToggleStatusClick = (u) => {
+    setUserToToggle(u)
+    setStatusConfirmOpen(true)
+  }
 
+  const handleToggleStatusConfirm = async () => {
+    if (!userToToggle) return
+    const newStatus = userToToggle.status === 'active' ? 'inactive' : 'active'
     try {
-      await usersAPI.update(user._id, { status: newStatus })
+      await usersAPI.update(userToToggle._id, { status: newStatus })
       await fetchUsers()
+      setStatusConfirmOpen(false)
+      setUserToToggle(null)
     } catch (err) {
       setError(err.message)
+      setStatusConfirmOpen(false)
     }
   }
 
@@ -294,7 +307,7 @@ const ManageUsers = () => {
               
               <div className="card-actions">
                 <button 
-                  onClick={() => handleToggleStatus(user)} 
+                  onClick={() => handleToggleStatusClick(user)} 
                   className={`btn btn-sm ${user.status === 'active' ? 'btn-warning' : 'btn-success'}`}
                   title={user.status === 'active' ? t('users.deactivate') : t('users.activate')}
                 >
@@ -303,13 +316,35 @@ const ManageUsers = () => {
                 <button onClick={() => handleEdit(user)} className="btn btn-sm btn-primary">
                   {t('users.edit')}
                 </button>
-                <button onClick={() => handleDelete(user._id)} className="btn btn-sm btn-danger">
+                <button onClick={() => handleDeleteClick(user)} className="btn btn-sm btn-danger">
                   {t('users.delete')}
                 </button>
               </div>
             </div>
           ))
         )}
+
+      <ConfirmModal
+        open={deleteConfirmOpen}
+        title={t('users.confirmDeleteTitle') || 'Confirm Delete'}
+        message={userToDelete ? (t('users.confirmDelete') || 'Are you sure you want to delete this user?') : ''}
+        confirmLabel={t('common.delete') || 'Delete'}
+        cancelLabel={t('common.cancel') || 'Cancel'}
+        variant="danger"
+        onConfirm={handleDeleteConfirm}
+        onCancel={() => { setDeleteConfirmOpen(false); setUserToDelete(null) }}
+      />
+
+      <ConfirmModal
+        open={statusConfirmOpen}
+        title={t('users.confirmStatusChangeTitle') || 'Confirm Status Change'}
+        message={userToToggle ? (t('users.confirmStatusChange', { action: (userToToggle.status === 'active' ? t('users.deactivate') : t('users.activate')), name: userToToggle.name }) || `Are you sure you want to ${userToToggle.status === 'active' ? 'deactivate' : 'activate'} ${userToToggle.name}?`) : ''}
+        confirmLabel={t('common.ok') || 'Confirm'}
+        cancelLabel={t('common.cancel') || 'Cancel'}
+        variant="warning"
+        onConfirm={handleToggleStatusConfirm}
+        onCancel={() => { setStatusConfirmOpen(false); setUserToToggle(null) }}
+      />
       </div>
     </div>
   )

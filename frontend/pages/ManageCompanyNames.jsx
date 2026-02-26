@@ -2,9 +2,11 @@ import React, { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { useCompaniesData } from '../contexts/CompaniesDataContext'
+import { useNotification } from '../contexts/NotificationContext'
 import { useTranslation } from 'react-i18next'
 import { companyNamesAPI } from '../services/api'
 import * as XLSX from 'xlsx'
+import ConfirmModal from '../components/ConfirmModal'
 import '../styles/global-tables.css'
 import './ManageCompanyNames.css'
 
@@ -40,10 +42,14 @@ const ManageCompanyNames = () => {
   const [importData, setImportData] = useState('')
   const [importResult, setImportResult] = useState(null)
   const [showImport, setShowImport] = useState(false)
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+  const [deleteTargetId, setDeleteTargetId] = useState(null)
+  const [deleteAllConfirmOpen, setDeleteAllConfirmOpen] = useState(false)
   const fileInputRef = useRef(null)
   const { isAuthenticated, user } = useAuth()
   const navigate = useNavigate()
   const { t } = useTranslation()
+  const { notify } = useNotification()
 
   useEffect(() => {
     if (!isAuthenticated || user?.role !== 'admin') {
@@ -114,13 +120,13 @@ const ManageCompanyNames = () => {
     
     try {
       if (editingName) {
-        // Use context's update function which automatically refreshes all tables
         await updateCompanyName(editingName._id, formData)
         setSuccess(t('companyNames.updated'))
+        notify('updated', t('companyNames.updated'))
       } else {
-        // Use context's create function which automatically refreshes all tables
         await createCompanyName(formData)
         setSuccess(t('companyNames.created'))
+        notify('added', t('companyNames.created'))
       }
       resetForm()
       setTimeout(() => setSuccess(''), 3000)
@@ -160,48 +166,55 @@ const ManageCompanyNames = () => {
     setShowForm(true)
   }
 
-  const handleDelete = async (id) => {
-    if (!window.confirm(t('companyNames.confirmDelete'))) {
-      return
-    }
+  const handleDeleteClick = (id) => {
+    setDeleteTargetId(id)
+    setDeleteConfirmOpen(true)
+  }
 
+  const handleDeleteConfirm = async () => {
+    if (!deleteTargetId) return
     try {
-      // Use context's delete function which automatically refreshes all tables
-      await deleteCompanyName(id)
+      await deleteCompanyName(deleteTargetId)
       setSuccess(t('companyNames.deleted'))
+      notify('deleted', t('companyNames.deleted'))
       setTimeout(() => setSuccess(''), 3000)
+      setDeleteConfirmOpen(false)
+      setDeleteTargetId(null)
     } catch (err) {
       setError(err.message)
+      notify('error', err.message)
       if (err.message.includes('Access denied') || err.message.includes('Unauthorized')) {
         setTimeout(() => {
           navigate('/login')
         }, 2000)
       }
+      setDeleteConfirmOpen(false)
     }
   }
 
-  const handleDeleteAll = async () => {
+  const handleDeleteAllClick = () => {
     if (companyNames.length === 0) {
       setError(t('companyNames.noNamesToDelete') || 'No company names to delete')
       setTimeout(() => setError(''), 3000)
       return
     }
+    setDeleteAllConfirmOpen(true)
+  }
 
-    const confirmMessage = t('companyNames.confirmDeleteAll', { count: companyNames.length }) || 
-      `Are you sure you want to delete all ${companyNames.length} company names? This action cannot be undone!`
-    
-    if (!window.confirm(confirmMessage)) {
-      return
-    }
-
+  const handleDeleteAllConfirm = async () => {
     try {
+      const successMessage = t('companyNames.allDeleted') || `All ${companyNames.length} company names deleted successfully!`
       await companyNamesAPI.deleteAll()
-      setSuccess(t('companyNames.allDeleted') || `All ${companyNames.length} company names deleted successfully!`)
+      setSuccess(successMessage)
+      notify('deleted', successMessage)
       await fetchCompanyNames()
       setTimeout(() => setSuccess(''), 3000)
+      setDeleteAllConfirmOpen(false)
     } catch (err) {
       setError(err.message)
+      notify('error', err.message)
       setTimeout(() => setError(''), 5000)
+      setDeleteAllConfirmOpen(false)
     }
   }
 
@@ -601,7 +614,9 @@ const ManageCompanyNames = () => {
       setImportResult(result)
       setImportData('')
       setShowImport(false)
-      setSuccess(t('companyNames.importSuccess', { count: result.imported }))
+      const successMsg = t('companyNames.importSuccess', { count: result.imported })
+      setSuccess(successMsg)
+      notify('added', successMsg)
       await fetchCompanyNames()
       setTimeout(() => {
         setSuccess('')
@@ -609,6 +624,7 @@ const ManageCompanyNames = () => {
       }, 5000)
     } catch (err) {
       setError(err.message || t('companyNames.importError'))
+      notify('error', err.message || t('companyNames.importError'))
     }
   }
 
@@ -642,10 +658,13 @@ const ManageCompanyNames = () => {
 
       // Write and download file
       XLSX.writeFile(workbook, filename)
-      setSuccess(t('companyNames.exportSuccess') || `Exported ${companyNames.length} company names to Excel`)
+      const exportMsg = t('companyNames.exportSuccess') || `Exported ${companyNames.length} company names to Excel`
+      setSuccess(exportMsg)
+      notify('info', exportMsg)
       setTimeout(() => setSuccess(''), 3000)
     } catch (err) {
       setError(err.message || t('companyNames.exportError') || 'Failed to export to Excel')
+      notify('error', err.message)
     }
   }
 
@@ -662,7 +681,7 @@ const ManageCompanyNames = () => {
           <button onClick={() => setShowImport(true)} className="btn btn-secondary">
             {t('companyNames.import')}
           </button>
-          <button onClick={handleDeleteAll} className="btn btn-danger" disabled={companyNames.length === 0}>
+          <button onClick={handleDeleteAllClick} className="btn btn-danger" disabled={companyNames.length === 0}>
             🗑️ {t('companyNames.deleteAll') || 'Delete All'}
           </button>
           <button onClick={() => setShowForm(true)} className="btn btn-primary">
@@ -1008,7 +1027,7 @@ const ManageCompanyNames = () => {
                           </svg>
                         </button>
                         <button 
-                          onClick={() => handleDelete(companyName._id)} 
+                          onClick={() => handleDeleteClick(companyName._id)} 
                           className="action-icon-btn delete-icon-btn"
                           title={t('companyNames.delete') || 'Delete'}
                           aria-label={t('companyNames.delete') || 'Delete'}
@@ -1027,6 +1046,28 @@ const ManageCompanyNames = () => {
           </div>
           )
         })()}
+
+        <ConfirmModal
+          open={deleteConfirmOpen}
+          title={t('companyNames.confirmDeleteTitle') || 'Confirm Delete'}
+          message={t('companyNames.confirmDelete') || 'Are you sure you want to delete this company name?'}
+          confirmLabel={t('common.delete') || 'Delete'}
+          cancelLabel={t('common.cancel') || 'Cancel'}
+          variant="danger"
+          onConfirm={handleDeleteConfirm}
+          onCancel={() => { setDeleteConfirmOpen(false); setDeleteTargetId(null) }}
+        />
+
+        <ConfirmModal
+          open={deleteAllConfirmOpen}
+          title={t('companyNames.confirmDeleteTitle') || 'Confirm Delete'}
+          message={t('companyNames.confirmDeleteAll', { count: companyNames.length }) || `Are you sure you want to delete all ${companyNames.length} company names? This action cannot be undone!`}
+          confirmLabel={t('common.delete') || 'Delete'}
+          cancelLabel={t('common.cancel') || 'Cancel'}
+          variant="danger"
+          onConfirm={handleDeleteAllConfirm}
+          onCancel={() => setDeleteAllConfirmOpen(false)}
+        />
       </div>
     </div>
   )

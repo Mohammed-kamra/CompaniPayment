@@ -28,7 +28,7 @@ app.use(express.json());
 // Check website status (except for settings, auth, and health check)
 app.use('/api', (req, res, next) => {
   // Skip website status check for auth, settings, and health endpoints
-  if (req.path.startsWith('/auth') || req.path.startsWith('/settings') || req.path === '/health') {
+  if (req.path.startsWith('/auth') || req.path.startsWith('/settings') || req.path.startsWith('/translations') || req.path === '/health') {
     return next();
   }
   checkWebsiteStatus(req, res, next);
@@ -42,6 +42,7 @@ app.use('/api/company-names', require('./routes/companyNames'));
 app.use('/api/pre-register', require('./routes/preRegister'));
 app.use('/api/companies', require('./routes/companies'));
 app.use('/api/groups', require('./routes/groups'));
+app.use('/api/translations', require('./routes/translations'));
 
 // Root route - welcome message
 app.get('/', (req, res) => {

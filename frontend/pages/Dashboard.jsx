@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { companiesAPI, groupsAPI } from '../services/api'
+import { companiesAPI, groupsAPI, companyNamesAPI } from '../services/api'
 import './Dashboard.css'
 
 const Dashboard = () => {
   const { t } = useTranslation()
   const [companies, setCompanies] = useState([])
   const [groups, setGroups] = useState([])
+  const [unregisteredCount, setUnregisteredCount] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
@@ -22,12 +23,14 @@ const Dashboard = () => {
   const loadData = async () => {
     try {
       setLoading(true)
-      const [companiesData, groupsData] = await Promise.all([
+      const [companiesData, groupsData, unregisteredData] = await Promise.all([
         companiesAPI.getAllAdmin(),
-        groupsAPI.getAll()
+        groupsAPI.getAll(),
+        companyNamesAPI.getUnregistered().catch(() => [])
       ])
-      setCompanies(companiesData)
-      setGroups(groupsData)
+      setCompanies(companiesData || [])
+      setGroups(groupsData || [])
+      setUnregisteredCount(Array.isArray(unregisteredData) ? unregisteredData.length : 0)
     } catch (err) {
       console.error('Failed to load data:', err)
       setError(err.message || 'Failed to load companies')
@@ -197,6 +200,20 @@ const Dashboard = () => {
             {error}
           </div>
         )}
+
+        <div className="dashboard-report">
+          <h2 className="dashboard-report-title">{t('dashboard.report') || 'Report'}</h2>
+          <div className="dashboard-report-cards">
+            <div className="dashboard-report-card dashboard-report-card-registered">
+              <span className="dashboard-report-label">{t('dashboard.registeredCompanies') || 'Registered Companies'}</span>
+              <span className="dashboard-report-value">{companies.length}</span>
+            </div>
+            <div className="dashboard-report-card dashboard-report-card-unregistered">
+              <span className="dashboard-report-label">{t('dashboard.unregisteredCompanies') || 'Unregistered Companies'}</span>
+              <span className="dashboard-report-value">{unregisteredCount}</span>
+            </div>
+          </div>
+        </div>
 
         <div className="dashboard-controls">
           <div className="search-box">

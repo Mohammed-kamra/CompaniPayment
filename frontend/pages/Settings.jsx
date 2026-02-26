@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { useTranslation } from 'react-i18next'
 import { settingsAPI } from '../services/api'
+import { useNotification } from '../contexts/NotificationContext'
 import './Settings.css'
 
 const Settings = () => {
@@ -13,7 +14,8 @@ const Settings = () => {
     closeTime: '',
     autoSchedule: false,
     codesActive: true,
-    postRegistrationMessage: ''
+    postRegistrationMessage: '',
+    notePaymentRegistration: ''
   })
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -22,6 +24,7 @@ const Settings = () => {
   const { isAuthenticated, user } = useAuth()
   const navigate = useNavigate()
   const { t } = useTranslation()
+  const { notify } = useNotification()
 
   useEffect(() => {
     if (!isAuthenticated || user?.role !== 'admin') {
@@ -44,7 +47,8 @@ const Settings = () => {
         closeTime: data.closeTime || '',
         autoSchedule: data.autoSchedule || false,
         codesActive: data.codesActive !== undefined ? data.codesActive : true,
-        postRegistrationMessage: data.postRegistrationMessage || ''
+        postRegistrationMessage: data.postRegistrationMessage || '',
+        notePaymentRegistration: data.notePaymentRegistration || ''
       })
     } catch (err) {
       setError(err.message)
@@ -76,24 +80,26 @@ const Settings = () => {
         closeTime: String(settings.closeTime || ''),
         autoSchedule: settings.autoSchedule === true,
         codesActive: settings.codesActive !== undefined ? settings.codesActive === true : true,
-        postRegistrationMessage: String(settings.postRegistrationMessage || '')
+        postRegistrationMessage: String(settings.postRegistrationMessage || ''),
+        notePaymentRegistration: String(settings.notePaymentRegistration || '')
       }
       
       console.log('Saving settings:', settingsToSave)
       const result = await settingsAPI.updateWebsiteSettings(settingsToSave)
       console.log('Settings saved successfully:', result)
       setSuccess(t('settings.saved'))
+      notify('updated', t('settings.saved'))
       setTimeout(() => setSuccess(''), 3000)
     } catch (err) {
       console.error('Error saving settings:', err)
-      const errorMessage = err.message || err.error || 'Failed to save settings. Please try again.'
+      const errorMessage = err.message || err.error || (t('settings.saveError') || 'Failed to save settings. Please try again.')
       setError(errorMessage)
     } finally {
       setSaving(false)
     }
   }
 
-  if (loading) return <div className="loading">Loading...</div>
+  if (loading) return <div className="loading">{t('common.loading') || 'Loading...'}</div>
 
   return (
     <div className="settings-page">
@@ -103,7 +109,7 @@ const Settings = () => {
             <span className="header-icon">⚙️</span>
             {t('settings.title') || 'Settings'}
           </h1>
-          <p className="header-subtitle">Manage your website settings and preferences</p>
+          <p className="header-subtitle">{t('settings.headerSubtitle') || 'Manage your website settings and preferences'}</p>
         </div>
 
         {error && <div className="alert-message error-message">{error}</div>}
@@ -231,9 +237,9 @@ const Settings = () => {
                     <div className="schedule-preview-card">
                       <div className="preview-icon">📅</div>
                       <div className="preview-content">
-                        <p className="preview-label">Schedule Preview</p>
+                        <p className="preview-label">{t('settings.schedulePreview') || 'Schedule Preview'}</p>
                         <p className="preview-times">
-                          Opens at <strong>{settings.openTime}</strong> and closes at <strong>{settings.closeTime}</strong>
+                          {t('settings.opensAt') || 'Opens at'} <strong>{settings.openTime}</strong> {t('settings.andCloseAt') || 'and closes at'} <strong>{settings.closeTime}</strong>
                         </p>
                       </div>
                     </div>
@@ -280,7 +286,7 @@ const Settings = () => {
                 </div>
                 <div className="status-text-wrapper">
                   <p className="status-title">
-                    {settings.codesActive ? 'Codes Required' : 'Codes Optional'}
+                    {settings.codesActive ? (t('settings.codesRequired') || 'Codes Required') : (t('settings.codesOptional') || 'Codes Optional')}
                   </p>
                   <p className="status-description">
                     {settings.codesActive 
@@ -327,13 +333,45 @@ const Settings = () => {
                 <div className="notification-preview-card">
                   <div className="preview-header">
                     <span className="preview-icon">👁️</span>
-                    <span className="preview-title">Preview</span>
+                    <span className="preview-title">{t('common.preview') || t('settings.preview') || 'Preview'}</span>
                   </div>
                   <div className="preview-message">
                     {settings.postRegistrationMessage}
                   </div>
                 </div>
               )}
+            </div>
+          </div>
+
+          {/* Note for Payment Registration - Guest Users */}
+          <div className="settings-card">
+            <div className="card-header">
+              <div className="card-icon">📋</div>
+              <div className="card-title-group">
+                <h2>{t('settings.notePaymentRegistration') || 'Note – Payment Registration'}</h2>
+                <p className="card-description">
+                  {t('settings.notePaymentRegistrationDescription') || 'This note is shown to visitors (non-logged-in users) on mobile. They can view it by tapping the Notes button.'}
+                </p>
+              </div>
+            </div>
+
+            <div className="card-content">
+              <div className="textarea-field">
+                <label className="field-label">
+                  {t('settings.notePaymentRegistrationLabel') || 'Note for unlogged users'}
+                </label>
+                <textarea
+                  name="notePaymentRegistration"
+                  value={settings.notePaymentRegistration}
+                  onChange={handleInputChange}
+                  rows="6"
+                  placeholder={t('settings.notePaymentRegistrationPlaceholder') || 'Enter notes or instructions for visitors on the main page (e.g., payment guidelines, contact info, hours of operation...)'}
+                  className="modern-textarea"
+                />
+                <p className="field-hint">
+                  {t('settings.notePaymentRegistrationHint') || 'Visible only to non-logged-in users on mobile layout. Leave empty to hide the Notes button.'}
+                </p>
+              </div>
             </div>
           </div>
 
