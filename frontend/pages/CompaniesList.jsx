@@ -376,18 +376,30 @@ const CompaniesList = () => {
   // Helper function to normalize IDs for comparison
   const normalizeId = (id) => {
     if (!id) return ''
-    // Handle MongoDB ObjectId objects
-    if (id && typeof id === 'object') {
-      // Check if it's an ObjectId with toString method
-      if (typeof id.toString === 'function') {
+    if (typeof id === 'string' || typeof id === 'number') {
+      return String(id).trim()
+    }
+
+    // Handle MongoDB/Object-like IDs
+    if (typeof id === 'object') {
+      // BSON serialized ObjectId
+      if (id.$oid) return String(id.$oid).trim()
+
+      // Populated object shapes: { _id: ... } or { id: ... }
+      if (id._id) return normalizeId(id._id)
+      if (id.id) return normalizeId(id.id)
+
+      // Native ObjectId instances
+      if (typeof id.toHexString === 'function') {
+        return id.toHexString().trim()
+      }
+
+      // Avoid plain-object default toString => "[object Object]"
+      if (typeof id.toString === 'function' && id.toString !== Object.prototype.toString) {
         return id.toString().trim()
       }
-      // Check if it has a $oid property (BSON serialization)
-      if (id.$oid) {
-        return String(id.$oid).trim()
-      }
     }
-    // Handle string IDs
+
     return String(id).trim()
   }
 
