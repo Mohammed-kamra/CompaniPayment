@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { companiesAPI, groupsAPI, companyNamesAPI } from '../services/api'
 import './Dashboard.css'
@@ -205,14 +206,14 @@ const Dashboard = () => {
         <div className="dashboard-report">
           <h2 className="dashboard-report-title">{t('dashboard.report') || 'Report'}</h2>
           <div className="dashboard-report-cards">
-            <div className="dashboard-report-card dashboard-report-card-registered">
+            <Link to="/companies-list" className="dashboard-report-card dashboard-report-card-registered dashboard-report-card-link">
               <span className="dashboard-report-label">{t('dashboard.registeredCompanies') || 'Registered Companies'}</span>
               <span className="dashboard-report-value">{companies.length}</span>
-            </div>
-            <div className="dashboard-report-card dashboard-report-card-unregistered">
+            </Link>
+            <Link to="/admin/unregistered-companies" className="dashboard-report-card dashboard-report-card-unregistered dashboard-report-card-link">
               <span className="dashboard-report-label">{t('dashboard.unregisteredCompanies') || 'Unregistered Companies'}</span>
               <span className="dashboard-report-value">{unregisteredCount}</span>
-            </div>
+            </Link>
           </div>
         </div>
 

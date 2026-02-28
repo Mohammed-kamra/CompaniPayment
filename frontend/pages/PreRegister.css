@@ -549,6 +549,24 @@
   }
 }
 
+.form-loading-placeholder {
+  padding: 2rem;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 1rem;
+}
+
+.form-loading-placeholder .loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--border-color);
+  border-top-color: var(--primary-color);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 1rem;
+  display: block;
+}
+
 .group-selection-container {
   padding: 0 !important;
   background: transparent !important;

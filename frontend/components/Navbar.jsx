@@ -55,22 +55,21 @@ const Navbar = () => {
     { path: '/companies-list', label: t('nav.registeredCompanies') || t('nav.list'), icon: '📋' }
   ]
 
-  const adminPublicLinks = [
-    { path: '/companies-list', label: t('nav.registeredCompanies') || t('nav.list'), icon: '🏢' }
+  const adminPrimaryLinks = [
+    { path: '/admin/dashboard', label: t('nav.dashboard') || 'Dashboard', icon: '📊' }
   ]
 
   // Grouped Admin Links
   const companyManagementLinks = [
+    { path: '/pre-register', label: t('nav.register') || 'Pre-Registration', icon: '📝', category: 'company' },
     { path: '/companies-list', label: t('nav.registeredCompanies') || t('nav.list'), icon: '📋', category: 'company' },
     { path: '/admin/unregistered-companies', label: t('nav.unregisteredCompanies') || 'Unregistered Companies', icon: '📝', category: 'company' },
     { path: '/admin/company-names', label: t('nav.manageCompanies'), icon: '🏢', category: 'company' }
   ]
 
   const systemManagementLinks = [
-    { path: '/admin/dashboard', label: t('nav.dashboard') || 'Dashboard', icon: '📊', category: 'system' },
     { path: '/groups', label: t('nav.manageGroups'), icon: '👥', category: 'system' },
     { path: '/admin/users', label: t('nav.userManagement'), icon: '👤', category: 'system' },
-    { path: '/admin/settings', label: t('nav.settings') || 'Settings', icon: '⚙️', category: 'system' },
     { path: '/admin/translations', label: t('nav.translations') || 'Translations', icon: '🌐', category: 'system' }
   ]
 
@@ -115,8 +114,8 @@ const Navbar = () => {
         
         {/* Desktop Navigation */}
         <div className="navbar-nav desktop-menu">
-          {/* Public Links - Hidden for accountants */}
-          {user?.role !== 'accounting' && (
+          {/* Public Links - Hidden for admin/accounting */}
+          {user?.role !== 'accounting' && user?.role !== 'admin' && (
           <div className="nav-section">
             {publicLinks.map(link => (
               <Link 
@@ -132,10 +131,10 @@ const Navbar = () => {
           </div>
           )}
 
-          {/* Companies List - Admin Only */}
+          {/* Admin Primary Links: Dashboard, Settings */}
           {isAuthenticated && user?.role === 'admin' && (
             <div className="nav-section">
-              {adminPublicLinks.map(link => (
+              {adminPrimaryLinks.map(link => (
                 <Link 
                   key={link.path}
                   to={link.path}
@@ -249,6 +248,20 @@ const Navbar = () => {
                   ))}
                 </div>
               )}
+            </div>
+          )}
+
+          {/* Admin Settings Link */}
+          {isAuthenticated && user?.role === 'admin' && (
+            <div className="nav-section">
+              <Link
+                to="/admin/settings"
+                className={`nav-link ${isActive('/admin/settings') ? 'active' : ''}`}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <span className="nav-icon">⚙️</span>
+                <span className="nav-label">{t('nav.settings') || 'Settings'}</span>
+              </Link>
             </div>
           )}
         </div>
@@ -384,8 +397,8 @@ const Navbar = () => {
           </div>
           
           <div className="mobile-menu-content">
-            {/* Public Links - Hidden for accountants */}
-            {user?.role !== 'accounting' && (
+            {/* Public Links - Hidden for admin/accounting */}
+            {user?.role !== 'accounting' && user?.role !== 'admin' && (
             <div className="mobile-menu-section">
               <h4 className="mobile-section-title">{t('nav.public') || 'Public'}</h4>
               {publicLinks.map(link => (
@@ -403,11 +416,11 @@ const Navbar = () => {
             </div>
             )}
 
-            {/* Companies List - Admin Only */}
+            {/* Admin Primary Links: Dashboard, Settings */}
             {isAuthenticated && user?.role === 'admin' && (
               <div className="mobile-menu-section">
                 <h4 className="mobile-section-title">{t('nav.admin') || 'Admin'}</h4>
-                {adminPublicLinks.map(link => (
+                {adminPrimaryLinks.map(link => (
                   <Link
                     key={link.path}
                     to={link.path}
@@ -476,6 +489,21 @@ const Navbar = () => {
                     {isActive(link.path) && <span className="active-indicator">●</span>}
                   </Link>
                 ))}
+              </div>
+            )}
+
+            {/* Admin Settings Link */}
+            {isAuthenticated && user?.role === 'admin' && (
+              <div className="mobile-menu-section">
+                <Link
+                  to="/admin/settings"
+                  className={`mobile-menu-item ${isActive('/admin/settings') ? 'active' : ''}`}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <span className="mobile-item-icon">⚙️</span>
+                  <span>{t('nav.settings') || 'Settings'}</span>
+                  {isActive('/admin/settings') && <span className="active-indicator">●</span>}
+                </Link>
               </div>
             )}
 

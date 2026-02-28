@@ -754,6 +754,8 @@ const PreRegister = () => {
     const showCodeOnly = codesActive && !codeValid
     const showUnspentOnly = codesActive && codeValid && hasUnspentForCode
     const showGroupAndButton = codesActive && codeValid && !hasUnspentForCode
+    // Prevent flash: don't show group cards until settings have loaded
+    const settingsLoaded = websiteSettings !== null
 
     return (
     <div className={`pre-register ${websiteClosed ? 'website-closed' : ''}`}>
@@ -809,6 +811,14 @@ const PreRegister = () => {
           zIndex: websiteClosed ? 0 : 1
         }}>
           {(() => {
+            if (!settingsLoaded) {
+              return (
+                <div className="form-loading-placeholder">
+                  <div className="loading-spinner" />
+                  <p>{t('common.loading') || 'Loading...'}</p>
+                </div>
+              )
+            }
             if (codesActive && showCodeOnly) {
               return (
                 <div className="form-group">
@@ -993,7 +1003,7 @@ const PreRegister = () => {
             </div>
           )}
 
-          {(showGroupAndButton || !codesActive) && (
+          {(showGroupAndButton || (!codesActive && settingsLoaded)) && (
           <>
           <div className="form-group group-selection-container">
             <label>{t('preRegister.selectGroup')} *</label>
@@ -1096,7 +1106,7 @@ const PreRegister = () => {
       })()}
         </form>
 
-        {(!codesActive || showUnspentOnly) && (
+        {settingsLoaded && (!codesActive || showUnspentOnly) && (
         <>
         {showUnspentOnly && (
           <div className="info-message" style={{ marginTop: '1.5rem', padding: '1rem', background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>

@@ -91,6 +91,26 @@
   color: #f59e0b;
 }
 
+.dashboard-report-card-link {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dashboard-report-card-link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.dashboard-report-card-registered.dashboard-report-card-link:hover {
+  border-color: rgba(16, 185, 129, 0.5);
+}
+
+.dashboard-report-card-unregistered.dashboard-report-card-link:hover {
+  border-color: rgba(245, 158, 11, 0.5);
+}
+
 .dashboard-controls {
   display: flex;
   justify-content: space-between;

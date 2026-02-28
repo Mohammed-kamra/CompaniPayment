@@ -8,13 +8,14 @@ const Login = () => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
-  const { login, isAuthenticated } = useAuth()
+  const { login, isAuthenticated, user } = useAuth()
   const navigate = useNavigate()
   const { t } = useTranslation()
 
-  // If already logged in, redirect to companies list
+  // If already logged in, redirect based on role
   if (isAuthenticated) {
-    return <Navigate to="/companies-list" replace />
+    const redirectTo = user?.role === 'admin' ? '/admin/dashboard' : '/companies-list'
+    return <Navigate to={redirectTo} replace />
   }
 
   const handleSubmit = async (e) => {
@@ -31,7 +32,8 @@ const Login = () => {
       const result = await login(username, password)
       
       if (result.success) {
-        navigate('/companies-list')
+        const redirectTo = result.user?.role === 'admin' ? '/admin/dashboard' : '/companies-list'
+        navigate(redirectTo)
       } else {
         setError(result.error || t('login.error'))
       }
