@@ -28,11 +28,16 @@ i18n
   })
 
 // Load admin-edited translations from API (overrides static files, persisted in MongoDB)
-// Uses relative /api/translations (proxied to backend in dev) or full URL when VITE_API_URL is set
-const apiBase = import.meta.env?.VITE_API_URL || ''
-const translationsUrl = apiBase ? `${apiBase.replace(/\/$/, '')}/api/translations` : '/api/translations'
+// Important: this must target the same backend used by services/api.js in production
+const envApiBase = import.meta.env?.VITE_API_URL || import.meta.env?.VITE_API_BASE_URL || ''
+const fallbackApiBase = 'https://companipayment-production-87d9.up.railway.app/api'
+const apiBase = (envApiBase || fallbackApiBase).replace(/\/$/, '')
+const translationsUrl = apiBase.endsWith('/api')
+  ? `${apiBase}/translations`
+  : `${apiBase}/api/translations`
+const translationsFetchUrl = `${translationsUrl}${translationsUrl.includes('?') ? '&' : '?'}_ts=${Date.now()}`
 if (typeof fetch !== 'undefined') {
-  fetch(translationsUrl)
+  fetch(translationsFetchUrl, { cache: 'no-store' })
     .then((res) => (res.ok ? res.json() : null))
     .then((data) => {
       if (data && i18n.addResourceBundle) {
@@ -54,7 +59,10 @@ if (typeof fetch !== 'undefined') {
         }
       }
     })
-    .catch(() => {})
+    .catch((err) => {
+      // Keep silent for users, but useful during production debugging
+      console.warn('Failed to load translation overrides from API:', err?.message || err)
+    })
 }
 
 export default i18n

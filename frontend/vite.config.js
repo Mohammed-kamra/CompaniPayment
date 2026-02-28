@@ -10,8 +10,7 @@ export default defineConfig({
     proxy: {
       '/api': {
         target: 'https://companipayment-production-87d9.up.railway.app',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, '')
+        changeOrigin: true
       }
     }
   }

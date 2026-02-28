@@ -33,6 +33,12 @@ const DOC_ID = 'site';
 // Get all translations (public - so app can load overrides)
 router.get('/', async (req, res) => {
   try {
+    res.set({
+      'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+      Pragma: 'no-cache',
+      Expires: '0',
+      Surrogate-Control: 'no-store'
+    });
     const db = getDB();
     const doc = await db.collection(COLLECTION).findOne({ _id: DOC_ID });
     const en = (doc && doc.en) ? doc.en : {};
@@ -47,6 +53,12 @@ router.get('/', async (req, res) => {
 // Update all translations (admin only)
 router.put('/', requireAdmin, async (req, res) => {
   try {
+    res.set({
+      'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+      Pragma: 'no-cache',
+      Expires: '0',
+      Surrogate-Control: 'no-store'
+    });
     const db = getDB();
     const { en, ku, ar } = req.body;
     if (en === undefined && ku === undefined && ar === undefined) {
