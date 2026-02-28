@@ -37,7 +37,7 @@ router.get('/', async (req, res) => {
       'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
       Pragma: 'no-cache',
       Expires: '0',
-      Surrogate-Control: 'no-store'
+      'Surrogate-Control': 'no-store'
     });
     const db = getDB();
     const doc = await db.collection(COLLECTION).findOne({ _id: DOC_ID });
@@ -57,7 +57,7 @@ router.put('/', requireAdmin, async (req, res) => {
       'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
       Pragma: 'no-cache',
       Expires: '0',
-      Surrogate-Control: 'no-store'
+      'Surrogate-Control': 'no-store'
     });
     const db = getDB();
     const { en, ku, ar } = req.body;
