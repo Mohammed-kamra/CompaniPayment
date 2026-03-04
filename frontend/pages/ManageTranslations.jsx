@@ -87,7 +87,12 @@ const ManageTranslations = () => {
           const enFlat = flattenObj(en || {})
           const kuFlat = flattenObj(ku || {})
           const arFlat = flattenObj(ar || {})
-          const keys = getAllKeys(enFlat, kuFlat, arFlat)
+          // Include default locale keys too, so missing DB keys are still visible/editable.
+          const keys = getAllKeys(
+            { ...defaultEn, ...enFlat },
+            { ...defaultKu, ...kuFlat },
+            { ...defaultAr, ...arFlat }
+          )
           setRows(
             keys.map((key) => ({
               key,
@@ -211,8 +216,9 @@ const ManageTranslations = () => {
     try {
       const result = await translationsAPI.seed()
       setSuccess(
-        t('manageTranslations.seedSuccess') ||
-        `Translations seeded: ${result.en} EN, ${result.ku} KU, ${result.ar} AR keys saved to database.`
+        t('manageTranslations.seedSuccess', {
+          defaultValue: `Translations seeded: ${result.en} EN, ${result.ku} KU, ${result.ar} AR keys saved to database.`
+        })
       )
       const { en, ku, ar } = await translationsAPI.getAll()
       const enFlat = flattenObj(en || {})
@@ -229,7 +235,7 @@ const ManageTranslations = () => {
       )
       setSource('api')
     } catch (err) {
-      setError(err.message || (t('manageTranslations.seedError') || 'Failed to seed translations'))
+      setError(err.message || t('manageTranslations.seedError', { defaultValue: 'Failed to seed translations' }))
     } finally {
       setSeeding(false)
     }
@@ -238,7 +244,7 @@ const ManageTranslations = () => {
   if (loading) {
     return (
       <div className="manage-translations page-container">
-        <div className="loading-state">{t('manageTranslations.loading') || 'Loading translations...'}</div>
+        <div className="loading-state">{t('manageTranslations.loading', { defaultValue: 'Loading translations...' })}</div>
       </div>
     )
   }
@@ -246,8 +252,8 @@ const ManageTranslations = () => {
   return (
     <div className="manage-translations page-container">
       <div className="page-header">
-        <h1>{t('manageTranslations.title') || 'Manage Translations'}</h1>
-        <p className="subtitle">{t('manageTranslations.subtitle') || 'Edit all system text for English, Kurdish, and Arabic.'}</p>
+        <h1>{t('manageTranslations.title', { defaultValue: 'Manage Translations' })}</h1>
+        <p className="subtitle">{t('manageTranslations.subtitle', { defaultValue: 'Edit all system text for English, Kurdish, and Arabic.' })}</p>
       </div>
 
       {error && (
@@ -293,15 +299,19 @@ const ManageTranslations = () => {
         >
           Search
         </button>
-        <span className="source-badge">{source === 'api' ? (t('manageTranslations.fromDatabase') || 'From database') : (t('manageTranslations.fromDefaultFiles') || 'From default files')}</span>
+        <span className="source-badge">
+          {source === 'api'
+            ? t('manageTranslations.fromDatabase', { defaultValue: 'From database' })
+            : t('manageTranslations.fromDefaultFiles', { defaultValue: 'From default files' })}
+        </span>
         <button
           type="button"
           className="btn btn-secondary"
           onClick={handleSeed}
           disabled={seeding}
-          title={t('manageTranslations.seedTooltip') || 'Copy all locale file translations to database. Use this to initially populate or sync new keys.'}
+          title={t('manageTranslations.seedTooltip', { defaultValue: 'Copy all locale file translations to database. Use this to initially populate or sync new keys.' })}
         >
-          {seeding ? (t('common.loading') || 'Loading...') : (t('manageTranslations.seedToDatabase') || 'Save to database')}
+          {seeding ? t('common.loading', { defaultValue: 'Loading...' }) : t('manageTranslations.seedToDatabase', { defaultValue: 'Save to database' })}
         </button>
         <button
           type="button"
@@ -309,7 +319,7 @@ const ManageTranslations = () => {
           onClick={handleSave}
           disabled={saving}
         >
-          {saving ? (t('settings.saving') || 'Saving...') : (t('manageTranslations.saveThisPage') || 'Save this page')}
+          {saving ? t('settings.saving', { defaultValue: 'Saving...' }) : t('manageTranslations.saveThisPage', { defaultValue: 'Save this page' })}
         </button>
       </div>
 

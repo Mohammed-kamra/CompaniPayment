@@ -979,7 +979,7 @@
 
   .form-group input,
   .company-select {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
   }
 
   .form-group input::placeholder,
@@ -1002,6 +1002,25 @@
     margin-top: 0.25rem;
     font-size: 0.8rem;
     padding: 0.45rem 0.85rem;
+  }
+
+  /* Force smaller text for key fields on mobile (overrides inline styles) */
+  .pre-register .pre-register-form input[name="code"],
+  .pre-register .pre-register-form input[name="name"],
+  .pre-register .pre-register-form input[name="mobileNumber"],
+  .pre-register .pre-register-form input[name="companyName"] {
+    font-size: 13px !important;
+  }
+
+  .pre-register .pre-register-form input[name="code"]::placeholder,
+  .pre-register .pre-register-form input[name="name"]::placeholder,
+  .pre-register .pre-register-form input[name="mobileNumber"]::placeholder,
+  .pre-register .pre-register-form input[name="companyName"]::placeholder {
+    font-size: 12px !important;
+  }
+
+  .pre-register .btn-use-different-code {
+    font-size: 12px !important;
   }
 
   .form-actions {

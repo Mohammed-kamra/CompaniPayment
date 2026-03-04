@@ -175,6 +175,7 @@
     "groupFull": "ممتلئة",
     "availability": "التوفر",
     "selectGroupHint": "انقر على بطاقة المجموعة لتحديدها",
+    "autoFilled": "تم التعبئة تلقائياً من الرمز",
     "success": {
       "registrationSuccessful": "تم التسجيل بنجاح!",
       "registrationSuccessfulWithCompany": "تم التسجيل بنجاح! تم تسجيل الشركة \"{{companyName}}\".",

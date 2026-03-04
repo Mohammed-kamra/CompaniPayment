@@ -75,6 +75,11 @@ const PreRegister = () => {
   const [loadingUnspent, setLoadingUnspent] = useState(false)
   const codeDebounceTimer = useRef(null)
   const isMountedRef = useRef(true)
+  const autoFilledText = t('preRegister.autoFilled', {
+    defaultValue: t('preRegister.success.autoFilled', {
+      defaultValue: 'Auto-filled from company code'
+    })
+  })
 
 
   // Check for success message in sessionStorage on mount and restore notification
@@ -920,7 +925,7 @@ const PreRegister = () => {
               />
               {autoFilledFields.name && (
                 <small className="form-hint" style={{ color: '#10b981', display: 'block', marginTop: '0.5rem', fontWeight: '500' }}>
-                  ✓ {t('preRegister.autoFilled') || 'Auto-filled from company code'}
+                  ✓ {autoFilledText}
                 </small>
               )}
             </div>
@@ -951,7 +956,7 @@ const PreRegister = () => {
               />
               {autoFilledFields.mobileNumber && (
                 <small className="form-hint" style={{ color: '#10b981', display: 'block', marginTop: '0.5rem', fontWeight: '500' }}>
-                  ✓ {t('preRegister.autoFilled') || 'Auto-filled from company code'}
+                  ✓ {autoFilledText}
                 </small>
               )}
             </div>
@@ -977,7 +982,7 @@ const PreRegister = () => {
               />
               {formData.companyName && (
                 <small className="form-hint" style={{ color: '#10b981', display: 'block', marginTop: '0.5rem', fontWeight: '500' }}>
-                  ✓ {t('preRegister.autoFilled') || 'Auto-filled from company code'}
+                  ✓ {autoFilledText}
                 </small>
               )}
               {!formData.companyName && (

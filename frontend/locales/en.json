@@ -49,6 +49,7 @@
     "groupFull": "Full",
     "availability": "Availability",
     "selectGroupHint": "Click on a group card to select it",
+    "autoFilled": "Auto-filled from code",
     "useDifferentCode": "Use different code",
     "alreadyRegisteredWithUnspent": "Your company {{companyName}} is already registered. See groups with unspent entries below.",
     "success": {

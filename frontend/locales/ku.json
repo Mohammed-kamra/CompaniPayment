@@ -71,6 +71,7 @@
     "groupFull": "پڕ",
     "availability": "بەردەستی",
     "selectGroupHint": "کرتە لە کارتی گروپ بکە بۆ هەڵبژاردنی",
+    "autoFilled": "پڕکرایەوە لە کۆد",
     "success": {
       "registrationSuccessful": "تۆمارکردن سەرکەوتوو بوو!",
       "registrationSuccessfulWithCompany": "تۆمارکردن سەرکەوتوو بوو! کۆمپانیای \"{{companyName}}\" تۆمارکرا.",
