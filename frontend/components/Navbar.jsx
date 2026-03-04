@@ -272,15 +272,6 @@ const Navbar = () => {
             <LanguageSwitcher />
           </div>
           
-          {!isAuthenticated && (
-            <div className="action-group">
-              <Link to="/login" className="btn-login" onClick={() => setMobileMenuOpen(false)}>
-                <span className="login-icon">🔐</span>
-                <span className="login-text">{t('nav.login')}</span>
-              </Link>
-            </div>
-          )}
-          
           {isAuthenticated ? (
             <div className="action-group user-group">
               {/* Accounting: Logout only (no user profile, no register/pre-register links) */}
