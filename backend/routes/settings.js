@@ -3,6 +3,18 @@ const router = express.Router();
 const { getDB } = require('../config/database');
 const { requireAdmin } = require('../middleware/auth');
 
+const toBoolean = (value, defaultValue = false) => {
+  if (value === undefined || value === null) return defaultValue;
+  if (typeof value === 'boolean') return value;
+  if (typeof value === 'string') {
+    const v = value.trim().toLowerCase();
+    if (v === 'true' || v === '1' || v === 'yes' || v === 'on') return true;
+    if (v === 'false' || v === '0' || v === 'no' || v === 'off' || v === '') return false;
+  }
+  if (typeof value === 'number') return value !== 0;
+  return defaultValue;
+};
+
 const parseTimeToSeconds = (timeStr) => {
   if (!timeStr || typeof timeStr !== 'string') return null;
   const parts = timeStr.split(':').map(Number);
@@ -49,8 +61,9 @@ router.get('/website', async (req, res) => {
       });
     }
     
-    let isOpen = settings.isOpen === true;
-    if (settings.autoSchedule && settings.openTime && settings.closeTime) {
+    const autoScheduleEnabled = toBoolean(settings.autoSchedule, false);
+    let isOpen = toBoolean(settings.isOpen, false);
+    if (autoScheduleEnabled && settings.openTime && settings.closeTime) {
       // Automatic mode should depend ONLY on current time window.
       isOpen = isWithinScheduleWindow(settings.openTime, settings.closeTime, new Date());
     }
@@ -60,7 +73,7 @@ router.get('/website', async (req, res) => {
       message: settings.message || '',
       openTime: settings.openTime || '',
       closeTime: settings.closeTime || '',
-      autoSchedule: settings.autoSchedule || false,
+      autoSchedule: autoScheduleEnabled,
       codesActive: settings.codesActive !== undefined ? settings.codesActive : true,
       postRegistrationMessage: settings.postRegistrationMessage || '',
       notePaymentRegistration: settings.notePaymentRegistration || ''
@@ -88,12 +101,12 @@ router.put('/website', requireAdmin, async (req, res) => {
     
     const settingsData = {
       type: 'website',
-      isOpen: req.body.isOpen === true, // Only open if explicitly set to true
+      isOpen: toBoolean(req.body.isOpen, false),
       message: req.body.message || '',
       openTime: req.body.openTime || '',
       closeTime: req.body.closeTime || '',
-      autoSchedule: req.body.autoSchedule || false,
-      codesActive: req.body.codesActive !== undefined ? req.body.codesActive : true,
+      autoSchedule: toBoolean(req.body.autoSchedule, false),
+      codesActive: req.body.codesActive !== undefined ? toBoolean(req.body.codesActive, true) : true,
       postRegistrationMessage: req.body.postRegistrationMessage || '',
       notePaymentRegistration: req.body.notePaymentRegistration || '',
       updatedAt: new Date()
@@ -112,12 +125,12 @@ router.put('/website', requireAdmin, async (req, res) => {
     
     // Return formatted response
     res.json({
-      isOpen: updatedSettings.isOpen === true, // Only open if explicitly true
+      isOpen: toBoolean(updatedSettings.isOpen, false),
       message: updatedSettings.message || '',
       openTime: updatedSettings.openTime || '',
       closeTime: updatedSettings.closeTime || '',
-      autoSchedule: updatedSettings.autoSchedule || false,
-      codesActive: updatedSettings.codesActive !== undefined ? updatedSettings.codesActive : true,
+      autoSchedule: toBoolean(updatedSettings.autoSchedule, false),
+      codesActive: updatedSettings.codesActive !== undefined ? toBoolean(updatedSettings.codesActive, true) : true,
       postRegistrationMessage: updatedSettings.postRegistrationMessage || '',
       notePaymentRegistration: updatedSettings.notePaymentRegistration || ''
     });

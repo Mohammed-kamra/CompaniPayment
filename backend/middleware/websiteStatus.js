@@ -1,5 +1,17 @@
 const { getDB } = require('../config/database');
 
+const toBoolean = (value, defaultValue = false) => {
+  if (value === undefined || value === null) return defaultValue;
+  if (typeof value === 'boolean') return value;
+  if (typeof value === 'string') {
+    const v = value.trim().toLowerCase();
+    if (v === 'true' || v === '1' || v === 'yes' || v === 'on') return true;
+    if (v === 'false' || v === '0' || v === 'no' || v === 'off' || v === '') return false;
+  }
+  if (typeof value === 'number') return value !== 0;
+  return defaultValue;
+};
+
 const parseTimeToSeconds = (timeStr) => {
   if (!timeStr || typeof timeStr !== 'string') return null;
   const parts = timeStr.split(':').map(Number);
@@ -46,8 +58,10 @@ const checkWebsiteStatus = async (req, res, next) => {
     const db = getDB();
     const settings = await db.collection('settings').findOne({ type: 'website' });
     
-    let isOpen = settings && settings.isOpen === true;
-    if (settings && settings.autoSchedule && settings.openTime && settings.closeTime) {
+    const isOpenManual = toBoolean(settings?.isOpen, false);
+    const autoScheduleEnabled = toBoolean(settings?.autoSchedule, false);
+    let isOpen = isOpenManual;
+    if (settings && autoScheduleEnabled && settings.openTime && settings.closeTime) {
       // Automatic mode should depend ONLY on current time window.
       isOpen = isWithinScheduleWindow(settings.openTime, settings.closeTime, new Date());
     }
