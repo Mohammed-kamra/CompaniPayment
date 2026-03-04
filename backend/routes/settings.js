@@ -4,6 +4,16 @@ const { getDB } = require('../config/database');
 const { requireAdmin } = require('../middleware/auth');
 const WEBSITE_TIMEZONE = process.env.WEBSITE_TIMEZONE || 'Asia/Baghdad';
 
+const resolveTimeZone = (tz) => {
+  try {
+    Intl.DateTimeFormat('en-GB', { timeZone: tz }).format(new Date());
+    return tz;
+  } catch (_) {
+    return 'Asia/Baghdad';
+  }
+};
+const EFFECTIVE_TIMEZONE = resolveTimeZone(WEBSITE_TIMEZONE);
+
 const toBoolean = (value, defaultValue = false) => {
   if (value === undefined || value === null) return defaultValue;
   if (typeof value === 'boolean') return value;
@@ -96,7 +106,7 @@ router.get('/website', async (req, res) => {
     let isOpen = toBoolean(settings.isOpen, false);
     if (autoScheduleEnabled && settings.openTime && settings.closeTime) {
       // Automatic mode should depend ONLY on current time window.
-      isOpen = isWithinScheduleWindowByTimezone(settings.openTime, settings.closeTime, WEBSITE_TIMEZONE);
+      isOpen = isWithinScheduleWindowByTimezone(settings.openTime, settings.closeTime, EFFECTIVE_TIMEZONE);
     }
     
     res.json({

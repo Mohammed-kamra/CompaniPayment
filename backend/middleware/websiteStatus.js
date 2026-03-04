@@ -1,6 +1,16 @@
 const { getDB } = require('../config/database');
 const WEBSITE_TIMEZONE = process.env.WEBSITE_TIMEZONE || 'Asia/Baghdad';
 
+const resolveTimeZone = (tz) => {
+  try {
+    Intl.DateTimeFormat('en-GB', { timeZone: tz }).format(new Date());
+    return tz;
+  } catch (_) {
+    return 'Asia/Baghdad';
+  }
+};
+const EFFECTIVE_TIMEZONE = resolveTimeZone(WEBSITE_TIMEZONE);
+
 const toBoolean = (value, defaultValue = false) => {
   if (value === undefined || value === null) return defaultValue;
   if (typeof value === 'boolean') return value;
@@ -95,7 +105,7 @@ const checkWebsiteStatus = async (req, res, next) => {
     let isOpen = isOpenManual;
     if (settings && autoScheduleEnabled && settings.openTime && settings.closeTime) {
       // Automatic mode should depend ONLY on current time window.
-      isOpen = isWithinScheduleWindowByTimezone(settings.openTime, settings.closeTime, WEBSITE_TIMEZONE);
+      isOpen = isWithinScheduleWindowByTimezone(settings.openTime, settings.closeTime, EFFECTIVE_TIMEZONE);
     }
     
     // Block registration routes when website is closed
