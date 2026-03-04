@@ -29,10 +29,10 @@ const checkWebsiteStatus = async (req, res, next) => {
   try {
     // Skip check for settings (to allow checking status), admin routes, auth, health check
     // Settings and auth routes need to work even when website is closed
-    if (req.path === '/api/settings/website' || 
-        req.path.startsWith('/api/auth') ||
-        req.path.startsWith('/api/login') ||
-        req.path.startsWith('/api/health')) {
+    if (req.path === '/settings/website' || 
+        req.path.startsWith('/auth') ||
+        req.path.startsWith('/login') ||
+        req.path.startsWith('/health')) {
       return next();
     }
     
@@ -54,7 +54,7 @@ const checkWebsiteStatus = async (req, res, next) => {
     
     // Block registration routes when website is closed
     // All other routes (companies, groups, company-names) remain accessible
-    if (!isOpen && (req.path.startsWith('/api/pre-register') || req.path.startsWith('/api/register'))) {
+    if (!isOpen && (req.path.startsWith('/pre-register') || req.path.startsWith('/register'))) {
       return res.status(503).json({
         error: 'Registration is currently closed',
         message: settings?.message || 'Registration is temporarily unavailable. Please try again later.'
