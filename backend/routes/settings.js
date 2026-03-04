@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { getDB } = require('../config/database');
 const { requireAdmin } = require('../middleware/auth');
+const WEBSITE_TIMEZONE = process.env.WEBSITE_TIMEZONE || 'Asia/Baghdad';
 
 const toBoolean = (value, defaultValue = false) => {
   if (value === undefined || value === null) return defaultValue;
@@ -41,6 +42,36 @@ const isWithinScheduleWindow = (openTime, closeTime, now = new Date()) => {
   return currentSeconds >= openSeconds || currentSeconds < closeSeconds;
 };
 
+const getCurrentTimeInTimezone = (timeZone) => {
+  const now = new Date();
+  const formatter = new Intl.DateTimeFormat('en-GB', {
+    timeZone,
+    hour12: false,
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  });
+  const parts = formatter.formatToParts(now);
+  const hh = Number(parts.find((p) => p.type === 'hour')?.value || 0);
+  const mm = Number(parts.find((p) => p.type === 'minute')?.value || 0);
+  const ss = Number(parts.find((p) => p.type === 'second')?.value || 0);
+  return { hh, mm, ss };
+};
+
+const isWithinScheduleWindowByTimezone = (openTime, closeTime, timeZone) => {
+  const openSeconds = parseTimeToSeconds(openTime);
+  const closeSeconds = parseTimeToSeconds(closeTime);
+  if (openSeconds === null || closeSeconds === null) return false;
+
+  const { hh, mm, ss } = getCurrentTimeInTimezone(timeZone);
+  const currentSeconds = hh * 3600 + mm * 60 + ss;
+
+  if (openSeconds <= closeSeconds) {
+    return currentSeconds >= openSeconds && currentSeconds < closeSeconds;
+  }
+  return currentSeconds >= openSeconds || currentSeconds < closeSeconds;
+};
+
 // Get website settings - Public
 router.get('/website', async (req, res) => {
   try {
@@ -65,7 +96,7 @@ router.get('/website', async (req, res) => {
     let isOpen = toBoolean(settings.isOpen, false);
     if (autoScheduleEnabled && settings.openTime && settings.closeTime) {
       // Automatic mode should depend ONLY on current time window.
-      isOpen = isWithinScheduleWindow(settings.openTime, settings.closeTime, new Date());
+      isOpen = isWithinScheduleWindowByTimezone(settings.openTime, settings.closeTime, WEBSITE_TIMEZONE);
     }
     
     res.json({
