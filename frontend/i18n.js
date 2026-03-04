@@ -21,7 +21,16 @@ i18n
         translation: translationAR
       }
     },
-    fallbackLng: 'en',
+    // First visit default = Kurdish; afterwards use saved preference
+    fallbackLng: 'ku',
+    supportedLngs: ['ku', 'en', 'ar'],
+    nonExplicitSupportedLngs: true,
+    load: 'languageOnly',
+    detection: {
+      // Ignore browser language for first-time users
+      order: ['localStorage', 'cookie'],
+      caches: ['localStorage', 'cookie']
+    },
     interpolation: {
       escapeValue: false
     }
