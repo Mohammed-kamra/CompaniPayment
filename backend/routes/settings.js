@@ -3,6 +3,32 @@ const router = express.Router();
 const { getDB } = require('../config/database');
 const { requireAdmin } = require('../middleware/auth');
 
+const parseTimeToSeconds = (timeStr) => {
+  if (!timeStr || typeof timeStr !== 'string') return null;
+  const parts = timeStr.split(':').map(Number);
+  if (parts.length < 2) return null;
+  const [hour, minute] = parts;
+  if (Number.isNaN(hour) || Number.isNaN(minute)) return null;
+  if (hour < 0 || hour > 23 || minute < 0 || minute > 59) return null;
+  return hour * 3600 + minute * 60;
+};
+
+const isWithinScheduleWindow = (openTime, closeTime, now = new Date()) => {
+  const openSeconds = parseTimeToSeconds(openTime);
+  const closeSeconds = parseTimeToSeconds(closeTime);
+  if (openSeconds === null || closeSeconds === null) return false;
+
+  const currentSeconds = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+
+  if (openSeconds <= closeSeconds) {
+    // Same-day schedule: open at openTime, close at closeTime
+    return currentSeconds >= openSeconds && currentSeconds < closeSeconds;
+  }
+
+  // Overnight schedule (e.g. 18:00 -> 06:00)
+  return currentSeconds >= openSeconds || currentSeconds < closeSeconds;
+};
+
 // Get website settings - Public
 router.get('/website', async (req, res) => {
   try {
@@ -23,79 +49,10 @@ router.get('/website', async (req, res) => {
       });
     }
     
-    // Check if auto-schedule is enabled and handle auto-opening/closing
-    let isOpen = false; // Default: website is closed
-    
-    // If manually set to open, respect that (but check if we need to auto-close)
-    if (settings.isOpen === true) {
-      isOpen = true;
-    }
-    
-    // If autoSchedule is enabled, check if open/close times have been reached
-    // Auto-open when open time arrives (only if system was manually closed)
-    // Auto-close when close time expires
-    // After auto-closing, do NOT auto-open again (stay closed until manually opened)
+    let isOpen = settings.isOpen === true;
     if (settings.autoSchedule && settings.openTime && settings.closeTime) {
-      const now = new Date();
-      
-      // Parse times
-      const [openHour, openMin] = settings.openTime.split(':').map(Number);
-      const [closeHour, closeMin] = settings.closeTime.split(':').map(Number);
-      const openTimeSeconds = openHour * 3600 + openMin * 60;
-      const closeTimeSeconds = closeHour * 3600 + closeMin * 60;
-      const currentTimeSeconds = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
-      
-      let shouldBeOpen = false;
-      let shouldBeClosed = false;
-      
-      if (openTimeSeconds <= closeTimeSeconds) {
-        // Same day schedule (e.g., 6:00 to 18:00)
-        // Open if current time >= open time AND current time < close time
-        shouldBeOpen = currentTimeSeconds >= openTimeSeconds && currentTimeSeconds < closeTimeSeconds;
-        // Close if current time >= close time
-        shouldBeClosed = currentTimeSeconds >= closeTimeSeconds;
-      } else {
-        // Overnight schedule (e.g., 18:00 to 6:00 next day)
-        // Open if current time >= open time OR current time < close time
-        shouldBeOpen = currentTimeSeconds >= openTimeSeconds || currentTimeSeconds < closeTimeSeconds;
-        // Close if current time >= close time AND current time < open time
-        shouldBeClosed = currentTimeSeconds >= closeTimeSeconds && currentTimeSeconds < openTimeSeconds;
-      }
-      
-      // Check if system was manually closed (not auto-closed)
-      // autoClosed defaults to false if it doesn't exist (for backward compatibility)
-      const autoClosed = settings.autoClosed === true;
-      const isCurrentlyClosed = settings.isOpen === false;
-      const wasManuallyClosed = isCurrentlyClosed && !autoClosed;
-      
-      // Priority 1: Auto-close if close time has been reached and system is still marked as open
-      if (shouldBeClosed && settings.isOpen === true) {
-        // Update database to close the system and mark as auto-closed
-        await db.collection('settings').updateOne(
-          { type: 'website' },
-          { $set: { isOpen: false, autoClosed: true, updatedAt: new Date() } }
-        );
-        isOpen = false;
-      }
-      // Priority 2: Auto-open if open time has been reached and system was manually closed (not auto-closed)
-      else if (shouldBeOpen && wasManuallyClosed) {
-        // Update database to open the system
-        await db.collection('settings').updateOne(
-          { type: 'website' },
-          { $set: { isOpen: true, autoClosed: false, updatedAt: new Date() } }
-        );
-        isOpen = true;
-      }
-      // Priority 3: Respect current state if within valid time range
-      else if (shouldBeOpen && settings.isOpen === true) {
-        isOpen = true;
-      } else {
-        // System should be closed
-        isOpen = false;
-      }
-    } else {
-      // No autoSchedule - only respect manual setting
-      isOpen = settings.isOpen === true;
+      // Automatic mode should depend ONLY on current time window.
+      isOpen = isWithinScheduleWindow(settings.openTime, settings.closeTime, new Date());
     }
     
     res.json({
@@ -139,7 +96,6 @@ router.put('/website', requireAdmin, async (req, res) => {
       codesActive: req.body.codesActive !== undefined ? req.body.codesActive : true,
       postRegistrationMessage: req.body.postRegistrationMessage || '',
       notePaymentRegistration: req.body.notePaymentRegistration || '',
-      autoClosed: false, // Reset autoClosed flag when manually updating settings
       updatedAt: new Date()
     };
 
