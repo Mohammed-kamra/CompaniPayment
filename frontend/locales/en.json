@@ -449,7 +449,13 @@
     "searchPlaceholder": "Search by company name...",
     "noResults": "No companies found matching \"{{searchTerm}}\"",
     "clickToCopy": "Click to copy ID",
-    "clickToWhatsApp": "Click to open WhatsApp"
+    "clickToWhatsApp": "Click to open WhatsApp",
+    "recordsPerPage": "Records per page",
+    "of": "of",
+    "prev": "Prev",
+    "next": "Next",
+    "page": "Page",
+    "all": "all"
   },
   "users": {
     "title": "User Management",

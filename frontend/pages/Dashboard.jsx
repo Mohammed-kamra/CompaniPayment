@@ -10,6 +10,7 @@ const Dashboard = () => {
   const [companies, setCompanies] = useState([])
   const [groups, setGroups] = useState([])
   const [unregisteredCount, setUnregisteredCount] = useState(0)
+  const [totalCompanyNames, setTotalCompanyNames] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
@@ -25,14 +26,20 @@ const Dashboard = () => {
   const loadData = async () => {
     try {
       setLoading(true)
-      const [companiesData, groupsData, unregisteredData] = await Promise.all([
+      const [companiesData, groupsData, unregisteredData, companyNamesData] = await Promise.all([
         companiesAPI.getAllAdmin(),
         groupsAPI.getAll(),
-        companyNamesAPI.getUnregistered().catch(() => [])
+        companyNamesAPI.getUnregistered().catch(() => []),
+        companyNamesAPI.getAll().catch(() => [])
       ])
       setCompanies(companiesData || [])
       setGroups(groupsData || [])
       setUnregisteredCount(Array.isArray(unregisteredData) ? unregisteredData.length : 0)
+      setTotalCompanyNames(
+        Array.isArray(companyNamesData)
+          ? companyNamesData.length
+          : ((companiesData?.length || 0) + (Array.isArray(unregisteredData) ? unregisteredData.length : 0))
+      )
     } catch (err) {
       console.error('Failed to load data:', err)
       setError(err.message || 'Failed to load companies')
@@ -206,6 +213,10 @@ const Dashboard = () => {
         <div className="dashboard-report">
           <h2 className="dashboard-report-title">{t('dashboard.report') || 'Report'}</h2>
           <div className="dashboard-report-cards">
+            <Link to="/admin/company-names" className="dashboard-report-card dashboard-report-card-total dashboard-report-card-link dashboard-report-card-full-width">
+              <span className="dashboard-report-label">{t('dashboard.totalCompanies') || 'Total Companies'}</span>
+              <span className="dashboard-report-value">{totalCompanyNames}</span>
+            </Link>
             <Link to="/companies-list" className="dashboard-report-card dashboard-report-card-registered dashboard-report-card-link">
               <span className="dashboard-report-label">{t('dashboard.registeredCompanies') || 'Registered Companies'}</span>
               <span className="dashboard-report-value">{companies.length}</span>

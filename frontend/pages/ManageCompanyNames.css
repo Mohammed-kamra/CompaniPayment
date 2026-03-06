@@ -66,6 +66,52 @@
   opacity: 0.6;
 }
 
+.table-pagination-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.page-size-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.page-size-selector label {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.page-size-selector select {
+  padding: 0.45rem 0.6rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: var(--card-bg);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+}
+
+.pagination-summary {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.pagination-buttons {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.page-indicator {
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
 .btn-export {
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   color: white;

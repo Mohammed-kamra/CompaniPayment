@@ -45,6 +45,8 @@ const ManageCompanyNames = () => {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
   const [deleteTargetId, setDeleteTargetId] = useState(null)
   const [deleteAllConfirmOpen, setDeleteAllConfirmOpen] = useState(false)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [recordsPerPage, setRecordsPerPage] = useState('20')
   const fileInputRef = useRef(null)
   const { isAuthenticated, user } = useAuth()
   const navigate = useNavigate()
@@ -107,6 +109,28 @@ const ManageCompanyNames = () => {
   }
 
   // fetchCompanyNames is now provided by context - no need for local function
+
+  // Filter + pagination
+  const filteredCompanyNames = searchTerm
+    ? companyNames.filter(companyName =>
+        companyName.name?.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    : companyNames
+
+  const totalRecords = filteredCompanyNames.length
+  const showAllRecords = recordsPerPage === 'all'
+  const perPageNumber = showAllRecords ? Math.max(totalRecords, 1) : Number(recordsPerPage)
+  const totalPages = showAllRecords ? 1 : Math.max(1, Math.ceil(totalRecords / perPageNumber))
+  const safeCurrentPage = Math.min(currentPage, totalPages)
+  const paginatedCompanyNames = showAllRecords
+    ? filteredCompanyNames
+    : filteredCompanyNames.slice((safeCurrentPage - 1) * perPageNumber, safeCurrentPage * perPageNumber)
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages)
+    }
+  }, [currentPage, totalPages])
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
@@ -699,7 +723,10 @@ const ManageCompanyNames = () => {
           type="text"
           placeholder={t('companyNames.searchPlaceholder') || 'Search by company name...'}
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={(e) => {
+            setSearchTerm(e.target.value)
+            setCurrentPage(1)
+          }}
           className="search-input"
         />
         <span className="search-icon">🔍</span>
@@ -875,17 +902,10 @@ const ManageCompanyNames = () => {
 
       <div className="company-names-list">
         {(() => {
-          // Filter company names based on search term
-          const filteredCompanyNames = searchTerm
-            ? companyNames.filter(companyName =>
-                companyName.name?.toLowerCase().includes(searchTerm.toLowerCase())
-              )
-            : companyNames
-
           if (filteredCompanyNames.length === 0) {
             return (
               <p className="empty-state">
-                {searchTerm 
+                {searchTerm
                   ? t('companyNames.noResults', { searchTerm }) || `No companies found matching "${searchTerm}"`
                   : t('companyNames.noNames')
                 }
@@ -894,6 +914,7 @@ const ManageCompanyNames = () => {
           }
 
           return (
+          <>
           <div className="professional-table-container">
             <table className="professional-table">
               <thead>
@@ -907,7 +928,7 @@ const ManageCompanyNames = () => {
                 </tr>
               </thead>
               <tbody>
-                  {filteredCompanyNames.map(companyName => (
+                  {paginatedCompanyNames.map(companyName => (
                   <tr key={companyName._id}>
                       <td className="company-name-cell text-left">{companyName.name}</td>
                       <td 
@@ -1044,6 +1065,56 @@ const ManageCompanyNames = () => {
               </tbody>
             </table>
           </div>
+          <div className="table-pagination-controls">
+            <div className="page-size-selector">
+              <label htmlFor="records-per-page">{t('companyNames.recordsPerPage') || 'Records per page'}:</label>
+              <select
+                id="records-per-page"
+                value={recordsPerPage}
+                onChange={(e) => {
+                  setRecordsPerPage(e.target.value)
+                  setCurrentPage(1)
+                }}
+              >
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+                <option value="all">{t('companyNames.all') || 'all'}</option>
+              </select>
+            </div>
+
+            <div className="pagination-summary">
+              {totalRecords === 0
+                ? (t('companyNames.noNames') || 'No company names')
+                : `${(safeCurrentPage - 1) * perPageNumber + 1}-${Math.min(safeCurrentPage * perPageNumber, totalRecords)} ${t('companyNames.of') || 'of'} ${totalRecords}`}
+            </div>
+
+            {!showAllRecords && totalPages > 1 && (
+              <div className="pagination-buttons">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  disabled={safeCurrentPage === 1}
+                >
+                  {t('companyNames.prev') || 'Prev'}
+                </button>
+                <span className="page-indicator">
+                  {t('companyNames.page') || 'Page'} {safeCurrentPage} / {totalPages}
+                </span>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                  disabled={safeCurrentPage === totalPages}
+                >
+                  {t('companyNames.next') || 'Next'}
+                </button>
+              </div>
+            )}
+          </div>
+          </>
           )
         })()}
 

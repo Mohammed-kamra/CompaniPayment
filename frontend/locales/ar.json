@@ -81,7 +81,13 @@
     "confirmDeleteAll": "هل أنت متأكد من حذف جميع {{count}} أسماء الشركات؟ لا يمكن التراجع عن هذا الإجراء!",
     "deletedAll": "تم حذف جميع {{count}} أسماء الشركات بنجاح",
     "noNamesToDelete": "لا توجد أسماء شركات للحذف",
-    "unsupportedFileType": "نوع ملف غير مدعوم. يرجى استخدام ملفات CSV أو XLSX أو XLS."
+    "unsupportedFileType": "نوع ملف غير مدعوم. يرجى استخدام ملفات CSV أو XLSX أو XLS.",
+    "recordsPerPage": "عدد السجلات في الصفحة",
+    "of": "من",
+    "prev": "السابق",
+    "next": "التالي",
+    "page": "الصفحة",
+    "all": "الكل"
   },
   "users": {
     "title": "إدارة المستخدمين",

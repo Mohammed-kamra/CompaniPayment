@@ -71,6 +71,15 @@
   border-color: rgba(245, 158, 11, 0.3);
 }
 
+.dashboard-report-card-total {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.16) 0%, rgba(37, 99, 235, 0.1) 100%);
+  border-color: rgba(59, 130, 246, 0.35);
+}
+
+.dashboard-report-card-full-width {
+  flex-basis: 100%;
+}
+
 .dashboard-report-label {
   color: var(--text-secondary);
   font-size: 0.9rem;
@@ -91,6 +100,10 @@
   color: #f59e0b;
 }
 
+.dashboard-report-card-total .dashboard-report-value {
+  color: #3b82f6;
+}
+
 .dashboard-report-card-link {
   text-decoration: none;
   color: inherit;
@@ -109,6 +122,10 @@
 
 .dashboard-report-card-unregistered.dashboard-report-card-link:hover {
   border-color: rgba(245, 158, 11, 0.5);
+}
+
+.dashboard-report-card-total.dashboard-report-card-link:hover {
+  border-color: rgba(59, 130, 246, 0.55);
 }
 
 .dashboard-controls {
