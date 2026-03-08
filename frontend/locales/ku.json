@@ -38,6 +38,7 @@
     "welcomeHeader": "بەخێربێیت بۆ ماڵپەڕی پارەدان",
     "websiteClosedWatermark": "داخراو",
     "name": "ناوت",
+    "Company code not found. Please check your code and try again.":"كۆده‌كه‌ت هه‌ڵه‌یه‌. تکایه‌ دوباره هه‌وڵ بده‌وه‌",
     "namePlaceholder": "ناوی تەواوت بنووسە",
     "mobileNumber": "ژمارەی مۆبایل",
     "mobilePlaceholder": "ژمارەی مۆبایلت بنووسە",
@@ -184,12 +185,13 @@
     "codePlaceholder": "کۆدی ٤ ژمارەیی بنووسە بۆ پڕکردنەوەی خۆکار",
     "codeVerified": "کۆد بە سەرکەوتوویی پشتڕاستکرایەوە",
     "fieldErrors": {
-      "nameRequired": "ناوی کۆمپانیا پێویستە",
+      "nameRequired": "ناوی وه‌رگر پێویستە",
       "emailRequired": "ئیمەیڵ پێویستە",
       "emailInvalid": "تکایە ناونیشانی ئیمەیڵێکی دروست بنووسە (وەک: example@email.com)",
       "phoneRequired": "ژمارەی تەلەفۆن پێویستە",
       "addressRequired": "ناونیشان پێویستە",
-      "codeRequired": "کۆد پێویستە کاتێک کۆدەکان چالاکن"
+      "codeRequired": "کۆد پێویستە کاتێک کۆدەکان چالاکن",
+      "companynameRequired": "ناوی کۆمپانیا پێویستە"
     },
     "validation": {
       "fixErrors": "تکایە هەڵەکان چارەسەر بکە پێش ناردن",
@@ -260,7 +262,9 @@
     "selectAll": "هەموو هەڵبژێردن",
     "rank": "#",
     "id": "ناسنامە",
-    "clickToCopyId": "کرتە بکە بۆ کۆپیکردنی ناسنامە"
+    "clickToCopyId": "کرتە بکە بۆ کۆپیکردنی ناسنامە",
+    "unspentTitle": "لیستی ئه‌و گروپانه‌ی هێشتا پاره‌یان نه‌دراون",
+    "companyName": "لیستی كۆمپانیاكان"
   },
   "findJob": {
     "title": "کاری خەونەکەت بدۆزەوە",
@@ -440,6 +444,11 @@
     "update": "نوێکردنەوە",
     "cancel": "هەڵوەشاندن",
     "close": "داخستن",
+    "importExcelTitle":"بارکردنی فایل (Excel)",
+    "importExcelDescription": "فایلی ئاماده‌كراوی ئێكسڵ لێره‌ دابنێ ",
+    "downloadTemplateTitle":"فایلی تێستی ئێكسڵ داونلۆدبكه‌ ",
+    "downloadTemplateDescription":"كلیك له‌م به‌سته‌ره‌ بكه‌",
+    "downloadTemplateButton":"دابه‌زاندنی نموونه‌ی ئێكسڵ",
     "delete": "سڕینەوە",
     "name": "ناوی کۆمپانیا",
     "namePlaceholder": "ناوی کۆمپانیا بنووسە",

@@ -218,6 +218,26 @@
   margin: 0;
 }
 
+.unspent-group-meta {
+  margin-top: 0.35rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.9rem;
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+}
+
+.unspent-group-meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.unspent-group-meta-item strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
 .unspent-count-badge {
   display: inline-flex;
   align-items: center;
@@ -247,6 +267,26 @@
 .unspent-table td,
 .unspent-table th {
   border-color: rgba(148, 163, 184, 0.4);
+}
+
+.unspent-table tbody tr.unspent-company-current {
+  background: linear-gradient(90deg, rgba(16, 185, 129, 0.28), rgba(16, 185, 129, 0.14)) !important;
+  box-shadow: inset 3px 0 0 #10b981;
+}
+
+.unspent-table tbody tr.unspent-company-current:hover {
+  background: linear-gradient(90deg, rgba(16, 185, 129, 0.34), rgba(16, 185, 129, 0.18)) !important;
+}
+
+.unspent-company-current-cell {
+  font-weight: 700;
+  color: #d1fae5;
+}
+
+.current-company-badge {
+  margin-left: 0.45rem;
+  font-size: 0.9rem;
+  vertical-align: middle;
 }
 
 .existing-registrations-hint {
@@ -1029,6 +1069,35 @@
 
   .pre-register-container .groups-card-container {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Mobile group detail layout: row1 icon+label, row2 value */
+  .group-selection-card .group-detail-item {
+    display: grid;
+    grid-template-columns: 20px minmax(0, 1fr);
+    grid-template-areas:
+      "icon label"
+      ". value";
+    align-items: start;
+    column-gap: 0.5rem;
+    row-gap: 0.2rem;
+  }
+
+  .group-selection-card .detail-icon {
+    grid-area: icon;
+    width: 20px;
+  }
+
+  .group-selection-card .detail-label {
+    grid-area: label;
+    min-width: 0;
+    margin-right: 0.25rem;
+  }
+
+  .group-selection-card .detail-value {
+    grid-area: value;
+    min-width: 0;
+    overflow-wrap: anywhere;
   }
 
   .groups-grid {

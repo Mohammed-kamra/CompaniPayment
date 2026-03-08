@@ -65,6 +65,20 @@ const CompaniesList = () => {
     }
   }
 
+  const compareCompaniesForList = (a, b) => {
+    // Always move fully completed companies (spent + paid) to the end
+    const aCompleted = a?.spent === true && a?.paid === true
+    const bCompleted = b?.spent === true && b?.paid === true
+    if (aCompleted !== bCompleted) {
+      return aCompleted ? 1 : -1
+    }
+
+    // Otherwise keep time order from earliest to latest
+    const timeA = a?.createdAt ? new Date(a.createdAt).getTime() : 0
+    const timeB = b?.createdAt ? new Date(b.createdAt).getTime() : 0
+    return timeA - timeB
+  }
+
   const handleStatusToggle = async (companyId, field) => {
     const company = companies.find(c => c._id === companyId)
     if (!company) {
@@ -475,7 +489,7 @@ const CompaniesList = () => {
       })
     }
 
-    return filtered
+    return [...filtered].sort(compareCompaniesForList)
   }
 
   const handleFilterChange = (filterName, value) => {
@@ -957,20 +971,7 @@ const CompaniesList = () => {
             return groupsWithInfo.map((groupInfo, index) => {
               const { groupId, groupCompanies, group, groupName, companyCount } = groupInfo
               
-              // Sort companies: unpaid first, then paid (paid go to bottom)
-              // Within each group, also sort by spent: not spent first, then spent
-              const sortedGroupCompanies = [...groupCompanies].sort((a, b) => {
-                // First sort by paid status: unpaid (false) comes before paid (true)
-                if (a.paid !== b.paid) {
-                  return a.paid ? 1 : -1
-                }
-                // If both have same paid status, sort by spent status
-                if (a.spent !== b.spent) {
-                  return a.spent ? 1 : -1
-                }
-                // If both have same paid and spent status, maintain original order
-                return 0
-              })
+              const sortedGroupCompanies = [...groupCompanies].sort(compareCompaniesForList)
               
               // Format payment date as DD/MM/YYYY
               const paymentDate = group?.date

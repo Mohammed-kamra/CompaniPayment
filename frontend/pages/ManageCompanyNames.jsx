@@ -113,7 +113,8 @@ const ManageCompanyNames = () => {
   // Filter + pagination
   const filteredCompanyNames = searchTerm
     ? companyNames.filter(companyName =>
-        companyName.name?.toLowerCase().includes(searchTerm.toLowerCase())
+        companyName.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        String(companyName.code || '').toLowerCase().includes(searchTerm.toLowerCase())
       )
     : companyNames
 
@@ -652,6 +653,24 @@ const ManageCompanyNames = () => {
     }
   }
 
+  const handleDownloadImportTemplate = () => {
+    try {
+      const templateData = [
+        ['company name', 'contact name', 'mobile number', 'id'],
+        ['ACME LTD', 'John Doe', '07501234567', '3242'],
+        ['Blue Market', 'Sara Ali', '07701234567', '5678']
+      ]
+
+      const worksheet = XLSX.utils.aoa_to_sheet(templateData)
+      const workbook = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Import Template')
+      XLSX.writeFile(workbook, 'Company_Names_Import_Template.xlsx')
+    } catch (err) {
+      setError(err.message || 'Failed to download template')
+      notify('error', err.message || 'Failed to download template')
+    }
+  }
+
   const handleExportToExcel = () => {
     if (companyNames.length === 0) {
       setError(t('companyNames.noNamesToExport') || 'No company names to export')
@@ -721,7 +740,7 @@ const ManageCompanyNames = () => {
       <div className="search-box">
         <input
           type="text"
-          placeholder={t('companyNames.searchPlaceholder') || 'Search by company name...'}
+          placeholder={t('companyNames.searchPlaceholder') || 'Search by company name or code...'}
           value={searchTerm}
           onChange={(e) => {
             setSearchTerm(e.target.value)
@@ -741,28 +760,29 @@ const ManageCompanyNames = () => {
             </div>
             
             <div className="import-section">
-              <div className="form-group">
-                <label>{t('companyNames.uploadFile')}</label>
+              <div className="import-option-card">
+                <h4>{t('companyNames.importExcelTitle') || 'Section 1: Import Excel'}</h4>
+                <p className="import-template-description">
+                  {t('companyNames.importExcelDescription') || 'Upload your Excel file with columns: company name, contact name, mobile number, id'}
+                </p>
                 <input
                   type="file"
                   ref={fileInputRef}
                   onChange={handleFileUpload}
-                  accept=".csv,.xlsx,.xls,.txt"
+                  accept=".xlsx,.xls,.csv,.txt"
                   className="file-input"
                 />
-                <small>{t('companyNames.fileHint')}</small>
+                <small>{importData.trim() ? (t('companyNames.fileReadyToImport') || 'File is ready. Click Import.') : (t('companyNames.fileHint') || 'Upload Excel file')}</small>
               </div>
 
-              <div className="form-group">
-                <label>{t('companyNames.importLabel')}</label>
-                <textarea
-                  value={importData}
-                  onChange={(e) => setImportData(e.target.value)}
-                  rows="10"
-                  placeholder={t('companyNames.importPlaceholder')}
-                  className="import-textarea"
-                />
-                <small>{t('companyNames.importHint')}</small>
+              <div className="import-option-card">
+                <h4>{t('companyNames.downloadTemplateTitle') || 'Section 2: Download Example Template'}</h4>
+                <p className="import-template-description">
+                  {t('companyNames.downloadTemplateDescription') || 'Download the example template, fill it, then upload it in section 1.'}
+                </p>
+                <button type="button" className="btn btn-secondary" onClick={handleDownloadImportTemplate}>
+                  {t('companyNames.downloadTemplateButton') || 'Download Template'}
+                </button>
               </div>
 
               <div className="form-actions">

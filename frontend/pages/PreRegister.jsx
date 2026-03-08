@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { useNavigate, Navigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
+import { useNotification } from '../contexts/NotificationContext'
 import { preRegisterAPI, settingsAPI, groupsAPI, companiesAPI } from '../services/api'
 import './PreRegister.css'
 
@@ -9,6 +10,7 @@ const PreRegister = () => {
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
   const { isAuthenticated, user } = useAuth()
+  const { notify } = useNotification()
 
   if (isAuthenticated && user?.role === 'accounting') {
     return <Navigate to="/companies-list" replace />
@@ -50,6 +52,33 @@ const PreRegister = () => {
     const lang = currentLang.startsWith('ku') ? 'ku' : currentLang.startsWith('ar') ? 'ar' : 'en'
     return dayMap[lang][dayName] || dayName
   }
+
+  const getGroupTimeDisplay = (group) => {
+    if (!group) return ''
+    const timeRange = String(group.timeRange || '').trim()
+    if (timeRange) return timeRange
+
+    const timeFrom = String(group.timeFrom || '').trim()
+    const timeTo = String(group.timeTo || '').trim()
+
+    if (timeFrom && timeTo) return `${timeFrom} - ${timeTo}`
+    return timeFrom || timeTo || ''
+  }
+
+  const normalizeId = (id) => {
+    if (!id) return ''
+    if (typeof id === 'string' || typeof id === 'number') return String(id).trim()
+    if (typeof id === 'object') {
+      if (id.$oid) return String(id.$oid).trim()
+      if (id._id) return normalizeId(id._id)
+      if (id.id) return normalizeId(id.id)
+      if (typeof id.toHexString === 'function') return id.toHexString().trim()
+      if (typeof id.toString === 'function' && id.toString !== Object.prototype.toString) {
+        return id.toString().trim()
+      }
+    }
+    return String(id).trim()
+  }
   const [formData, setFormData] = useState({
     name: '',
     mobileNumber: '',
@@ -75,6 +104,16 @@ const PreRegister = () => {
   const [loadingUnspent, setLoadingUnspent] = useState(false)
   const codeDebounceTimer = useRef(null)
   const isMountedRef = useRef(true)
+  const notifyError = (message) => {
+    const finalMessage = message || t('preRegister.error') || 'Something went wrong'
+    setError(finalMessage)
+    notify('error', finalMessage)
+  }
+  const notifyCodeError = (message) => {
+    const finalMessage = message || t('preRegister.codeError') || 'Failed to fetch company data. Please try again.'
+    setCodeError(finalMessage)
+    notify('error', finalMessage)
+  }
   const autoFilledText = t('preRegister.autoFilled', {
     defaultValue: t('preRegister.success.autoFilled', {
       defaultValue: 'Auto-filled from company code'
@@ -203,7 +242,13 @@ const PreRegister = () => {
       try {
         setLoadingUnspent(true)
         const allCompanies = await companiesAPI.getAll()
-        const notSpent = (allCompanies || []).filter(c => !c.spent)
+        const notSpent = (allCompanies || [])
+          .filter(c => !c.spent)
+          .sort((a, b) => {
+            const timeA = a?.createdAt ? new Date(a.createdAt).getTime() : 0
+            const timeB = b?.createdAt ? new Date(b.createdAt).getTime() : 0
+            return timeA - timeB
+          })
         setUnspentCompanies(notSpent)
       } catch (err) {
         console.error('Failed to fetch unspent companies:', err)
@@ -253,7 +298,7 @@ const PreRegister = () => {
 
   // Handle code input change with debounce
   const handleCodeInputChange = (e) => {
-    const code = e.target.value.trim()
+    const code = String(e.target.value || '').replace(/\D/g, '')
     
     // Update code in form data immediately
     setFormData(prev => ({ ...prev, code: code }))
@@ -293,7 +338,7 @@ const PreRegister = () => {
 
   // Handle code input blur (immediate fetch when user leaves the field)
   const handleCodeBlur = (e) => {
-    const code = e.target.value.trim()
+    const code = String(e.target.value || '').replace(/\D/g, '')
     
     // Clear debounce timer
     if (codeDebounceTimer.current) {
@@ -335,18 +380,7 @@ const PreRegister = () => {
       
       if (!companyData) {
         // Code not found
-        setCodeError(t('preRegister.codeNotFound') || 'Company code not found. Please check your code and try again.')
-        setAutoFilledFields({
-          name: false,
-          mobileNumber: false,
-          companyName: false
-        })
-        setFormData(prev => ({
-          ...prev,
-          name: '',
-          mobileNumber: '',
-          companyName: ''
-        }))
+        notifyCodeError(t('preRegister.Company code not found. Please check your code and try again.') || 'Company code not found. Please check your code and try again.')
       } else {
         // Code found - auto-fill fields
         setFormData(prev => ({
@@ -372,7 +406,7 @@ const PreRegister = () => {
       }
     } catch (err) {
       console.error('Error fetching company by code:', err)
-      setCodeError(err.message || t('preRegister.codeError') || 'Failed to fetch company data. Please try again.')
+      notifyCodeError(err.message || t('preRegister.codeError') || 'Failed to fetch company data. Please try again.')
       setAutoFilledFields({
         name: false,
         mobileNumber: false,
@@ -406,7 +440,7 @@ const PreRegister = () => {
     
     // Block submission if system is closed
     if (websiteClosed) {
-      setError(t('preRegister.websiteClosed') || 'Registration is currently closed. Please wait until the system is open.')
+      notifyError(t('preRegister.websiteClosed') || 'Registration is currently closed. Please wait until the system is open.')
       return
     }
     
@@ -418,41 +452,41 @@ const PreRegister = () => {
     // Name is required
     if (!formData.name || formData.name.trim() === '') {
       missingFields.push(t('preRegister.name') || 'Name')
-      setError(t('preRegister.name') + ' ' + (t('registration.fieldErrors.nameRequired') || 'is required'))
+      notifyError(t('registration.fieldErrors.nameRequired') || 'is required')
       return
     }
     
     // Mobile Number is required
     if (!formData.mobileNumber || formData.mobileNumber.trim() === '') {
       missingFields.push(t('preRegister.mobileNumber') || 'Mobile Number')
-      setError(t('preRegister.mobileNumber') + ' ' + (t('registration.fieldErrors.phoneRequired') || 'is required'))
+      notifyError(t('registration.fieldErrors.phoneRequired') || 'is required')
       return
     }
     
     // Company Name is required
     if (!formData.companyName || formData.companyName.trim() === '') {
       missingFields.push(t('preRegister.companyName') || 'Company Name')
-      setError(t('preRegister.companyName') + ' ' + (t('registration.fieldErrors.nameRequired') || 'is required'))
+      notifyError(t('registration.fieldErrors.companynameRequired') || 'is required')
       return
     }
     
     // Code is required only if codes are explicitly enabled
     if (websiteSettings?.codesActive === true && (!formData.code || formData.code.trim() === '')) {
       missingFields.push(t('preRegister.registrationCode') || 'Code')
-      setError(t('preRegister.registrationCode') + ' ' + (t('registration.fieldErrors.nameRequired') || 'is required'))
+      notifyError(t('registration.fieldErrors.codeRequired') || 'is required')
       return
     }
     
     // Group is REQUIRED - cannot submit without selecting a group
     if (!formData.groupId || formData.groupId.trim() === '') {
       missingFields.push(t('preRegister.selectGroup') || 'Group')
-      setError(t('preRegister.selectGroup') + ' ' + (t('registration.fieldErrors.groupRequired') || 'is required. Please select a group.'))
+      notifyError(t('preRegister.selectGroup') || 'is required. Please select a group.')
       return
     }
     
     // Validate groupId format (MongoDB ObjectId)
     if (formData.groupId && !/^[0-9a-fA-F]{24}$/.test(formData.groupId.trim())) {
-      setError(t('preRegister.invalidGroup') || 'Invalid group selected. Please select a group again.')
+      notifyError(t('preRegister.invalidGroup') || 'Invalid group selected. Please select a group again.')
       return
     }
 
@@ -460,7 +494,7 @@ const PreRegister = () => {
     if (missingFields.length > 0) {
       const errorMsg = t('registration.validation.fillRequiredFields') || `Please fill in all required fields: ${missingFields.join(', ')}`
       console.error('Validation failed:', errorMsg)
-      setError(errorMsg)
+      notifyError(errorMsg)
       return
     }
 
@@ -471,7 +505,7 @@ const PreRegister = () => {
       console.warn('⚠️ Pre-registration taking too long, automatically clearing loading state')
       if (isMountedRef.current) {
         setLoading(false)
-        setError(t('preRegister.timeoutError') || 'Registration is taking longer than expected. Please check your connection and try again.')
+        notifyError(t('preRegister.timeoutError') || 'Registration is taking longer than expected. Please check your connection and try again.')
       }
     }, 50000) // 50 second overall loading timeout (longer than API timeout)
 
@@ -496,7 +530,7 @@ const PreRegister = () => {
         console.warn('⚠️ Invalid groupId format:', submitData.groupId)
         clearTimeout(loadingTimeout)
         setLoading(false)
-        setError(t('preRegister.invalidGroup') || 'Invalid group selected. Please select a group again.')
+        notifyError(t('preRegister.invalidGroup') || 'Invalid group selected. Please select a group again.')
         return
       }
 
@@ -705,10 +739,10 @@ const PreRegister = () => {
         const errorMsg = err.message.includes('Failed to connect') 
           ? err.message 
           : 'Network error: Could not connect to server. Please check if the backend server is running on http://localhost:5000'
-        setError(errorMsg)
+        notifyError(errorMsg)
         return
       } else if (err.message && err.message.includes('timeout')) {
-        setError(err.message)
+        notifyError(err.message)
         return
       }
       
@@ -741,13 +775,13 @@ const PreRegister = () => {
         }
         
         console.log('📝 Final error message to display:', errorMessage)
-        setError(errorMessage)
+        notifyError(errorMessage)
       } else {
         // Show the full error message with status code
         if (err.status) {
           errorMessage += ` (Status: ${err.status})`
         }
-        setError(errorMessage)
+        notifyError(errorMessage)
       }
     }
   }
@@ -779,21 +813,6 @@ const PreRegister = () => {
         </div>
         <h1>{t('preRegister.title')}</h1>
         <p className="pre-register-subtitle">{t('preRegister.subtitle')}</p>
-
-        {error && (
-          <div className="error-message" style={{ 
-            padding: '15px', 
-            marginBottom: '20px', 
-            backgroundColor: '#fee', 
-            border: '2px solid #fcc', 
-            borderRadius: '5px',
-            color: '#c00',
-            fontSize: '16px',
-            fontWeight: 'bold'
-          }}>
-            {error}
-          </div>
-        )}
 
         {websiteClosed && (
           <div className="website-closed-message" style={{ 
@@ -835,20 +854,16 @@ const PreRegister = () => {
                     onChange={handleCodeInputChange}
                     onBlur={handleCodeBlur}
                     required
+                    inputMode="numeric"
+                    pattern="[0-9]*"
                     placeholder={t('preRegister.codePlaceholder') || 'Enter your company code'}
                     disabled={loadingCode}
                     style={{ opacity: loadingCode ? 0.6 : 1 }}
                   />
                   {loadingCode && (
                     <small className="form-hint" style={{ color: '#3b82f6', display: 'block', marginTop: '0.5rem' }}>
-                      {t('preRegister.loadingCode') || 'Loading company data...'}
+                      {'Loading company data...'}
                     </small>
-                  )}
-                  {codeError && (
-                    <div className="field-error-message" style={{ color: '#ef4444', fontSize: '0.875rem', marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <span>⚠️</span>
-                      <span>{codeError}</span>
-                    </div>
                   )}
                 </div>
               )
@@ -872,6 +887,8 @@ const PreRegister = () => {
                     onChange={handleCodeInputChange}
                     onBlur={handleCodeBlur}
                     required
+                    inputMode="numeric"
+                    pattern="[0-9]*"
                     placeholder={t('preRegister.codePlaceholder') || 'Enter your company code'}
                     disabled={loadingCode}
                     style={{ opacity: loadingCode ? 0.6 : 1 }}
@@ -892,12 +909,6 @@ const PreRegister = () => {
                   <small className="form-hint" style={{ color: '#3b82f6', display: 'block', marginTop: '0.5rem' }}>
                     {t('preRegister.loadingCode') || 'Loading company data...'}
                   </small>
-                )}
-                {codeError && (
-                  <div className="field-error-message" style={{ color: '#ef4444', fontSize: '0.875rem', marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <span>⚠️</span>
-                    <span>{codeError}</span>
-                  </div>
                 )}
               </div>
             )}
@@ -1028,6 +1039,7 @@ const PreRegister = () => {
                   const maxCompanies = group.maxCompanies || 0;
                   const remaining = maxCompanies > 0 ? maxCompanies - registeredCount : '∞';
                   const isFull = maxCompanies > 0 && registeredCount >= maxCompanies;
+                  const timeDisplay = getGroupTimeDisplay(group);
                   
                   // Format date
                   const dateStr = group.date ? new Date(group.date).toLocaleDateString() : '';
@@ -1060,11 +1072,11 @@ const PreRegister = () => {
                       </div>
                       
                       <div className="group-card-details">
-                        {group.timeRange && (
+                        {timeDisplay && (
                           <div className="group-detail-item">
                             <span className="detail-icon">🕐</span>
                             <span className="detail-label">{t('preRegister.time')}:</span>
-                            <span className="detail-value">{group.timeRange}</span>
+                            <span className="detail-value">{timeDisplay}</span>
                           </div>
                         )}
                         {dateDisplay && (
@@ -1145,46 +1157,66 @@ const PreRegister = () => {
               {t('companiesList.noUnspent', 'There are currently no companies with unpaid / unspent status.')}
             </p>
           ) : (() => {
-            const grouped = groups
-              .map(group => ({
-                group,
-                companies: unspentCompanies.filter(c => c.groupId === group._id)
-              }))
-              .filter(item => item.companies.length > 0)
+            const normalizedCurrentCode = String(formData.code || '').trim().toLowerCase()
+            const isCurrentUserCompany = (company) => (
+              normalizedCurrentCode &&
+              String(company?.code || '').trim().toLowerCase() === normalizedCurrentCode
+            )
 
-            if (grouped.length === 0) {
-              // Fallback: show all unspent companies even if they have no group
-              return (
-                <div className="public-registration-table-wrapper">
-                  <table className="public-registration-table global-table unspent-table">
-                    <thead>
-                      <tr>
-                        <th>{t('companiesList.companyName') || 'Company Name'}</th>
-                        <th>{t('companiesList.groupName') || 'Group'}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {unspentCompanies.map(company => {
-                        const group = groups.find(g => g._id === company.groupId)
-                        return (
-                          <tr key={company._id}>
-                            <td>{company.name}</td>
-                            <td>{group ? group.name : '-'}</td>
-                          </tr>
-                        )
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              )
-            }
+            const groupedMap = unspentCompanies.reduce((acc, company) => {
+              const normalizedGroupId = normalizeId(company.groupId) || 'no-group'
+              if (!acc[normalizedGroupId]) {
+                const matchedGroup = groups.find(g => normalizeId(g._id) === normalizedGroupId)
+                acc[normalizedGroupId] = {
+                  group: matchedGroup || {
+                    _id: normalizedGroupId,
+                    name: t('companiesList.groupName') || 'Group'
+                  },
+                  companies: []
+                }
+              }
+              acc[normalizedGroupId].companies.push(company)
+              return acc
+            }, {})
+
+            const grouped = Object.values(groupedMap).sort((a, b) => {
+              const dateA = a.group?.date ? new Date(a.group.date).getTime() : 0
+              const dateB = b.group?.date ? new Date(b.group.date).getTime() : 0
+              return dateA - dateB
+            })
 
             return (
               <div className="unspent-groups-grid">
-                {grouped.map(item => (
+                {grouped.map(item => {
+                  const timeDisplay = getGroupTimeDisplay(item.group)
+                  const dateStr = item.group.date ? new Date(item.group.date).toLocaleDateString() : ''
+                  const translatedDay = item.group.day ? translateDay(item.group.day) : ''
+                  const dateDisplay = dateStr ? `${dateStr}${translatedDay ? ` - ${translatedDay}` : ''}` : ''
+
+                  return (
                   <div key={item.group._id} className="unspent-group-card">
                     <div className="unspent-group-header">
-                      <h3 className="unspent-group-name">{item.group.name}</h3>
+                      <div>
+                        <h3 className="unspent-group-name">{item.group.name}</h3>
+                        {(timeDisplay || dateDisplay) && (
+                          <div className="unspent-group-meta">
+                            {timeDisplay && (
+                              <span className="unspent-group-meta-item">
+                                <span>🕐</span>
+                                <span>{t('preRegister.time')}:</span>
+                                <strong>{timeDisplay}</strong>
+                              </span>
+                            )}
+                            {dateDisplay && (
+                              <span className="unspent-group-meta-item">
+                                <span>📅</span>
+                                <span>{t('preRegister.date')}:</span>
+                                <strong>{dateDisplay}</strong>
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </div>
                       <span className="unspent-count-badge">
                         {item.companies.length}
                       </span>
@@ -1197,16 +1229,21 @@ const PreRegister = () => {
                           </tr>
                         </thead>
                         <tbody>
-                          {item.companies.map(company => (
-                            <tr key={company._id}>
-                              <td>{company.name}</td>
+                          {item.companies.map(company => {
+                            const isMine = isCurrentUserCompany(company)
+                            return (
+                            <tr key={company._id} className={isMine ? 'unspent-company-current' : ''}>
+                              <td className={isMine ? 'unspent-company-current-cell' : ''}>
+                                {company.name}
+                                {isMine && <span className="current-company-badge">📍</span>}
+                              </td>
                             </tr>
-                          ))}
+                          )})}
                         </tbody>
                       </table>
                     </div>
                   </div>
-                ))}
+                )})}
               </div>
             )
           })()}

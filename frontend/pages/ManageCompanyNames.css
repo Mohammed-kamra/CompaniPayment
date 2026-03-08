@@ -59,11 +59,22 @@
 .search-icon {
   position: absolute;
   left: 0.875rem;
+  right: auto;
   top: 50%;
   transform: translateY(-50%);
   font-size: 1.125rem;
   pointer-events: none;
   opacity: 0.6;
+}
+
+[dir="rtl"] .manage-company-names .search-input {
+  padding-left: 1rem;
+  padding-right: 2.5rem;
+}
+
+[dir="rtl"] .manage-company-names .search-icon {
+  left: auto;
+  right: 0.875rem;
 }
 
 .table-pagination-controls {
@@ -269,6 +280,60 @@
 .import-textarea {
   font-family: 'Courier New', monospace;
   font-size: 0.9rem;
+}
+
+.import-template-box {
+  border: 1px dashed var(--border-color);
+  border-radius: var(--radius-sm);
+  background: var(--bg-secondary);
+  padding: 0.9rem 1rem;
+}
+
+.import-option-card {
+  border: 1px dashed var(--border-color);
+  border-radius: var(--radius-sm);
+  background: var(--bg-secondary);
+  padding: 0.95rem 1rem;
+}
+
+.import-option-card h4 {
+  margin: 0 0 0.35rem;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+}
+
+.import-template-box h4 {
+  margin: 0 0 0.35rem;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+}
+
+.import-template-description {
+  margin: 0 0 0.45rem;
+  color: var(--text-secondary);
+  font-size: 0.86rem;
+}
+
+.import-template-columns {
+  display: inline-block;
+  padding: 0.3rem 0.5rem;
+  border-radius: 6px;
+  background: rgba(59, 130, 246, 0.12);
+  color: var(--text-primary);
+  font-size: 0.84rem;
+  margin-bottom: 0.6rem;
+}
+
+.import-template-sample {
+  margin: 0;
+  padding: 0.65rem 0.75rem;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background: var(--card-bg);
+  color: var(--text-primary);
+  font-size: 0.84rem;
+  line-height: 1.45;
+  overflow-x: auto;
 }
 
 .form-actions {

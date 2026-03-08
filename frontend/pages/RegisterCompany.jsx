@@ -96,6 +96,31 @@ const RegisterCompany = () => {
     const lang = currentLang.startsWith('ku') ? 'ku' : currentLang.startsWith('ar') ? 'ar' : 'en'
     return dayMap[lang][dayName] || dayName
   }
+
+  const normalizeId = (id) => {
+    if (!id) return ''
+    if (typeof id === 'string' || typeof id === 'number') return String(id).trim()
+    if (typeof id === 'object') {
+      if (id.$oid) return String(id.$oid).trim()
+      if (id._id) return normalizeId(id._id)
+      if (id.id) return normalizeId(id.id)
+      if (typeof id.toHexString === 'function') return id.toHexString().trim()
+      if (typeof id.toString === 'function' && id.toString !== Object.prototype.toString) {
+        return id.toString().trim()
+      }
+    }
+    return String(id).trim()
+  }
+
+  const getGroupTimeDisplay = (group) => {
+    if (!group) return ''
+    const timeRange = String(group.timeRange || '').trim()
+    if (timeRange) return timeRange
+    const timeFrom = String(group.timeFrom || '').trim()
+    const timeTo = String(group.timeTo || '').trim()
+    if (timeFrom && timeTo) return `${timeFrom} - ${timeTo}`
+    return timeFrom || timeTo || ''
+  }
   const [formData, setFormData] = useState({
     name: '',
     contactName: '',
@@ -316,7 +341,13 @@ const RegisterCompany = () => {
       try {
         setLoadingUnspentCompanies(true)
         const allCompanies = await companiesAPI.getAll()
-        const notSpent = (allCompanies || []).filter(c => !c.spent)
+        const notSpent = (allCompanies || [])
+          .filter(c => !c.spent)
+          .sort((a, b) => {
+            const timeA = a?.createdAt ? new Date(a.createdAt).getTime() : 0
+            const timeB = b?.createdAt ? new Date(b.createdAt).getTime() : 0
+            return timeA - timeB
+          })
         setUnspentCompanies(notSpent)
       } catch (err) {
         console.error('Failed to fetch unspent companies:', err)
@@ -1109,48 +1140,65 @@ const RegisterCompany = () => {
                 {t('companiesList.noUnspent', 'There are currently no companies with unpaid / unspent status.')}
               </p>
             ) : (() => {
-              // Group unspent companies by group; if no groups match, fall back to a simple flat list
-              const grouped = groups
-                .map(group => ({
-                  group,
-                  companies: unspentCompanies.filter(c => c.groupId === group._id)
-                }))
-                .filter(item => item.companies.length > 0)
+              const currentCompanyName = String(preRegistrationData?.companyName || '').trim().toLowerCase()
+              const isCurrentUserCompany = (company) => (
+                currentCompanyName && String(company?.name || '').trim().toLowerCase() === currentCompanyName
+              )
 
-              if (grouped.length === 0) {
-                // Fallback: show all unspent companies even if they are not attached to any group
-                return (
-                  <div className="public-registration-table-wrapper">
-                    <table className="public-registration-table global-table unspent-table">
-                      <thead>
-                        <tr>
-                          <th>{t('companiesList.companyName') || 'Company Name'}</th>
-                          <th>{t('companiesList.groupName') || 'Group'}</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {unspentCompanies.map(company => {
-                          const group = groups.find(g => g._id === company.groupId)
-                          return (
-                            <tr key={company._id}>
-                              <td>{company.name}</td>
-                              <td>{group ? group.name : '-'}</td>
-                            </tr>
-                          )
-                        })}
-                      </tbody>
-                    </table>
-                  </div>
-                )
-              }
+              const groupedMap = unspentCompanies.reduce((acc, company) => {
+                const normalizedGroupId = normalizeId(company.groupId) || 'no-group'
+                if (!acc[normalizedGroupId]) {
+                  const matchedGroup = groups.find(g => normalizeId(g._id) === normalizedGroupId)
+                  acc[normalizedGroupId] = {
+                    group: matchedGroup || {
+                      _id: normalizedGroupId,
+                      name: t('companiesList.groupName') || 'Group'
+                    },
+                    companies: []
+                  }
+                }
+                acc[normalizedGroupId].companies.push(company)
+                return acc
+              }, {})
 
-              // Normal case: show grouped by group
+              const grouped = Object.values(groupedMap).sort((a, b) => {
+                const dateA = a.group?.date ? new Date(a.group.date).getTime() : 0
+                const dateB = b.group?.date ? new Date(b.group.date).getTime() : 0
+                return dateA - dateB
+              })
+
               return (
                 <div className="unspent-groups-grid">
-                  {grouped.map(item => (
+                  {grouped.map(item => {
+                    const timeDisplay = getGroupTimeDisplay(item.group)
+                    const dateStr = item.group.date ? new Date(item.group.date).toLocaleDateString() : ''
+                    const translatedDay = item.group.day ? translateDay(item.group.day) : ''
+                    const dateDisplay = dateStr ? `${dateStr}${translatedDay ? ` - ${translatedDay}` : ''}` : ''
+
+                    return (
                     <div key={item.group._id} className="unspent-group-card">
                       <div className="unspent-group-header">
-                        <h3 className="unspent-group-name">{item.group.name}</h3>
+                        <div>
+                          <h3 className="unspent-group-name">{item.group.name}</h3>
+                          {(timeDisplay || dateDisplay) && (
+                            <div className="unspent-group-meta">
+                              {timeDisplay && (
+                                <span className="unspent-group-meta-item">
+                                  <span>🕐</span>
+                                  <span>{t('preRegister.time')}:</span>
+                                  <strong>{timeDisplay}</strong>
+                                </span>
+                              )}
+                              {dateDisplay && (
+                                <span className="unspent-group-meta-item">
+                                  <span>📅</span>
+                                  <span>{t('preRegister.date')}:</span>
+                                  <strong>{dateDisplay}</strong>
+                                </span>
+                              )}
+                            </div>
+                          )}
+                        </div>
                         <span className="unspent-count-badge">
                           {item.companies.length}
                         </span>
@@ -1163,16 +1211,21 @@ const RegisterCompany = () => {
                             </tr>
                           </thead>
                           <tbody>
-                            {item.companies.map(company => (
-                              <tr key={company._id}>
-                                <td>{company.name}</td>
+                            {item.companies.map(company => {
+                              const isMine = isCurrentUserCompany(company)
+                              return (
+                              <tr key={company._id} className={isMine ? 'unspent-company-current' : ''}>
+                                <td className={isMine ? 'unspent-company-current-cell' : ''}>
+                                  {company.name}
+                                  {isMine && <span className="current-company-badge">📍</span>}
+                                </td>
                               </tr>
-                            ))}
+                            )})}
                           </tbody>
                         </table>
                       </div>
                     </div>
-                  ))}
+                  )})}
                 </div>
               )
             })()}
