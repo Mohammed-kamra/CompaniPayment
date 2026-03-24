@@ -52,6 +52,7 @@
     "autoFilled": "Auto-filled from code",
     "useDifferentCode": "Use different code",
     "alreadyRegisteredWithUnspent": "Your company {{companyName}} is already registered. See groups with unspent entries below.",
+    "alreadyCompletedPayment": "You are already registered, and your payment process is complete. No further registration is required.",
     "success": {
       "registrationSuccessful": "Registration successful!",
       "registrationSuccessfulWithCompany": "Registration successful! Company \"{{companyName}}\" has been registered.",

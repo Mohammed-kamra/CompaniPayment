@@ -104,6 +104,7 @@ const PreRegister = () => {
   const [unspentCompanies, setUnspentCompanies] = useState([])
   const [allRegisteredCompanies, setAllRegisteredCompanies] = useState([])
   const [registeredCodeMatch, setRegisteredCodeMatch] = useState(false)
+  const [registrationCompletedForCompany, setRegistrationCompletedForCompany] = useState(false)
   const [loadingUnspent, setLoadingUnspent] = useState(false)
   const codeDebounceTimer = useRef(null)
   const isMountedRef = useRef(true)
@@ -328,6 +329,7 @@ const PreRegister = () => {
     // If code is empty, clear auto-filled fields immediately
     if (!code) {
       setRegisteredCodeMatch(false)
+      setRegistrationCompletedForCompany(false)
       setAutoFilledFields({
         name: false,
         mobileNumber: false,
@@ -366,6 +368,7 @@ const PreRegister = () => {
     // If code is empty, clear auto-filled fields
     if (!code) {
       setRegisteredCodeMatch(false)
+      setRegistrationCompletedForCompany(false)
       setAutoFilledFields({
         name: false,
         mobileNumber: false,
@@ -389,6 +392,7 @@ const PreRegister = () => {
   // Fetch company data by code
   const fetchCompanyByCode = async (code) => {
     if (!code || code.length < 3) {
+      setRegistrationCompletedForCompany(false)
       return
     }
     
@@ -401,6 +405,16 @@ const PreRegister = () => {
       })
       const isRegistered = Boolean(registeredCompany)
       setRegisteredCodeMatch(isRegistered)
+      const isCompletedRegistration = Boolean(
+        registeredCompany && registeredCompany.spent === true && registeredCompany.paid === true
+      )
+      setRegistrationCompletedForCompany(isCompletedRegistration)
+      if (isCompletedRegistration) {
+        notifyError(
+          t('preRegister.alreadyCompletedPayment') ||
+          'You are already registered, and your payment process is complete. No further registration is required.'
+        )
+      }
       
       if (websiteClosed) {
         if (!isRegistered) {
@@ -500,6 +514,28 @@ const PreRegister = () => {
     // Block submission if system is closed
     if (websiteClosed) {
       notifyError(t('preRegister.websiteClosed') || 'Registration is currently closed. Please wait until the system is open.')
+      return
+    }
+
+    const submittedCode = String(formData.code || '').trim()
+    const submittedCompanyName = String(formData.companyName || '').trim().toLowerCase()
+    const matchedRegisteredCompany = (allRegisteredCompanies || []).find(c => {
+      const existingCode = String(c?.code || '').trim()
+      const existingName = String(c?.name || '').trim().toLowerCase()
+      const codeMatched = submittedCode && existingCode && existingCode === submittedCode
+      const nameMatched = submittedCompanyName && existingName && existingName === submittedCompanyName
+      return codeMatched || nameMatched
+    })
+    const completedRegistration = Boolean(
+      matchedRegisteredCompany &&
+      matchedRegisteredCompany.spent === true &&
+      matchedRegisteredCompany.paid === true
+    )
+    if (completedRegistration || registrationCompletedForCompany) {
+      notifyError(
+        t('preRegister.alreadyCompletedPayment') ||
+        'You are already registered, and your payment process is complete. No further registration is required.'
+      )
       return
     }
     

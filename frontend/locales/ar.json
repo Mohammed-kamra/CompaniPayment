@@ -182,6 +182,7 @@
     "availability": "التوفر",
     "selectGroupHint": "انقر على بطاقة المجموعة لتحديدها",
     "autoFilled": "تم التعبئة تلقائياً من الرمز",
+    "alreadyCompletedPayment": "أنت مسجل بالفعل، وقد اكتملت عملية الدفع الخاصة بك. لا حاجة لإعادة التسجيل.",
     "success": {
       "registrationSuccessful": "تم التسجيل بنجاح!",
       "registrationSuccessfulWithCompany": "تم التسجيل بنجاح! تم تسجيل الشركة \"{{companyName}}\".",

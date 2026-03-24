@@ -73,6 +73,7 @@
     "availability": "بەردەستی",
     "selectGroupHint": "کرتە لە کارتی گروپ بکە بۆ هەڵبژاردنی",
     "autoFilled": "پڕکرایەوە لە کۆد",
+    "alreadyCompletedPayment": "تۆ پێشتر تۆمار کراویت و پڕۆسەی پارەدانت تەواو بووە.",
     "success": {
       "registrationSuccessful": "تۆمارکردن سەرکەوتوو بوو!",
       "registrationSuccessfulWithCompany": "تۆمارکردن سەرکەوتوو بوو! کۆمپانیای \"{{companyName}}\" تۆمارکرا.",
