@@ -138,6 +138,7 @@ const RegisterCompany = () => {
     companyId: ''
   })
   const [groups, setGroups] = useState([])
+  const [allGroupsForDisplay, setAllGroupsForDisplay] = useState([])
   const [companyNames, setCompanyNames] = useState([])
   const [loadingGroups, setLoadingGroups] = useState(true)
   const [loadingCompanies, setLoadingCompanies] = useState(true)
@@ -318,6 +319,16 @@ const RegisterCompany = () => {
       }
     }
 
+    const fetchAllGroupsForDisplay = async () => {
+      try {
+        const groupsData = await groupsAPI.getAllForDisplay()
+        setAllGroupsForDisplay(groupsData || [])
+      } catch (err) {
+        console.error('Failed to fetch all groups for display:', err)
+        setAllGroupsForDisplay([])
+      }
+    }
+
     // Fetch company names for selection
     const fetchCompanyNames = async () => {
       try {
@@ -364,6 +375,7 @@ const RegisterCompany = () => {
     const statusInterval = setInterval(fetchWebsiteSettings, 2000)
 
     fetchGroups()
+    fetchAllGroupsForDisplay()
     fetchCompanyNames()
 
     // For public users, also show all groups and companies that have not spent yet
@@ -1129,7 +1141,7 @@ const RegisterCompany = () => {
 
           <div className="unspent-section">
             <h2 className="unspent-title">
-              {t('companiesList.unspentTitle', 'Groups and companies that have not spent yet')}
+              {/* {t('companiesList.unspentTitle', 'Groups and companies that have not spent yet')} */}
             </h2>
             {loadingUnspentCompanies ? (
               <p className="unspent-message">
@@ -1137,7 +1149,7 @@ const RegisterCompany = () => {
               </p>
             ) : unspentCompanies.length === 0 ? (
               <p className="unspent-message">
-                {t('companiesList.noUnspent', 'There are currently no companies with unpaid / unspent status.')}
+                {/* {t('companiesList.noUnspent', 'There are currently no companies with unpaid / unspent status.')} */}
               </p>
             ) : (() => {
               const currentCompanyName = String(preRegistrationData?.companyName || '').trim().toLowerCase()
@@ -1145,15 +1157,36 @@ const RegisterCompany = () => {
                 currentCompanyName && String(company?.name || '').trim().toLowerCase() === currentCompanyName
               )
 
-              const groupedMap = unspentCompanies.reduce((acc, company) => {
+              const scopedUnspentCompanies = unspentCompanies.filter(isCurrentUserCompany)
+
+              if (scopedUnspentCompanies.length === 0) {
+                return (
+                  <p className="unspent-message">
+                    {t('companiesList.noUnspent', 'There are currently no companies with unpaid / unspent status.')}
+                  </p>
+                )
+              }
+
+              const groupedMap = scopedUnspentCompanies.reduce((acc, company) => {
                 const normalizedGroupId = normalizeId(company.groupId) || 'no-group'
                 if (!acc[normalizedGroupId]) {
-                  const matchedGroup = groups.find(g => normalizeId(g._id) === normalizedGroupId)
+                  const matchedGroup = allGroupsForDisplay.find(g => normalizeId(g._id) === normalizedGroupId)
+                  const companyGroup = company?.group && typeof company.group === 'object' ? company.group : {}
+                  const fallbackGroup = {
+                    _id: normalizedGroupId,
+                    name:
+                      companyGroup.name ||
+                      company.groupName ||
+                      company.group ||
+                      (t('companiesList.groupName') || 'Group'),
+                    date: companyGroup.date || company.groupDate || '',
+                    day: companyGroup.day || company.groupDay || '',
+                    timeRange: companyGroup.timeRange || company.groupTimeRange || '',
+                    timeFrom: companyGroup.timeFrom || company.groupTimeFrom || '',
+                    timeTo: companyGroup.timeTo || company.groupTimeTo || ''
+                  }
                   acc[normalizedGroupId] = {
-                    group: matchedGroup || {
-                      _id: normalizedGroupId,
-                      name: t('companiesList.groupName') || 'Group'
-                    },
+                    group: matchedGroup || fallbackGroup,
                     companies: []
                   }
                 }

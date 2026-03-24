@@ -92,6 +92,7 @@ const PreRegister = () => {
   const [closedMessage, setClosedMessage] = useState('')
   const [websiteSettings, setWebsiteSettings] = useState(null)
   const [groups, setGroups] = useState([])
+  const [allGroupsForDisplay, setAllGroupsForDisplay] = useState([])
   const [loadingGroups, setLoadingGroups] = useState(true)
   const [autoFilledFields, setAutoFilledFields] = useState({
     name: false,
@@ -101,6 +102,8 @@ const PreRegister = () => {
   const [codeError, setCodeError] = useState('')
   const [loadingCode, setLoadingCode] = useState(false)
   const [unspentCompanies, setUnspentCompanies] = useState([])
+  const [allRegisteredCompanies, setAllRegisteredCompanies] = useState([])
+  const [registeredCodeMatch, setRegisteredCodeMatch] = useState(false)
   const [loadingUnspent, setLoadingUnspent] = useState(false)
   const codeDebounceTimer = useRef(null)
   const isMountedRef = useRef(true)
@@ -238,10 +241,21 @@ const PreRegister = () => {
       }
     }
 
+    const fetchAllGroupsForDisplay = async () => {
+      try {
+        const groupsData = await groupsAPI.getAllForDisplay()
+        setAllGroupsForDisplay(groupsData || [])
+      } catch (err) {
+        console.error('Failed to fetch all groups for display:', err)
+        setAllGroupsForDisplay([])
+      }
+    }
+
     const fetchUnspentCompanies = async () => {
       try {
         setLoadingUnspent(true)
         const allCompanies = await companiesAPI.getAll()
+        setAllRegisteredCompanies(allCompanies || [])
         const notSpent = (allCompanies || [])
           .filter(c => !c.spent)
           .sort((a, b) => {
@@ -260,6 +274,7 @@ const PreRegister = () => {
     // Initial load
     checkWebsiteStatus()
     fetchGroups()
+    fetchAllGroupsForDisplay()
     fetchUnspentCompanies()
     
     // Check status very frequently (every 2 seconds) to catch when countdown ends
@@ -279,6 +294,7 @@ const PreRegister = () => {
     // Clear code error when user starts typing
     if (name === 'code') {
       setCodeError('')
+      setRegisteredCodeMatch(false)
       // If code is cleared, reset auto-filled fields
       if (!value.trim()) {
         setAutoFilledFields({
@@ -311,6 +327,7 @@ const PreRegister = () => {
     
     // If code is empty, clear auto-filled fields immediately
     if (!code) {
+      setRegisteredCodeMatch(false)
       setAutoFilledFields({
         name: false,
         mobileNumber: false,
@@ -348,6 +365,7 @@ const PreRegister = () => {
     
     // If code is empty, clear auto-filled fields
     if (!code) {
+      setRegisteredCodeMatch(false)
       setAutoFilledFields({
         name: false,
         mobileNumber: false,
@@ -376,8 +394,49 @@ const PreRegister = () => {
     
     setLoadingCode(true)
     try {
-      const companyData = await preRegisterAPI.getByCode(code)
+      const normalizedCode = String(code || '').trim()
+      const registeredCompany = (allRegisteredCompanies || []).find(c => {
+        const companyCode = String(c?.code || '').trim()
+        return companyCode && companyCode === normalizedCode
+      })
+      const isRegistered = Boolean(registeredCompany)
+      setRegisteredCodeMatch(isRegistered)
       
+      if (websiteClosed) {
+        if (!isRegistered) {
+          notifyError(t('preRegister.websiteClosed') || 'Website is Currently Closed')
+          setAutoFilledFields({
+            name: false,
+            mobileNumber: false,
+            companyName: false
+          })
+          setFormData(prev => ({
+            ...prev,
+            name: '',
+            mobileNumber: '',
+            companyName: ''
+          }))
+          return
+        }
+
+        // Closed mode: use already-registered company data directly
+        setFormData(prev => ({
+          ...prev,
+          name: String(registeredCompany?.registrantName || registeredCompany?.name || ''),
+          mobileNumber: String(registeredCompany?.phoneNumber || ''),
+          companyName: String(registeredCompany?.name || '')
+        }))
+        setAutoFilledFields({
+          name: false,
+          mobileNumber: false,
+          companyName: true
+        })
+        setCodeError('')
+        return
+      }
+
+      const companyData = await preRegisterAPI.getByCode(code)
+
       if (!companyData) {
         // Code not found
         notifyCodeError(t('preRegister.Company code not found. Please check your code and try again.') || 'Company code not found. Please check your code and try again.')
@@ -792,6 +851,7 @@ const PreRegister = () => {
     const hasUnspentForCode = codesActive && trimmedCode && unspentCompanies.some(c => c.code === trimmedCode)
     const showCodeOnly = codesActive && !codeValid
     const showUnspentOnly = codesActive && codeValid && hasUnspentForCode
+    const showClosedRegisteredUnspent = websiteClosed && codesActive && trimmedCode && codeValid && registeredCodeMatch
     const showGroupAndButton = codesActive && codeValid && !hasUnspentForCode
     // Prevent flash: don't show group cards until settings have loaded
     const settingsLoaded = websiteSettings !== null
@@ -829,10 +889,10 @@ const PreRegister = () => {
         )}
 
         <form onSubmit={handleSubmit} className="pre-register-form" noValidate style={{ 
-          pointerEvents: websiteClosed ? 'none' : 'auto', 
-          opacity: websiteClosed ? 0.6 : 1,
+          pointerEvents: 'auto',
+          opacity: websiteClosed && !showClosedRegisteredUnspent ? 0.9 : 1,
           position: 'relative',
-          zIndex: websiteClosed ? 0 : 1
+          zIndex: 1
         }}>
           {(() => {
             if (!settingsLoaded) {
@@ -843,7 +903,7 @@ const PreRegister = () => {
                 </div>
               )
             }
-            if (codesActive && showCodeOnly) {
+            if (websiteClosed && codesActive && !showClosedRegisteredUnspent) {
               return (
                 <div className="form-group">
                   <label>{t('preRegister.registrationCode')} *</label>
@@ -869,7 +929,7 @@ const PreRegister = () => {
               )
             }
 
-            if (codesActive && showUnspentOnly) {
+            if (codesActive && (showUnspentOnly || showClosedRegisteredUnspent)) {
               return null
             }
 
@@ -877,7 +937,7 @@ const PreRegister = () => {
           <>
           <div className="pre-register-form-row">
             {codesActive && (
-              <div className="form-group">
+              <div className="form-group code-form-group">
                 <label>{t('preRegister.registrationCode')} *</label>
                 <div className="code-with-action-row">
                   <input
@@ -1123,9 +1183,9 @@ const PreRegister = () => {
       })()}
         </form>
 
-        {settingsLoaded && (!codesActive || showUnspentOnly) && (
+        {settingsLoaded && (!codesActive || showUnspentOnly || showClosedRegisteredUnspent) && (
         <>
-        {showUnspentOnly && (
+        {(showUnspentOnly || showClosedRegisteredUnspent) && (
           <div className="info-message" style={{ marginTop: '1.5rem', padding: '1rem', background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
             <span>
               {t('preRegister.alreadyRegisteredWithUnspent', 'Your company {{companyName}} is already registered. See groups with unspent entries below.', { companyName: formData.companyName || '' })}
@@ -1158,20 +1218,39 @@ const PreRegister = () => {
             </p>
           ) : (() => {
             const normalizedCurrentCode = String(formData.code || '').trim().toLowerCase()
+            const normalizedCurrentCompanyName = String(formData.companyName || '').trim().toLowerCase()
             const isCurrentUserCompany = (company) => (
-              normalizedCurrentCode &&
-              String(company?.code || '').trim().toLowerCase() === normalizedCurrentCode
+              (normalizedCurrentCode &&
+                String(company?.code || '').trim().toLowerCase() === normalizedCurrentCode) ||
+              (normalizedCurrentCompanyName &&
+                String(company?.name || '').trim().toLowerCase() === normalizedCurrentCompanyName)
             )
 
-            const groupedMap = unspentCompanies.reduce((acc, company) => {
+            // In "already registered with unspent" flow, show only this user's company and group
+            const scopedUnspentCompanies = showUnspentOnly
+              ? unspentCompanies.filter(isCurrentUserCompany)
+              : unspentCompanies
+
+            const groupedMap = scopedUnspentCompanies.reduce((acc, company) => {
               const normalizedGroupId = normalizeId(company.groupId) || 'no-group'
               if (!acc[normalizedGroupId]) {
-                const matchedGroup = groups.find(g => normalizeId(g._id) === normalizedGroupId)
+                const matchedGroup = allGroupsForDisplay.find(g => normalizeId(g._id) === normalizedGroupId)
+                const companyGroup = company?.group && typeof company.group === 'object' ? company.group : {}
+                const fallbackGroup = {
+                  _id: normalizedGroupId,
+                  name:
+                    companyGroup.name ||
+                    company.groupName ||
+                    company.group ||
+                    (t('companiesList.groupName') || 'Group'),
+                  date: companyGroup.date || company.groupDate || '',
+                  day: companyGroup.day || company.groupDay || '',
+                  timeRange: companyGroup.timeRange || company.groupTimeRange || '',
+                  timeFrom: companyGroup.timeFrom || company.groupTimeFrom || '',
+                  timeTo: companyGroup.timeTo || company.groupTimeTo || ''
+                }
                 acc[normalizedGroupId] = {
-                  group: matchedGroup || {
-                    _id: normalizedGroupId,
-                    name: t('companiesList.groupName') || 'Group'
-                  },
+                  group: matchedGroup || fallbackGroup,
                   companies: []
                 }
               }
@@ -1184,6 +1263,14 @@ const PreRegister = () => {
               const dateB = b.group?.date ? new Date(b.group.date).getTime() : 0
               return dateA - dateB
             })
+
+            if (scopedUnspentCompanies.length === 0) {
+              return (
+                <p className="unspent-message">
+                  {t('companiesList.noUnspent', 'There are currently no companies with unpaid / unspent status.')}
+                </p>
+              )
+            }
 
             return (
               <div className="unspent-groups-grid">

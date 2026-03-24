@@ -1,5 +1,5 @@
-const API_BASE_URL = "https://companipayment-production-87d9.up.railway.app/api" || 'http://localhost:5000/api';
-// const API_BASE_URL =  'http://localhost:5000/api';
+// const API_BASE_URL = "https://companipayment-production-87d9.up.railway.app/api" || 'http://localhost:5000/api';
+const API_BASE_URL =  'http://localhost:5000/api';
 
 // Auth API
 export const authAPI = {

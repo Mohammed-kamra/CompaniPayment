@@ -166,6 +166,11 @@
   min-width: 0;
 }
 
+/* Registration code block should span full row width */
+.pre-register-form-row .code-form-group {
+  grid-column: 1 / -1;
+}
+
 
 .unspent-section {
   margin-top: 2.5rem;

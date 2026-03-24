@@ -837,6 +837,20 @@
   box-shadow: var(--shadow-md);
 }
 
+.group-pagination-controls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.group-page-indicator {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
 .group-section-title {
   margin-top: 0;
   margin-bottom: 1.5rem;

@@ -45,6 +45,7 @@ const CompaniesList = () => {
   const [bulkDeleteConfirmOpen, setBulkDeleteConfirmOpen] = useState(false)
   const [websiteSettings, setWebsiteSettings] = useState(null)
   const [postRegistrationMessage, setPostRegistrationMessage] = useState('')
+  const [groupPage, setGroupPage] = useState(1)
 
   // Get company-specific code by matching company name
   const getCompanyCode = (companyName) => {
@@ -92,6 +93,10 @@ const CompaniesList = () => {
     try {
       // Prepare update data with only the field being toggled
       const updateData = { [field]: newValue }
+      // Business rule: if marked as paid, it must also be marked as spent
+      if (field === 'paid' && newValue === true) {
+        updateData.spent = true
+      }
       
       console.log('Updating status:', { companyId, field, newValue, updateData })
       
@@ -265,15 +270,14 @@ const CompaniesList = () => {
 
         // Prepare data for this group
         const groupData = sorted.map((company, index) => {
+          const companyCode = String(company.code || '').trim() || getCompanyCode(company.name)
           const rowData = {
-            [t('companiesList.registrantName') || 'Name']: company.registrantName || '-',
+            [t('companiesList.id') || 'ID']: companyCode || '-',
             [t('companiesList.name') || 'Company Name']: company.name,
+            [t('companiesList.registrantName') || 'Name']: company.registrantName || '-',
             [t('companiesList.phone') || 'Mobile Number']: company.phoneNumber || '-',
             [t('companiesList.date') || 'Registration Time']: formatDate(company.createdAt),
-            [t('companiesList.spent') || 'Spent']: company.spent ? 'Yes' : 'No',
-            [t('companiesList.paid') || 'Paid']: company.paid ? 'Yes' : 'No',
-            'Email': company.email || '-',
-            'Address': company.address || '-'
+            [t('companiesList.paid') || 'Paid']: company.paid ? 'Yes' : 'No'
           }
           
           return rowData
@@ -508,6 +512,7 @@ const CompaniesList = () => {
       dateTo: ''
     })
     setSearchTerm('')
+    setGroupPage(1)
   }
 
   const handleCopyCompanyName = async (companyName, event) => {
@@ -751,7 +756,10 @@ const CompaniesList = () => {
               type="text"
               placeholder={t('companiesList.searchPlaceholder')}
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => {
+                setSearchTerm(e.target.value)
+                setGroupPage(1)
+              }}
               className="search-input"
             />
             <span className="search-icon">🔍</span>
@@ -968,7 +976,43 @@ const CompaniesList = () => {
                 return dateA - dateB
               })
             
-            return groupsWithInfo.map((groupInfo, index) => {
+            if (groupsWithInfo.length === 0) {
+              return (
+                <div className="empty-state">
+                  <p>{t('companiesList.noCompanies')}</p>
+                </div>
+              )
+            }
+
+            const totalGroupPages = groupsWithInfo.length
+            const safeGroupPage = Math.min(groupPage, totalGroupPages)
+            const groupInfo = groupsWithInfo[safeGroupPage - 1]
+            if (!groupInfo) return null
+
+            return (
+              <>
+              <div className="group-pagination-controls">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setGroupPage(prev => Math.max(1, prev - 1))}
+                  disabled={safeGroupPage === 1}
+                >
+                  {t('companyNames.prev') || 'Prev'}
+                </button>
+                <span className="group-page-indicator">
+                  {t('companyNames.page') || 'Page'} {safeGroupPage} / {totalGroupPages}
+                </span>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setGroupPage(prev => Math.min(totalGroupPages, prev + 1))}
+                  disabled={safeGroupPage === totalGroupPages}
+                >
+                  {t('companyNames.next') || 'Next'}
+                </button>
+              </div>
+              {(() => {
               const { groupId, groupCompanies, group, groupName, companyCount } = groupInfo
               
               const sortedGroupCompanies = [...groupCompanies].sort(compareCompaniesForList)
@@ -1013,11 +1057,10 @@ const CompaniesList = () => {
                             />
                           </th>
                           <th className="text-center" style={{ width: '80px' }}>{t('companiesList.id') || 'ID'}</th>
-                          <th className="text-left" style={{ width: '150px' }}>{t('companiesList.registrantName') || 'Name'}</th>
                           <th className="text-left" style={{ width: '200px' }}>{t('companiesList.name') || 'Company Name'}</th>
+                          <th className="text-left" style={{ width: '150px' }}>{t('companiesList.registrantName') || 'Name'}</th>
                           <th className="text-left" style={{ width: '150px' }}>{t('companiesList.phone') || 'Mobile Number'}</th>
                           <th className="text-center" style={{ width: '120px' }}>{t('companiesList.date') || 'Registration Time'}</th>
-                          <th className="text-center" style={{ width: '80px' }}>{t('companiesList.spent') || 'Spent'}</th>
                           <th className="text-center" style={{ width: '80px' }}>{t('companiesList.paid') || 'Paid'}</th>
                           <th className="text-center" style={{ width: '100px' }}>{t('companiesList.actions') || 'Actions'}</th>
                         </tr>
@@ -1052,9 +1095,6 @@ const CompaniesList = () => {
                                   {company.code || getCompanyCode(company.name)}
                                 </code>
                               </td>
-                              <td className="text-left">
-                                <span className="registrant-name">{company.registrantName || '-'}</span>
-                              </td>
                               <td className="text-left company-name-cell">
                                 {company.logo && (
                                   <img src={company.logo} alt={company.name} className="company-logo-small" style={{ marginRight: '0.5rem', verticalAlign: 'middle', maxHeight: '24px' }} />
@@ -1066,6 +1106,9 @@ const CompaniesList = () => {
                                 >
                                   {company.name}
                                 </span>
+                              </td>
+                              <td className="text-left">
+                                <span className="registrant-name">{company.registrantName || '-'}</span>
                               </td>
                               <td className="text-left">
                                 {company.phoneNumber ? (
@@ -1082,16 +1125,6 @@ const CompaniesList = () => {
                               </td>
                               <td className="text-center">
                                 <span className="registration-date">{formatDate(company.createdAt)}</span>
-                              </td>
-                              <td className="text-center">
-                                <button
-                                  className={`status-toggle spent-toggle ${company.spent ? 'active' : ''}`}
-                                  onClick={() => handleStatusToggle(company._id, 'spent')}
-                                  disabled={updatingStatus[company._id]}
-                                  title={company.spent ? 'Mark as not spent' : 'Mark as spent'}
-                                >
-                                  {updatingStatus[company._id] ? '...' : (company.spent ? '✓' : '○')}
-                                </button>
                               </td>
                               <td className="text-center">
                                 <button
@@ -1128,7 +1161,9 @@ const CompaniesList = () => {
                   </div>
                 </div>
               )
-            })
+            })()}
+            </>
+            )
           })()}
         </div>
       </div>

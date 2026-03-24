@@ -127,27 +127,9 @@ router.post('/', async (req, res) => {
       });
     }
     
-    // Log received data for debugging
-    console.log('📥 Received registration request:', {
-      name: req.body.name,
-      phoneNumber: req.body.phoneNumber ? '***' : undefined,
-      address: req.body.address ? '***' : undefined,
-      groupId: req.body.groupId,
-      hasCompanyId: !!req.body.companyId,
-      otherFields: Object.keys(req.body).filter(k => !['name', 'phoneNumber', 'address', 'groupId', 'companyId'].includes(k))
-    });
+  
     
-    // Detailed validation logging
-    console.log('📋 Validation check:', {
-      hasName: !!req.body.name,
-      hasPhoneNumber: !!req.body.phoneNumber,
-      hasAddress: !!req.body.address,
-      nameValue: req.body.name,
-      phoneNumberLength: req.body.phoneNumber ? req.body.phoneNumber.length : 0,
-      addressLength: req.body.address ? req.body.address.length : 0,
-      groupIdValue: req.body.groupId,
-      groupIdValid: req.body.groupId ? ObjectId.isValid(req.body.groupId) : false
-    });
+    
 
     // Check if company name + code combination already exists
     // Note: We need to get the code from companyNames collection based on company name
@@ -477,12 +459,7 @@ router.patch('/:id/status', async (req, res) => {
       updateData.paid = Boolean(paid); // Ensure it's a boolean
     }
 
-    console.log('Updating company status:', {
-      id: req.params.id,
-      updateData,
-      spent,
-      paid
-    });
+    
 
     const result = await db.collection('companies').updateOne(
       { _id: new ObjectId(req.params.id) },
@@ -505,11 +482,7 @@ router.patch('/:id/status', async (req, res) => {
       return res.status(404).json({ error: 'Company not found after update' });
     }
     
-    console.log('Company status updated successfully:', {
-      id: updatedCompany._id,
-      spent: updatedCompany.spent,
-      paid: updatedCompany.paid
-    });
+   
     
     res.json(updatedCompany);
   } catch (error) {
